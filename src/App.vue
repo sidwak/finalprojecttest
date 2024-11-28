@@ -59,12 +59,12 @@ function callFromContextmenu(data: any) {
     >
       <RightClickMenu :call-from-context-menu="callFromContextmenu" />
     </div>
-    <div
+    <!-- <div
       class="w-screen h-6 bg-mbackground-700 border-b-2 border-mbackground-def text-white flex items-center ps-1 select-none"
     >
       <div class="h-3 w-3 ms-2 bg-mblue-400"></div>
       <p class="ps-2 text-sm">Nodxess</p>
-    </div>
+    </div> -->
     <div
       class="w-screen h-6 bg-mbackground-900 text-sm flex ps-1 items-center border-b-2 border-mbackground-def select-none text-white rounded-md"
     >
@@ -85,6 +85,6 @@ function callFromContextmenu(data: any) {
 
 <style scoped>
 .leftbar {
-  height: calc(100vh - (88px));
+  height: calc(100vh - (88px) + 24px);
 }
 </style>
