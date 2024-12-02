@@ -9,29 +9,19 @@ import VarNode from './nodes/VarNode.vue'
 const nodes = ref([
   {
     id: '1',
-    position: { x: 50, y: 50 },
-    data: { label: 'Node 1' },
+    position: { x: 140, y: 140 },
+    data: { label: 'Node 3' },
+    type: 'driver-node',
   },
   {
     id: '2',
-    position: { x: 90, y: 90 },
-    data: { label: 'Node 2' },
-  },
-  {
-    id: '3',
-    position: { x: 140, y: 140 },
-    data: { label: 'Node 3' },
-    type: 'custom-test',
-  },
-  {
-    id: '4',
-    position: { x: 180, y: 180 },
+    position: { x: 280, y: 280 },
     data: { label: 'Node 4' },
     type: 'var-node',
   },
 ])
-const idRef = ref(5)
-let curNodeId = '5'
+const idRef = ref(3)
+let curNodeId = '3'
 
 const { onConnect, addEdges, addNodes, onNodesInitialized, updateNode, screenToFlowCoordinate } =
   useVueFlow()
@@ -67,15 +57,25 @@ const calledFromParent = (data: any) => {
   curNodeId = (idRef.value - 1).toString()
 }
 
+const patternColorRef = ref('#f0ff00')
+function isAppDark() {
+  if (document.documentElement.classList.contains('app-dark')) {
+    patternColorRef.value = '#7a7a7a'
+  } else {
+    patternColorRef.value = '#f0ff00'
+  }
+}
+
 defineExpose({
   calledFromParent,
 })
 </script>
 <template>
   <VueFlow :nodes="nodes">
-    <Background :gap="16" :size="2" pattern-color="#3d3d3d" style="background-color: #1d1d1d" />
+    <Background :gap="16" :size="2" class="mainbackground" pattern-color="#585858" />
+    <!-- style="background-color: #1d1d1d" -->
     <Controls />
-    <template #node-custom-test="props">
+    <template #node-driver-node="props">
       <TestNode v-bind:props />
     </template>
     <template #node-var-node="props">
@@ -83,4 +83,8 @@ defineExpose({
     </template>
   </VueFlow>
 </template>
-<style scoped></style>
+<style scoped>
+.mainbackground {
+  @apply bg-surface-0 dark:bg-surface-900;
+}
+</style>

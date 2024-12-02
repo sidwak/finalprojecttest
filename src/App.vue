@@ -7,6 +7,11 @@ import MainToolBar from './components/MainToolBar.vue'
 import MainCanvas from './components/MainCanvas.vue'
 import RightClickMenu from './components/RightClickMenu.vue'
 import { nextTick, onMounted, ref, useTemplateRef } from 'vue'
+import type { TreeNode } from 'primevue/treenode'
+import Tree from 'primevue/tree'
+import Splitter from 'primevue/splitter'
+import SplitterPanel from 'primevue/splitterpanel'
+import LeftPanel from './components/folder/LeftPanel.vue'
 
 const contextMenuActive = ref(false)
 const contextMenuPos = ref({
@@ -17,9 +22,34 @@ const contextMenuAbsPos = ref({
   top: 0,
   left: 0,
 })
+const rightClickMenuRef = useTemplateRef('contextMenuDiv-ref')
+let nodes: TreeNode[] = [
+  {
+    key: '0',
+    label: 'test1',
+    children: [
+      {
+        key: '0-1',
+        label: 'opt1',
+        children: [
+          {
+            key: '0-1-1',
+            label: 'aa1',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    key: '1',
+    label: 'test2',
+  },
+]
+const isToggleActive = ref(false)
+const mainCanvas = useTemplateRef('mainCanvas-ref')
 
 function rightClickMenuClicked(e: any) {
-  if (contextMenuActive.value === false) {
+  /* if (contextMenuActive.value === false) {
     e.preventDefault()
     contextMenuPos.value.top = e.clientY + 'px'
     contextMenuPos.value.left = e.clientX + 'px'
@@ -29,17 +59,17 @@ function rightClickMenuClicked(e: any) {
     contextMenuActive.value = true
   } else {
     contextMenuActive.value = false
-  }
+  } */
+  contextMenuAbsPos.value.top = e.clientY
+  contextMenuAbsPos.value.left = e.clientX
   console.log('right clicked pressed')
   //console.log(e.clientX)
   //console.log(e.clientY)
+  rightClickMenuRef.value?.callToggleContextMenu(e)
 }
 function checkContextMenu(e: any) {
   contextMenuActive.value = false
 }
-
-const mainCanvas = useTemplateRef('mainCanvas-ref')
-
 function callFromContextmenu(data: any) {
   if (mainCanvas.value) {
     data.posX = contextMenuAbsPos.value.left // can remove this to be based on exact mouse position
@@ -48,43 +78,62 @@ function callFromContextmenu(data: any) {
     mainCanvas.value.calledFromParent(data)
   }
 }
+function toggleDarkMode() {
+  //isToggleActive.value = !isToggleActive.value
+  document.documentElement.classList.toggle('app-dark')
+}
 </script>
 
 <template>
-  <div class="bg-mbackground-def">
-    <div
+  <div class="bg-yellow-300" :class="{ 'app-dark': isToggleActive }">
+    <!-- <div
       class="absolute z-[1]"
       :style="contextMenuPos"
       :class="{ block: contextMenuActive, hidden: !contextMenuActive }"
     >
       <RightClickMenu :call-from-context-menu="callFromContextmenu" />
-    </div>
+    </div> -->
+    <RightClickMenu ref="contextMenuDiv-ref" :call-from-context-menu="callFromContextmenu" />
     <!-- <div
       class="w-screen h-6 bg-mbackground-700 border-b-2 border-mbackground-def text-white flex items-center ps-1 select-none"
     >
       <div class="h-3 w-3 ms-2 bg-mblue-400"></div>
       <p class="ps-2 text-sm">Nodxess</p>
     </div> -->
-    <div
+    <!-- <div
       class="w-screen h-6 bg-mbackground-900 text-sm flex ps-1 items-center border-b-2 border-mbackground-def select-none text-white rounded-md"
     >
       <MainMenuBar />
-    </div>
-    <MainToolBar />
-    <div class="flex leftbar">
+    </div> -->
+    <MainMenuBar />
+    <MainToolBar :call-toggle-in-parent="toggleDarkMode" />
+    <!-- <div class="flex leftbar">
       <div class="w-64 bg-mbackground-900 rounded-r-lg">
         <NodesList />
         <NodesList />
+        <Tree :value="nodes" class="w-full md:w-[30rem]"> </Tree>
+        <ToggleSwitch @update:model-value="toggleValueChanged($event)" />
       </div>
       <div class="w-full h-full" @contextmenu="rightClickMenuClicked" @click="checkContextMenu">
         <MainCanvas ref="mainCanvas-ref" />
       </div>
-    </div>
+    </div> -->
+    <Splitter class="leftbar">
+      <SplitterPanel class="" :size="15" :minSize="10">
+        <LeftPanel />
+      </SplitterPanel>
+      <SplitterPanel class="flex items-center justify-center" :size="85">
+        <div class="w-full h-full" @contextmenu="rightClickMenuClicked" @click="checkContextMenu">
+          <MainCanvas ref="mainCanvas-ref" />
+        </div>
+      </SplitterPanel>
+    </Splitter>
   </div>
 </template>
 
 <style scoped>
 .leftbar {
-  height: calc(100vh - (88px) + 24px);
+  @apply rounded-none;
+  height: calc(100vh - (88px) + 26px);
 }
 </style>

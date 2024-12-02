@@ -3,10 +3,12 @@ import { Position, Handle } from '@vue-flow/core'
 import { ref, onMounted, onUnmounted, shallowRef } from 'vue'
 import Get_c from '.././node_components/get_c.vue'
 import GetTitle_c from '.././node_components/getTitle_c.vue'
+import { CascadeSelect } from 'primevue'
 
 const props = defineProps({
   label: String,
 })
+const curCmdCompo = shallowRef(Get_c)
 const dropdownOpen = ref(false)
 const dropdownString = ref('nocmd...')
 const toggleDropdown = () => {
@@ -19,41 +21,107 @@ const dropdownItems = ref([
   { text: 'refresh', href: 'javascript:void(0)' },
 ])
 
-function onDropdownItemSelected(curCmd: string) {
-  dropdownString.value = curCmd
-  if (curCmd === 'get') {
-    curCmdCompo.value = Get_c
-  }
-  if (curCmd === 'getTitle') {
-    curCmdCompo.value = GetTitle_c
-  }
-  dropdownOpen.value = false
+const itttems = ref(['hello', 'world', 'this', 'front'])
+const selectedCity = ref()
+const countries = ref([
+  {
+    cmdgroup: 'Document',
+    group: [
+      {
+        cmd: 'get',
+      },
+      {
+        cmd: 'getTitle',
+      },
+      {
+        cmd: 'getConstantURL',
+      },
+    ],
+  },
+  {
+    cmdgroup: 'DOM',
+    group: [
+      {
+        cmd: 'click',
+      },
+      {
+        cmd: 'left-click',
+      },
+      {
+        cmd: 'double-click',
+      },
+      {
+        cmd: 'drag',
+      },
+    ],
+  },
+  {
+    cmdgroup: 'Page',
+    group: [
+      {
+        cmd: 'back',
+      },
+      {
+        cmd: 'forward',
+      },
+      {
+        cmd: 'refresh',
+      },
+    ],
+  },
+])
+const cascadeSelect_dt = {
+  root: {
+    paddingX: '0.4rem',
+    paddingY: '0.3rem', // borderRadius: '0.15rem'
+  },
+  option: {
+    padding: '0.3rem 0.3rem',
+  },
+}
+const cascadeSelect_pt = {
+  root: {
+    class: '', //border-0
+  },
+  dropdown: {
+    class: 'w-[1.5rem]',
+  },
+  dropdownIcon: {
+    class: 'w-[10px] h-[10px]',
+  },
 }
 
-const curCmdCompo = shallowRef(Get_c)
+function onDropdownItemSelected(curCmd: any) {
+  //dropdownString.value = curCmd
+  if (curCmd.cmd === 'get') {
+    curCmdCompo.value = Get_c
+  }
+  if (curCmd.cmd === 'getTitle') {
+    curCmdCompo.value = GetTitle_c
+  }
+  //dropdownOpen.value = false
+}
 </script>
 <template>
-  <div class="fnt1 text-white font-roboto_mono font-light">
-    <div class="h-4 w-32 bg-mblue-def rounded-t-sm ps-3">Driver Node</div>
-    <div
-      class="h-fit w-32 bg-mbackground-900 text-white shadow-mbackground-800 shadow-inner px-3 py-1 flex flex-col"
-    >
+  <div class="text-xs">
+    <div class="node-heading">Driver Node</div>
+    <div class="node-content">
       <Handle
         type="target"
         :position="Position.Left"
         id="trg_main"
-        style="top: 106px; background-color: yellow; border-color: yellow"
+        style="top: 148px; background-color: yellow; border-color: yellow"
       />
       <Handle
         type="target"
         :position="Position.Left"
         id="trg_2"
-        style="top: 84px; background-color: yellow; border-color: yellow"
+        style="top: 118px; background-color: yellow; border-color: yellow"
       />
       <div class="">
         <div>
-          <p class="">Command</p>
-          <button
+          <p class="mb-1">Command</p>
+          <!-- <button
             @click="toggleDropdown"
             class="flex items-center w-full px-1 py-0 dark:bg-dark-2 rounded-sm bg-mbackground-500"
           >
@@ -72,7 +140,29 @@ const curCmdCompo = shallowRef(Get_c)
                 />
               </svg>
             </span>
-          </button>
+          </button> -->
+          <div
+            v-tooltip.top="{
+              value: 'Command to execute',
+              class: 'text-xs1 leading-xs1',
+              showDelay: '500',
+            }"
+          >
+            <CascadeSelect
+              v-model="selectedCity"
+              :options="countries"
+              optionGroupLabel="cmdgroup"
+              optionLabel="cmd"
+              :optionGroupChildren="['group']"
+              class="w-full"
+              placeholder="Select a Command"
+              appendTo="self"
+              :pt="cascadeSelect_pt"
+              :dt="cascadeSelect_dt"
+              @update:modelValue="onDropdownItemSelected"
+            >
+            </CascadeSelect>
+          </div>
           <div
             v-show="dropdownOpen"
             class="shadow-lg dark:shadow-box-dark absolute z-40 w-[104px] bg-dark dark:bg-dark-2 transition-all"
@@ -93,7 +183,7 @@ const curCmdCompo = shallowRef(Get_c)
           </div>
         </div>
         <component :is="curCmdCompo" />
-        <div class="flex justify-between mt-1 mb-1">
+        <div class="flex justify-between mt-2 mb-1">
           <p class="">Previous</p>
           <p class="">Next</p>
         </div>
@@ -102,24 +192,24 @@ const curCmdCompo = shallowRef(Get_c)
         type="source"
         :position="Position.Right"
         id="src_main"
-        style="top: 106px; background-color: lime; border-color: lime"
+        style="top: 148px; background-color: lime; border-color: lime"
       />
       <Handle
         type="source"
         :position="Position.Right"
         id="src_2"
-        style="top: 84px; background-color: lime; border-color: lime"
+        style="top: 118px; background-color: lime; border-color: lime"
       />
     </div>
   </div>
 </template>
 <style scoped>
-.fnt1 {
-  font-size: 0.6rem;
-  line-height: 1rem;
+.node-heading {
+  @apply h-5 w-[163px] bg-mblue-def text-white rounded-t-sm ps-3 py-0.5;
 }
-.fnt2 {
-  font-size: 0.4rem;
-  line-height: 0.8rem;
+.node-content {
+  @apply h-fit w-[163px] bg-surface-200 dark:bg-surface-800
+    shadow-surface-300 dark:shadow-surface-700 shadow-inner
+    px-3 py-2 flex flex-col;
 }
 </style>

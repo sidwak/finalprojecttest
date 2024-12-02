@@ -1,17 +1,92 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import 'primeicons/primeicons.css'
+import ToggleSwitch from 'primevue/toggleswitch'
+import { ref } from 'vue'
+
+const props = defineProps({
+  callToggleInParent: { type: Function, required: true },
+})
+
+const isToggleActive = ref(false)
+const amberSwitch = {
+  colorScheme: {
+    light: {
+      root: {
+        checkedBackground: '{slate.500}',
+        checkedHoverBackground: '{slate.600}',
+      },
+      handle: {
+        checkedBackground: '{slate.50}',
+        checkedHoverBackground: '{slate.100}',
+      },
+    },
+    dark: {
+      root: {
+        checkedBackground: '{slate.400}',
+        checkedHoverBackground: '{slate.300}',
+      },
+      handle: {
+        checkedBackground: '{slate.900}',
+        checkedHoverBackground: '{slate.800}',
+      },
+    },
+  },
+}
+
+function toggleValueChanged(isOn: any) {
+  console.log('toggle value changed')
+  console.log(isOn)
+  props.callToggleInParent()
+  isToggleActive.value = isOn
+}
+</script>
 <template>
-  <div
-    class="w-screen h-10 flex items-center ps-3 gap-3 select-none bg-mbackground-900 border-b-2 border-mbackground-def rounded-md"
-  >
-    <div class="h-6 w-6 border-2 border-gray-300 hover:bg-gray-300"></div>
-    <div class="h-6 w-6 border-2 border-gray-300 hover:bg-gray-300"></div>
-    <div class="h-6 w-6 border-2 border-gray-300 hover:bg-gray-300"></div>
-    <div class="h-8 w-[2px] bg-gray-300"></div>
-    <div class="h-6 w-6 border-2 border-gray-300 hover:bg-gray-300"></div>
-    <div class="h-6 w-6 border-2 border-gray-300 hover:bg-gray-300"></div>
-    <div class="h-8 w-[2px] bg-gray-300"></div>
-    <div class="h-6 w-6 border-2 border-gray-300 hover:bg-gray-300"></div>
-    <div class="h-6 w-6 border-2 border-gray-300 hover:bg-gray-300"></div>
+  <div class="toolbar">
+    <div
+      class="toolbar-icon"
+      v-tooltip.right="{ value: 'Run test', class: 'text-xs1 leading-xs1', showDelay: '300' }"
+    >
+      <span class="pi pi-play toolbar-icon-span"></span>
+    </div>
+    <div class="toolbar-icon">
+      <span class="pi pi-pause toolbar-icon-span"></span>
+    </div>
+    <div class="toolbar-icon">
+      <span class="pi pi-replay toolbar-icon-span"></span>
+    </div>
+    <div class="toolbar-divider"></div>
+    <div class="toolbar-icon">
+      <span class="pi pi-angle-double-left toolbar-icon-span"></span>
+    </div>
+    <div class="toolbar-icon">
+      <span class="pi pi-angle-double-right toolbar-icon-span"></span>
+    </div>
+    <div class="toolbar-divider"></div>
+    <div class="toolbar-icon">
+      <span class="pi pi-globe toolbar-icon-span"></span>
+    </div>
+    <div class="toolbar-icon">
+      <span class="pi pi-bolt toolbar-icon-span"></span>
+    </div>
+    <ToggleSwitch @update:model-value="toggleValueChanged($event)" :dt="amberSwitch" />
   </div>
 </template>
-<sytle scoped></sytle>
+<style scoped>
+.toolbar {
+  @apply w-full h-9 flex items-center ps-3 gap-2 select-none bg-surface-0 dark:bg-surface-900
+  text-surface-700 dark:text-surface-0 border-t border-surface-300 dark:border-surface-600
+  cursor-pointer;
+}
+.toolbar-icon {
+  @apply h-6 w-6 text-center text-surface-700 dark:text-surface-0;
+}
+.toolbar-icon:hover {
+  @apply text-surface-300 dark:text-surface-500;
+}
+.toolbar-icon-span {
+  @apply text-sm;
+}
+.toolbar-divider {
+  @apply h-6 w-[2px] bg-surface-300 dark:bg-surface-600;
+}
+</style>

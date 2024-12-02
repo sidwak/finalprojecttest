@@ -1,15 +1,14 @@
 <script setup lang="ts">
 import { Handle, Position } from '@vue-flow/core'
+import InputText from 'primevue/inputtext'
+import { ref } from 'vue'
+
+const inputRef = ref(null)
 </script>
 <template>
-  <div>
-    <p class="mt-2">Store Variable</p>
-    <input type="text" class="bg-mbackground-500 rounded-sm w-full fnt1" />
+  <div class="text-xs">
+    <p class="mt-2 mb-1">Store Variable</p>
+    <InputText type="text" v-model="inputRef" class="text-xs py-[0.3rem] px-[0.4rem] w-full" />
   </div>
 </template>
-<style scope>
-.fnt1 {
-  font-size: 0.6rem;
-  line-height: 1rem;
-}
-</style>
+<style scope></style>

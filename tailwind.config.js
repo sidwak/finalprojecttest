@@ -7,6 +7,12 @@ export default {
       roboto_mono: ['Roboto_Mono', 'sans-serif'], //sans serif is fallback font
     },
     extend: {
+      fontSize: {
+        xs1: '13px',
+      },
+      lineHeight: {
+        xs1: '18px',
+      },
       colors: {
         mbackground: {
           def: '#222222',
@@ -54,5 +60,6 @@ export default {
       },
     },
   },
-  plugins: [],
+  darkMode: ['selector', '[class*="app-dark"]'],
+  plugins: [require('tailwindcss-primeui')],
 }
