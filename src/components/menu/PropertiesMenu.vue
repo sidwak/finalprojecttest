@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Panel, useVueFlow } from '@vue-flow/core'
 import { Divider, InputText } from 'primevue'
-import { ref, computed } from 'vue'
+import { ref, computed , watch} from 'vue'
 
 const flowInst = useVueFlow()
 
@@ -32,7 +32,14 @@ const divider_pt = {
 }
 function setInitData() {
   //get values from nodes
+  nodeNameRef.value = curNodeData.value?.data.varName
+  nodeValRef.value = curNodeData.value?.data.varVal
 }
+
+watch (() => props.curSelectedNodeId, (newId, oldId) => {
+    setInitData()
+})
+
 function onNodeNameChange(newVal: any) {
   if (curNodeData.value) {
     curNodeData.value.data.varName = newVal

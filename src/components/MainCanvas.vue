@@ -25,6 +25,7 @@ const nodes = ref([
 ])
 const curSelectedNodeId = ref('-1')
 const idRef = ref(3)
+const isPropertiesPanelVisible = ref(false)
 let curNodeId = '3'
 
 const {
@@ -87,8 +88,16 @@ const handleCommandExecute = (data: any) => {
 }
 
 onNodeClick((node) => {
+  if (isPropertiesPanelVisible.value === false){
+    isPropertiesPanelVisible.value = true
+  }
   curSelectedNodeId.value = node.node.id
 })
+function afterPaneClick(){
+  if (isPropertiesPanelVisible.value === true){
+    isPropertiesPanelVisible.value = false
+  }
+}
 
 defineExpose({
   calledFromParent,
@@ -96,7 +105,7 @@ defineExpose({
 })
 </script>
 <template>
-  <VueFlow :nodes="nodes">
+  <VueFlow :nodes="nodes" @pane-click="afterPaneClick">
     <Background :gap="16" :size="2" class="mainbackground" pattern-color="#585858" />
     <!-- style="background-color: #1d1d1d" -->
     <Controls />
@@ -116,11 +125,14 @@ defineExpose({
         :selected="props.selected"
       />
     </template>
-    <PropertiesMenu :cur-selected-node-id="curSelectedNodeId" />
+    <PropertiesMenu :class="{'propertiesPanel': !isPropertiesPanelVisible}" :cur-selected-node-id="curSelectedNodeId" />
   </VueFlow>
 </template>
 <style scoped>
 .mainbackground {
   @apply bg-surface-0 dark:bg-surface-900;
+}
+.propertiesPanel {
+  @apply hidden
 }
 </style>
