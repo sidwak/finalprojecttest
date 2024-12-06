@@ -65,7 +65,7 @@ function rightClickMenuClicked(e: any) {
   console.log('right clicked pressed')
   //console.log(e.clientX)
   //console.log(e.clientY)
-  rightClickMenuRef.value?.callToggleContextMenu(e)
+  //rightClickMenuRef.value?.callToggleContextMenu(e)
 }
 function checkContextMenu(e: any) {
   contextMenuActive.value = false
@@ -77,6 +77,9 @@ function callFromContextmenu(data: any) {
     checkContextMenu(data)
     mainCanvas.value.calledFromParent(data)
   }
+}
+function afterCommandExecute(data: any) {
+  mainCanvas.value?.handleCommandExecute(data)
 }
 function toggleDarkMode() {
   //isToggleActive.value = !isToggleActive.value
@@ -93,7 +96,11 @@ function toggleDarkMode() {
     >
       <RightClickMenu :call-from-context-menu="callFromContextmenu" />
     </div> -->
-    <RightClickMenu ref="contextMenuDiv-ref" :call-from-context-menu="callFromContextmenu" />
+    <RightClickMenu
+      ref="contextMenuDiv-ref"
+      :call-from-context-menu="callFromContextmenu"
+      :on-command-execute="afterCommandExecute"
+    />
     <!-- <div
       class="w-screen h-6 bg-mbackground-700 border-b-2 border-mbackground-def text-white flex items-center ps-1 select-none"
     >

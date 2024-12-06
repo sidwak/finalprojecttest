@@ -8,9 +8,11 @@ export default {
     },
     extend: {
       fontSize: {
+        xxs: '11px',
         xs1: '13px',
       },
       lineHeight: {
+        xxs: '14px',
         xs1: '18px',
       },
       colors: {

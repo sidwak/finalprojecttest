@@ -6,7 +6,7 @@ import { ref } from 'vue'
 const props = defineProps({
   callToggleInParent: { type: Function, required: true },
 })
-
+const checked = ref(false)
 const isToggleActive = ref(false)
 const amberSwitch = {
   colorScheme: {
@@ -22,8 +22,8 @@ const amberSwitch = {
     },
     dark: {
       root: {
-        checkedBackground: '{slate.400}',
-        checkedHoverBackground: '{slate.300}',
+        checkedBackground: '{zinc.700}',
+        checkedHoverBackground: '{zinc.600}',
       },
       handle: {
         checkedBackground: '{slate.900}',
@@ -68,7 +68,20 @@ function toggleValueChanged(isOn: any) {
     <div class="toolbar-icon">
       <span class="pi pi-bolt toolbar-icon-span"></span>
     </div>
-    <ToggleSwitch @update:model-value="toggleValueChanged($event)" :dt="amberSwitch" />
+    <ToggleSwitch
+      v-model="checked"
+      @update:model-value="toggleValueChanged($event)"
+      :dt="amberSwitch"
+    >
+      <template #handle="{ checked }">
+        <i
+          :class="[
+            '!text-xxs !leading-xxs pi dark:text-white',
+            { 'pi-moon': checked, 'pi-sun': !checked },
+          ]"
+        />
+      </template>
+    </ToggleSwitch>
   </div>
 </template>
 <style scoped>

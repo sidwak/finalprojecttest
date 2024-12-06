@@ -7,6 +7,7 @@ import Toast from 'primevue/toast'
 
 const props = defineProps({
   callFromContextMenu: { type: Function, required: true },
+  onCommandExecute: { type: Function, required: true },
 })
 const contextMenuRef = useTemplateRef('contextMenu-ref')
 const items = [
@@ -20,6 +21,7 @@ const items = [
           contextMenuValueChange(e)
         },
         nodeType: 'driver-node',
+        cmdType: 'add-node',
       },
       {
         label: 'Variable',
@@ -27,6 +29,7 @@ const items = [
           contextMenuValueChange(e)
         },
         nodeType: 'var-node',
+        cmdType: 'add-node',
       },
       {
         label: 'Element',
@@ -50,6 +53,23 @@ const items = [
         label: 'Ref Image',
       },
     ],
+  },
+  { separator: true },
+  {
+    label: 'Save',
+    icon: 'pi pi-save',
+    cmdType: 'data-exe',
+    command: (e: any) => {
+      contextMenuValueChange(e)
+    },
+  },
+  {
+    label: 'Run',
+    icon: 'pi pi-play',
+    cmdType: 'data-exe',
+    command: (e: any) => {
+      contextMenuValueChange(e)
+    },
   },
   { separator: true },
   { label: 'Copy', icon: 'pi pi-copy' },
@@ -76,28 +96,54 @@ function callFunction(e: any) {
   }
   props.callFromContextMenu(data)
 }
-const callToggleContextMenu = (e: any) => {
-  contextMenuRef.value?.show(e)
-}
 
 function contextMenuValueChange(e: any) {
   console.log('context menu value changed')
   console.log(e)
-  toast.add({
-    severity: 'info',
-    summary: 'Node Added',
-    detail: 'Type: ' + e.item.nodeType,
-    life: 3000,
-  })
-  const data = {
-    posX: e.originalEvent.clientX,
-    posY: e.originalEvent.clientY,
-    node: e.item.nodeType,
+  if (e.item.cmdType === 'add-node') {
+    toast.add({
+      severity: 'info',
+      summary: 'Node Added',
+      detail: 'Type: ' + e.item.nodeType,
+      life: 3000,
+    })
+    const data = {
+      posX: e.originalEvent.clientX,
+      posY: e.originalEvent.clientY,
+      node: e.item.nodeType,
+    }
+    props.callFromContextMenu(data)
+  } else if (e.item.cmdType === 'data-exe') {
+    if (e.item.label === 'Save') {
+      toast.add({
+        severity: 'warn',
+        summary: 'Exec Command',
+        detail: 'Type: Save',
+        life: 3000,
+      })
+      const data = {
+        cmd: e.item.label,
+      }
+      props.onCommandExecute(data)
+    } else if (e.item.label === 'Run') {
+      toast.add({
+        severity: 'warn',
+        summary: 'Exec Command',
+        detail: 'Type: Run',
+        life: 3000,
+      })
+      const data = {
+        cmd: e.item.label,
+      }
+      props.onCommandExecute(data)
+    }
   }
-  props.callFromContextMenu(data)
 }
 function liefCycleEnd() {
   console.log('end')
+}
+const callToggleContextMenu = (e: any) => {
+  contextMenuRef.value?.show(e)
 }
 defineExpose({
   callToggleContextMenu,
