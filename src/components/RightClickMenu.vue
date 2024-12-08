@@ -32,7 +32,12 @@ const items = [
         cmdType: 'add-node',
       },
       {
-        label: 'Element',
+        label: 'Element (DOM)',
+        command: (e: any) => {
+          contextMenuValueChange(e)
+        },
+        nodeType: 'dom-node',
+        cmdType: 'add-node',
       },
       {
         label: 'Assert',
@@ -64,8 +69,8 @@ const items = [
     },
   },
   {
-    label: 'Run',
-    icon: 'pi pi-play',
+    label: 'Load',
+    icon: 'pi pi-file',
     cmdType: 'data-exe',
     command: (e: any) => {
       contextMenuValueChange(e)
@@ -98,8 +103,6 @@ function callFunction(e: any) {
 }
 
 function contextMenuValueChange(e: any) {
-  console.log('context menu value changed')
-  console.log(e)
   if (e.item.cmdType === 'add-node') {
     toast.add({
       severity: 'info',
@@ -125,11 +128,11 @@ function contextMenuValueChange(e: any) {
         cmd: e.item.label,
       }
       props.onCommandExecute(data)
-    } else if (e.item.label === 'Run') {
+    } else if (e.item.label === 'Load') {
       toast.add({
         severity: 'warn',
         summary: 'Exec Command',
-        detail: 'Type: Run',
+        detail: 'Type: Load',
         life: 3000,
       })
       const data = {

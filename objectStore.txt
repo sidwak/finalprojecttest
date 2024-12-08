@@ -1,0 +1,124 @@
+{
+  "nodes": [
+    {
+      "id": "0",
+      "type": "driver-node",
+      "initialized": false,
+      "position": {
+        "x": 142.140625,
+        "y": 525
+      },
+      "data": {
+        "nodeName": "Node 0",
+        "nodeType": "driver-node",
+        "reqNodeName": false,
+        "label": "type: driver-node",
+        "pCmd": {
+          "value": "Start"
+        },
+        "pValue": {
+          "isConnected": false,
+          "isRuntime": false,
+          "connnectedNodeId": "-1",
+          "value": "value not set",
+          "isRequired": false
+        },
+        "flow": {
+          "nextNodeId": "2"
+        }
+      }
+    },
+    {
+      "id": "1",
+      "type": "var-node",
+      "initialized": false,
+      "position": {
+        "x": 141.140625,
+        "y": 391
+      },
+      "data": {
+        "nodeName": "website-url",
+        "nodeType": "var-node",
+        "label": "type: var-node",
+        "pValue": {
+          "isConnected": false,
+          "isRuntime": false,
+          "connnectedNodeId": "-1",
+          "value": "https://www.google.com"
+        },
+        "flow": {
+          "prevNodeId": "-1",
+          "nextNodeId": "-1"
+        }
+      }
+    },
+    {
+      "id": "2",
+      "type": "driver-node",
+      "initialized": false,
+      "position": {
+        "x": 379.140625,
+        "y": 469
+      },
+      "data": {
+        "nodeName": "Node 2",
+        "nodeType": "driver-node",
+        "reqNodeName": false,
+        "label": "type: driver-node",
+        "pCmd": {
+          "value": "get"
+        },
+        "pValue": {
+          "isConnected": true,
+          "isRuntime": false,
+          "connnectedNodeId": "1",
+          "value": "value not set",
+          "isRequired": true
+        },
+        "flow": {
+          "prevNodeId": "0"
+        }
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "vueflow__edge-1var-get-2var-set",
+      "type": "default",
+      "source": "1",
+      "target": "2",
+      "sourceHandle": "var-get",
+      "targetHandle": "var-set",
+      "data": {},
+      "label": "",
+      "sourceX": 307.140625,
+      "sourceY": 480,
+      "targetX": 376.140625,
+      "targetY": 587
+    },
+    {
+      "id": "vueflow__edge-0flow-next-2flow-prev",
+      "type": "default",
+      "source": "0",
+      "target": "2",
+      "sourceHandle": "flow-next",
+      "targetHandle": "flow-prev",
+      "data": {},
+      "label": "",
+      "sourceX": 309.3125,
+      "sourceY": 615.59375,
+      "targetX": 376.140625,
+      "targetY": 615.1875
+    }
+  ],
+  "position": [
+    0,
+    0
+  ],
+  "zoom": 1,
+  "viewport": {
+    "x": 0,
+    "y": 0,
+    "zoom": 1
+  }
+}

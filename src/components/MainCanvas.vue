@@ -5,29 +5,87 @@ import { Controls } from '@vue-flow/controls'
 import { ref } from 'vue'
 import TestNode from './nodes/TestNode.vue'
 import VarNode from './nodes/VarNode.vue'
+import DomNode from './nodes/DomNode.vue'
 import PropertiesMenu from './menu/PropertiesMenu.vue'
+import type nodeData from './nodes/nodeType'
 
-const nodes = ref([
+const nodesData: nodeData[] = [
+  {
+    nodeName: 'nodeName not set',
+    nodeType: 'driver-node',
+    reqNodeName: false,
+    label: 'type: driver-node',
+    pCmd: {
+      value: 'cmd not set',
+    },
+    pValue: {
+      isConnected: false,
+      isRuntime: false,
+      connnectedNodeId: '-1',
+      value: 'value not set',
+    },
+    flow: {
+      prevNodeId: '-1',
+      nextNodeId: '-1',
+    },
+  },
+  {
+    nodeName: 'nodeName not set',
+    nodeType: 'var-node',
+    label: 'type:  var-node',
+    pValue: {
+      isConnected: false,
+      isRuntime: false,
+      connnectedNodeId: '-1',
+      value: 'value not set',
+    },
+    flow: {
+      prevNodeId: '-1',
+      nextNodeId: '-1',
+    },
+  },
+  {
+    nodeName: 'nodeDomName not set',
+    nodeType: 'dom-node',
+    label: 'type:  dom-node',
+    pValue: {
+      isConnected: false,
+      isRuntime: false,
+      connnectedNodeId: '-1',
+      value: 'value not set',
+    },
+    flow: {
+      prevNodeId: '-1',
+      nextNodeId: '-1',
+    },
+  },
+]
+
+/* const nodes = ref([
   {
     id: '1',
     position: { x: 140, y: 140 },
-    data: { label: 'Node 3', cmd: 'nocmd' },
+    data: nodesData[0],
     type: 'driver-node',
-    isSelected: false,
   },
   {
     id: '2',
     position: { x: 280, y: 280 },
-    data: { label: 'Node 4', varName: 'no_name', varVal: 'no_val' },
+    data: nodesData[1],
     type: 'var-node',
-    isSelected: false,
   },
-])
+  {
+    id: '3',
+    position: { x: 480, y: 480 },
+    data: nodesData[2],
+    type: 'dom-node',
+  },
+]) */
+const nodes = ref([])
 const curSelectedNodeId = ref('-1')
-const idRef = ref(3)
+const idRef = ref(0)
 const isPropertiesPanelVisible = ref(false)
-let curNodeId = '3'
-
+let curNodeId = '0'
 const {
   onConnect,
   addEdges,
@@ -36,11 +94,27 @@ const {
   updateNode,
   screenToFlowCoordinate,
   toObject,
+  fromObject,
   onNodeClick,
+  updateNodeData,
 } = useVueFlow()
 
 onConnect((connection) => {
   console.log(connection)
+  if (connection.sourceHandle === 'flow-next' && connection.targetHandle === 'flow-prev') {
+    const newTargetData: Partial<nodeData> = {
+      flow: {
+        prevNodeId: connection.source,
+      },
+    }
+    const newSourceData: Partial<nodeData> = {
+      flow: {
+        nextNodeId: connection.target,
+      },
+    }
+    updateNodeData(connection.target, newTargetData)
+    updateNodeData(connection.source, newSourceData)
+  }
   addEdges(connection)
 })
 
@@ -69,32 +143,111 @@ function isAppDark() {
 }
 
 const calledFromParent = (data: any) => {
-  const nodeInfo = {
-    id: idRef.value.toString(),
-    data: { label: 'Node ' + idRef.value.toString() },
-    position: { x: data.posX, y: data.posY },
-    type: data.node,
+  let nodeInfo: { id: string; data: nodeData; position: object; type: string }
+
+  if (data.node === 'driver-node') {
+    nodeInfo = {
+      id: idRef.value.toString(),
+      data: {
+        nodeName: 'Node ' + idRef.value.toString(),
+        nodeType: 'driver-node',
+        reqNodeName: false,
+        label: 'type: ' + data.node,
+        pCmd: {
+          value: 'cmd not set',
+        },
+        pValue: {
+          isConnected: false,
+          isRuntime: false,
+          connnectedNodeId: '-1',
+          value: 'value not set',
+        },
+        flow: {
+          prevNodeId: '-1',
+          nextNodeId: '-1',
+        },
+      },
+      position: { x: data.posX, y: data.posY },
+      type: data.node,
+    }
+    AddNodes(nodeInfo)
+  } else if (data.node === 'var-node') {
+    nodeInfo = {
+      id: idRef.value.toString(),
+      data: {
+        nodeName: 'Node ' + idRef.value.toString(),
+        nodeType: 'var-node',
+        label: 'type: ' + data.node,
+        pValue: {
+          isConnected: false,
+          isRuntime: false,
+          connnectedNodeId: '-1',
+          value: 'value not set',
+        },
+        flow: {
+          prevNodeId: '-1',
+          nextNodeId: '-1',
+        },
+      },
+      position: { x: data.posX, y: data.posY },
+      type: data.node,
+    }
+    AddNodes(nodeInfo)
+  } else if (data.node === 'dom-node') {
+    nodeInfo = {
+      id: idRef.value.toString(),
+      data: {
+        nodeName: 'Node ' + idRef.value.toString(),
+        nodeType: 'dom-node',
+        label: 'type: ' + data.node,
+        pValue: {
+          isConnected: false,
+          isRuntime: false,
+          connnectedNodeId: '-1',
+          value: 'value not set',
+        },
+        flow: {
+          prevNodeId: '-1',
+          nextNodeId: '-1',
+        },
+      },
+      position: { x: data.posX, y: data.posY },
+      type: data.node,
+    }
+    AddNodes(nodeInfo)
   }
-  AddNodes(nodeInfo)
   idRef.value = idRef.value + 1
   curNodeId = (idRef.value - 1).toString()
 }
 const handleCommandExecute = (data: any) => {
-  console.log('This is in maincanvas.vue ' + data.cmd)
   if (data.cmd === 'Save') {
-    console.log('Data reterived')
-    console.log(toObject())
+    //console.log('Data reterived')
+    //console.log(toObject())
+    saveTestCaseData()
+  } else if (data.cmd === 'Load') {
+    loadTestCaseData()
   }
 }
 
+async function saveTestCaseData() {
+  const result = await window.electron.saveTestCase(toObject())
+  console.log(result)
+}
+async function loadTestCaseData() {
+  const result = await window.electron.loadTestCase('hello')
+  const numberOfNodes = result.nodes.length
+  idRef.value = numberOfNodes
+  curNodeId = numberOfNodes.toString()
+  fromObject(result)
+}
 onNodeClick((node) => {
-  if (isPropertiesPanelVisible.value === false){
+  if (isPropertiesPanelVisible.value === false) {
     isPropertiesPanelVisible.value = true
   }
   curSelectedNodeId.value = node.node.id
 })
-function afterPaneClick(){
-  if (isPropertiesPanelVisible.value === true){
+function afterPaneClick() {
+  if (isPropertiesPanelVisible.value === true) {
     isPropertiesPanelVisible.value = false
   }
 }
@@ -110,22 +263,18 @@ defineExpose({
     <!-- style="background-color: #1d1d1d" -->
     <Controls />
     <template #node-driver-node="props">
-      <TestNode
-        :id="props.id"
-        :label="props.data.label"
-        :cmd="props.data.cmd"
-        :selected="props.selected"
-      />
+      <TestNode :id="props.id" :data="props.data" :selected="props.selected" />
     </template>
     <template #node-var-node="props">
-      <VarNode
-        :id="props.id"
-        :label="props.data.label"
-        :data="props.data"
-        :selected="props.selected"
-      />
+      <VarNode :id="props.id" :data="props.data" :selected="props.selected" />
     </template>
-    <PropertiesMenu :class="{'propertiesPanel': !isPropertiesPanelVisible}" :cur-selected-node-id="curSelectedNodeId" />
+    <template #node-dom-node="props">
+      <DomNode :id="props.id" :data="props.data" :selected="props.selected" />
+    </template>
+    <PropertiesMenu
+      :class="{ propertiesPanel: !isPropertiesPanelVisible }"
+      :cur-selected-node-id="curSelectedNodeId"
+    />
   </VueFlow>
 </template>
 <style scoped>
@@ -133,6 +282,6 @@ defineExpose({
   @apply bg-surface-0 dark:bg-surface-900;
 }
 .propertiesPanel {
-  @apply hidden
+  @apply hidden;
 }
 </style>

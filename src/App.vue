@@ -65,7 +65,8 @@ function rightClickMenuClicked(e: any) {
   console.log('right clicked pressed')
   //console.log(e.clientX)
   //console.log(e.clientY)
-  //rightClickMenuRef.value?.callToggleContextMenu(e)
+
+  rightClickMenuRef.value?.callToggleContextMenu(e)
 }
 function checkContextMenu(e: any) {
   contextMenuActive.value = false

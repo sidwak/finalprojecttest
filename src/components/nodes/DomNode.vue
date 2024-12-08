@@ -14,7 +14,7 @@ const inputRef = ref(null)
 </script>
 <template>
   <div class="node-container" :class="{ 'node-container-highlight': props.selected }">
-    <div class="node-heading">Variable Node</div>
+    <div class="node-heading">DOM Node</div>
     <div class="node-content">
       <Handle
         type="target"

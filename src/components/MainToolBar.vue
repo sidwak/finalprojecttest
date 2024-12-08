@@ -2,6 +2,8 @@
 import 'primeicons/primeicons.css'
 import ToggleSwitch from 'primevue/toggleswitch'
 import { ref } from 'vue'
+import { useToast } from 'primevue'
+import Toast from 'primevue/toast'
 
 const props = defineProps({
   callToggleInParent: { type: Function, required: true },
@@ -32,6 +34,7 @@ const amberSwitch = {
     },
   },
 }
+const toast = useToast()
 
 function toggleValueChanged(isOn: any) {
   console.log('toggle value changed')
@@ -39,12 +42,26 @@ function toggleValueChanged(isOn: any) {
   props.callToggleInParent()
   isToggleActive.value = isOn
 }
+function runButtonClicked() {
+  startTestInBackend()
+}
+async function startTestInBackend() {
+  toast.add({
+    severity: 'success',
+    summary: 'Test Started',
+    detail: 'backend',
+    life: 3000,
+  })
+  const result = await window.electron.startTest('hello')
+}
 </script>
 <template>
+  <Toast />
   <div class="toolbar">
     <div
       class="toolbar-icon"
       v-tooltip.right="{ value: 'Run test', class: 'text-xs1 leading-xs1', showDelay: '300' }"
+      @click="runButtonClicked"
     >
       <span class="pi pi-play toolbar-icon-span"></span>
     </div>
