@@ -12,6 +12,7 @@ import Tree from 'primevue/tree'
 import Splitter from 'primevue/splitter'
 import SplitterPanel from 'primevue/splitterpanel'
 import LeftPanel from './components/folder/LeftPanel.vue'
+import LogTerminal from './components/ui/context-menu/LogTerminal.vue'
 
 const contextMenuActive = ref(false)
 const contextMenuPos = ref({
@@ -130,10 +131,21 @@ function toggleDarkMode() {
       <SplitterPanel class="" :size="15" :minSize="10">
         <LeftPanel />
       </SplitterPanel>
-      <SplitterPanel class="flex items-center justify-center" :size="85">
-        <div class="w-full h-full" @contextmenu="rightClickMenuClicked" @click="checkContextMenu">
-          <MainCanvas ref="mainCanvas-ref" />
-        </div>
+      <SplitterPanel class="" :size="85">
+        <Splitter layout="vertical">
+          <SplitterPanel :size="75">
+            <div
+              class="w-full h-full"
+              @contextmenu="rightClickMenuClicked"
+              @click="checkContextMenu"
+            >
+              <MainCanvas ref="mainCanvas-ref" />
+            </div>
+          </SplitterPanel>
+          <SplitterPanel :size="25">
+            <LogTerminal />
+          </SplitterPanel>
+        </Splitter>
       </SplitterPanel>
     </Splitter>
   </div>

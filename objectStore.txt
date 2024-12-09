@@ -5,8 +5,8 @@
       "type": "driver-node",
       "initialized": false,
       "position": {
-        "x": 142.140625,
-        "y": 525
+        "x": 42.296875,
+        "y": 450
       },
       "data": {
         "nodeName": "Node 0",
@@ -24,17 +24,45 @@
           "isRequired": false
         },
         "flow": {
-          "nextNodeId": "2"
+          "nextNodeId": "1"
         }
       }
     },
     {
       "id": "1",
+      "type": "driver-node",
+      "initialized": false,
+      "position": {
+        "x": 256.296875,
+        "y": 400
+      },
+      "data": {
+        "nodeName": "Node 1",
+        "nodeType": "driver-node",
+        "reqNodeName": false,
+        "label": "type: driver-node",
+        "pCmd": {
+          "value": "get"
+        },
+        "pValue": {
+          "isConnected": true,
+          "isRuntime": false,
+          "connnectedNodeId": "2",
+          "value": "value not set",
+          "isRequired": true
+        },
+        "flow": {
+          "nextNodeId": "3"
+        }
+      }
+    },
+    {
+      "id": "2",
       "type": "var-node",
       "initialized": false,
       "position": {
-        "x": 141.140625,
-        "y": 391
+        "x": 41.296875,
+        "y": 308
       },
       "data": {
         "nodeName": "website-url",
@@ -53,72 +81,180 @@
       }
     },
     {
-      "id": "2",
+      "id": "3",
       "type": "driver-node",
       "initialized": false,
       "position": {
-        "x": 379.140625,
-        "y": 469
+        "x": 464.296875,
+        "y": 398
       },
       "data": {
-        "nodeName": "Node 2",
+        "nodeName": "Node 3",
         "nodeType": "driver-node",
         "reqNodeName": false,
         "label": "type: driver-node",
         "pCmd": {
-          "value": "get"
+          "value": "click"
         },
         "pValue": {
           "isConnected": true,
           "isRuntime": false,
-          "connnectedNodeId": "1",
+          "connnectedNodeId": "4",
           "value": "value not set",
           "isRequired": true
         },
         "flow": {
-          "prevNodeId": "0"
+          "nextNodeId": "5"
+        }
+      }
+    },
+    {
+      "id": "4",
+      "type": "dom-node",
+      "initialized": false,
+      "position": {
+        "x": 256.296875,
+        "y": 263
+      },
+      "data": {
+        "nodeName": "search-bar",
+        "nodeType": "dom-node",
+        "label": "type: dom-node",
+        "pValue": {
+          "isConnected": false,
+          "isRuntime": false,
+          "connnectedNodeId": "-1",
+          "value": ".gLFyf"
+        },
+        "flow": {
+          "prevNodeId": "-1",
+          "nextNodeId": "-1"
+        }
+      }
+    },
+    {
+      "id": "5",
+      "type": "driver-node",
+      "initialized": false,
+      "position": {
+        "x": 694.296875,
+        "y": 401
+      },
+      "data": {
+        "nodeName": "Node 5",
+        "nodeType": "driver-node",
+        "reqNodeName": false,
+        "label": "type: driver-node",
+        "pCmd": {
+          "value": "input"
+        },
+        "pValue": {
+          "isConnected": true,
+          "isRuntime": false,
+          "connnectedNodeId": "4",
+          "value": "python",
+          "isRequired": true
+        },
+        "flow": {
+          "prevNodeId": "3"
         }
       }
     }
   ],
   "edges": [
     {
-      "id": "vueflow__edge-1var-get-2var-set",
-      "type": "default",
-      "source": "1",
-      "target": "2",
-      "sourceHandle": "var-get",
-      "targetHandle": "var-set",
-      "data": {},
-      "label": "",
-      "sourceX": 307.140625,
-      "sourceY": 480,
-      "targetX": 376.140625,
-      "targetY": 587
-    },
-    {
-      "id": "vueflow__edge-0flow-next-2flow-prev",
+      "id": "vueflow__edge-0flow-next-1flow-prev",
       "type": "default",
       "source": "0",
-      "target": "2",
+      "target": "1",
       "sourceHandle": "flow-next",
       "targetHandle": "flow-prev",
       "data": {},
       "label": "",
-      "sourceX": 309.3125,
-      "sourceY": 615.59375,
-      "targetX": 376.140625,
-      "targetY": 615.1875
+      "sourceX": 209.46875,
+      "sourceY": 540.59375,
+      "targetX": 253.296875,
+      "targetY": 546.1875
+    },
+    {
+      "id": "vueflow__edge-2var-get-1var-set",
+      "type": "default",
+      "source": "2",
+      "target": "1",
+      "sourceHandle": "var-get",
+      "targetHandle": "var-set",
+      "data": {},
+      "label": "",
+      "sourceX": 207.296875,
+      "sourceY": 397,
+      "targetX": 253.296875,
+      "targetY": 518
+    },
+    {
+      "id": "vueflow__edge-1flow-next-3flow-prev",
+      "type": "default",
+      "source": "1",
+      "target": "3",
+      "sourceHandle": "flow-next",
+      "targetHandle": "flow-prev",
+      "data": {},
+      "label": "",
+      "sourceX": 423.46875,
+      "sourceY": 546.1875,
+      "targetX": 461.296875,
+      "targetY": 544.1875
+    },
+    {
+      "id": "vueflow__edge-4var-get-3var-set",
+      "type": "default",
+      "source": "4",
+      "target": "3",
+      "sourceHandle": "var-get",
+      "targetHandle": "var-set",
+      "data": {},
+      "label": "",
+      "sourceX": 422.296875,
+      "sourceY": 352,
+      "targetX": 461.296875,
+      "targetY": 516
+    },
+    {
+      "id": "vueflow__edge-3flow-next-5flow-prev",
+      "type": "default",
+      "source": "3",
+      "target": "5",
+      "sourceHandle": "flow-next",
+      "targetHandle": "flow-prev",
+      "data": {},
+      "label": "",
+      "sourceX": 631.46875,
+      "sourceY": 544.1875,
+      "targetX": 691.296875,
+      "targetY": 547.1875
+    },
+    {
+      "id": "vueflow__edge-4var-get-5var-set",
+      "type": "default",
+      "source": "4",
+      "target": "5",
+      "sourceHandle": "var-get",
+      "targetHandle": "var-set",
+      "data": {},
+      "label": "",
+      "sourceX": 422.296875,
+      "sourceY": 352,
+      "targetX": 691.296875,
+      "targetY": 519
     }
   ],
   "position": [
     0,
-    0
+    -1
   ],
   "zoom": 1,
   "viewport": {
     "x": 0,
-    "y": 0,
+    "y": -1,
     "zoom": 1
   }
 }

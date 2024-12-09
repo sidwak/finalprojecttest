@@ -72,6 +72,10 @@ const countries = ref([
         isValueRequired: true,
       },
       {
+        cmd: 'input',
+        isValueRequired: true,
+      },
+      {
         cmd: 'left-click',
         isValueRequired: true,
       },
@@ -125,7 +129,11 @@ const cascadeSelect_pt = {
 
 onBeforeMount(() => {
   console.log(selectedCmd.value)
-  if (driverNodeData.pCmd?.value === 'get') {
+  if (
+    driverNodeData.pCmd?.value === 'get' ||
+    driverNodeData.pCmd?.value === 'click' ||
+    driverNodeData.pCmd?.value === 'input'
+  ) {
     requiresVarValue.value = true
     selectedCmd.value = { cmd: driverNodeData.pCmd?.value, isValueRequired: true }
     //updatePostion()
