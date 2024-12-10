@@ -12,7 +12,8 @@ const socket = io('ws://localhost:3000');
 socket.on('connect', async () => {
 
 const browser = await puppeteer.launch({
-  executablePath: 'C:\\\\Program Files (x86)\\\\Google\\\\Chrome\\\\Application\\\\chrome.exe',
+  //executablePath: 'C:\\\\Program Files (x86)\\\\Google\\\\Chrome\\\\Application\\\\chrome.exe',
+  executablePath: 'C:\\\\Program Files\\\\Google\\\\Chrome\\\\Application\\\\chrome.exe',
   headless: false,
 })
 
