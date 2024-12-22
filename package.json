@@ -16,7 +16,7 @@
     "electron": "electron .",
     "dev:electron": "concurrently \"npm run dev\" \"npm run electron\""
   },
-  "main": "main.js",
+  "main": "electron_main/main.js",
   "dependencies": {
     "@primevue/themes": "^4.2.4",
     "@vue-flow/background": "^1.3.2",

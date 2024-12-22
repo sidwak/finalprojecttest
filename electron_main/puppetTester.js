@@ -1,5 +1,11 @@
 import { writeFileSync, readFileSync, appendFileSync, appendFile, writeFile } from 'fs'
 import { exec } from 'child_process'
+import path from 'path'
+import { fileURLToPath } from 'url'
+import { dirname } from 'path'
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
+
 let varArr = []
 let cmdsArr = []
 let flowNodes = {}
@@ -12,8 +18,8 @@ const socket = io('ws://localhost:3000');
 socket.on('connect', async () => {
 
 const browser = await puppeteer.launch({
-  //executablePath: 'C:\\\\Program Files (x86)\\\\Google\\\\Chrome\\\\Application\\\\chrome.exe',
-  executablePath: 'C:\\\\Program Files\\\\Google\\\\Chrome\\\\Application\\\\chrome.exe',
+  executablePath: 'C:\\\\Program Files (x86)\\\\Google\\\\Chrome\\\\Application\\\\chrome.exe',
+  //executablePath: 'C:\\\\Program Files\\\\Google\\\\Chrome\\\\Application\\\\chrome.exe',
   headless: false,
 })
 
@@ -119,17 +125,23 @@ function getAllCommands(nodes) {
 }
 
 function writeDataToFile() {
-  writeFileSync('testcase_1.js', initialCode)
+  writeFileSync(path.join(__dirname, 'testcase_1.js'), initialCode)
   cmdsArr.push('//await browser.close()\n;')
   //cmdsArr = cmdsArr.reverse()
   varArr.forEach((varVal) => {
-    appendFileSync('testcase_1.js', varVal)
+    appendFileSync(path.join(__dirname, 'testcase_1.js'), varVal)
   })
-  appendFileSync('testcase_1.js', '\n\n')
+  appendFileSync(path.join(__dirname, 'testcase_1.js'), '\n\n')
   cmdsArr.forEach((cmdVal) => {
-    appendFileSync('testcase_1.js', cmdVal)
+    appendFileSync(path.join(__dirname, 'testcase_1.js'), cmdVal)
   })
-  appendFileSync('testcase_1.js', '\n})')
+  appendFileSync(path.join(__dirname, 'testcase_1.js'), '\n})')
+  appendFileSync(
+    path.join(__dirname, 'testcase_1.js'),
+    `\nsocket.on('disconnect', async () => {
+  process.kill(0)
+})`,
+  )
 }
 
 function getAllFlowNodes(nodes) {
@@ -142,7 +154,7 @@ function getAllFlowNodes(nodes) {
 //startTest()
 
 export function startTest() {
-  writeFileSync('testcase_1.js', '', (err) => {
+  writeFileSync(path.join(__dirname, 'testcase_1.js'), '', (err) => {
     if (err) {
       return console.error(err)
     }
@@ -151,7 +163,7 @@ export function startTest() {
   varArr = []
   cmdsArr = []
   flowNodes = {}
-  const nodes = getObject('objectStore.txt').nodes
+  const nodes = getObject(path.join(__dirname, 'objectStore.txt')).nodes
   const endNodeId = getEndNode(nodes)
   getAllFlowNodes(nodes)
   getAllVariables(nodes)
@@ -159,7 +171,7 @@ export function startTest() {
   writeDataToFile()
   console.log('hello from puppetTester')
 
-  exec(`node testcase_1.js`, (error, stdout, stderr) => {
+  exec(`node electron_main/testcase_1.js`, (error, stdout, stderr) => {
     if (error) {
       console.error(`Error executing file: ${error}`)
       return

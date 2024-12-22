@@ -1,18 +1,17 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from 'vue-router'
 import HelloWorld from './components/misc/HelloWorld.vue'
-import NodesList from './components/NodesList.vue'
-import MainMenuBar from './components/MainMenuBar.vue'
-import MainToolBar from './components/MainToolBar.vue'
-import MainCanvas from './components/MainCanvas.vue'
-import RightClickMenu from './components/RightClickMenu.vue'
+import MainMenuBar from './components/menus&bars/MenuBar.vue'
+import MainToolBar from './components/menus&bars/ToolBar.vue'
+import CanvasPanel from './components/panels/CanvasPanel.vue'
+import RightClickMenu from './components/menus&bars/RightClickMenu.vue'
 import { nextTick, onMounted, ref, useTemplateRef } from 'vue'
 import type { TreeNode } from 'primevue/treenode'
 import Tree from 'primevue/tree'
 import Splitter from 'primevue/splitter'
 import SplitterPanel from 'primevue/splitterpanel'
-import LeftPanel from './components/folder/LeftPanel.vue'
-import LogTerminal from './components/ui/context-menu/LogTerminal.vue'
+import LeftPanel from './components/panels/LeftPanel.vue'
+import LogTerminal from './components/panels/LogPanel.vue'
 
 const contextMenuActive = ref(false)
 const contextMenuPos = ref({
@@ -118,13 +117,11 @@ function toggleDarkMode() {
     <MainToolBar :call-toggle-in-parent="toggleDarkMode" />
     <!-- <div class="flex leftbar">
       <div class="w-64 bg-mbackground-900 rounded-r-lg">
-        <NodesList />
-        <NodesList />
         <Tree :value="nodes" class="w-full md:w-[30rem]"> </Tree>
         <ToggleSwitch @update:model-value="toggleValueChanged($event)" />
       </div>
       <div class="w-full h-full" @contextmenu="rightClickMenuClicked" @click="checkContextMenu">
-        <MainCanvas ref="mainCanvas-ref" />
+        <CanvasPanel ref="mainCanvas-ref" />
       </div>
     </div> -->
     <Splitter class="leftbar">
@@ -139,7 +136,7 @@ function toggleDarkMode() {
               @contextmenu="rightClickMenuClicked"
               @click="checkContextMenu"
             >
-              <MainCanvas ref="mainCanvas-ref" />
+              <CanvasPanel ref="mainCanvas-ref" />
             </div>
           </SplitterPanel>
           <SplitterPanel :size="25">

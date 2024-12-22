@@ -80,11 +80,11 @@ function yourFunction(args) {
 
 function saveTestCaseData(data) {
   console.log('save test case caleed')
-  storeObject('objectStore.txt', data)
+  storeObject(path.join(__dirname, 'objectStore.txt'), data)
 }
 
 function loadTestCaseData() {
-  const obj = getObject('objectStore.txt')
+  const obj = getObject(path.join(__dirname, 'objectStore.txt'))
   return obj
 }
 

@@ -3,11 +3,11 @@ import { VueFlow, useVueFlow, useNodesData } from '@vue-flow/core'
 import { Background } from '@vue-flow/background'
 import { Controls } from '@vue-flow/controls'
 import { ref } from 'vue'
-import TestNode from './nodes/TestNode.vue'
-import VarNode from './nodes/VarNode.vue'
-import DomNode from './nodes/DomNode.vue'
-import PropertiesMenu from './menu/PropertiesMenu.vue'
-import type nodeData from './nodes/nodeType'
+import TestNode from '.././nodes/DriverNode.vue'
+import VarNode from '.././nodes/VarNode.vue'
+import DomNode from '.././nodes/DomNode.vue'
+import PropertiesModal from '.././modals/PropertiesModal.vue'
+import type nodeData from '../nodes/nodeType'
 
 const nodesData: nodeData[] = [
   {
@@ -271,7 +271,7 @@ defineExpose({
     <template #node-dom-node="props">
       <DomNode :id="props.id" :data="props.data" :selected="props.selected" />
     </template>
-    <PropertiesMenu
+    <PropertiesModal
       :class="{ propertiesPanel: !isPropertiesPanelVisible }"
       :cur-selected-node-id="curSelectedNodeId"
     />

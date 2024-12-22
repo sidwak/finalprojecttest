@@ -6,8 +6,8 @@ const socket = io('ws://localhost:3000');
 socket.on('connect', async () => {
 
 const browser = await puppeteer.launch({
-  //executablePath: 'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
-  executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+  executablePath: 'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
+  //executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
   headless: false,
 })
 
@@ -36,4 +36,7 @@ socket.emit('cmdExe', 'Command executed successfully - Command: input DOMcss: .g
 
 //await browser.close()
 ;
+})
+socket.on('disconnect', async () => {
+  process.kill(0)
 })
