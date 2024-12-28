@@ -44,13 +44,13 @@ const nodeValRef = computed({
     }
   },
 })
-watch(
+/* watch(
   () => props.curSelectedNodeId,
   (newId, oldId) => {
     //setInitData()
   },
-)
-
+) */
+//#region Primevue
 const divider_dt = {
   colorScheme: {
     light: {
@@ -70,10 +70,7 @@ const divider_pt = {
     class: 'my-3',
   },
 }
-function setInitData() {
-  //get values from nodes
-  nodeNameRef.value = curNodeData.value.nodeName
-}
+//#endregion
 
 function onNodeNameChange(newVal: any) {
   if (curNodeData.value) {
@@ -85,7 +82,7 @@ function onNodeValueChange(newVal: any) {
     //curNodeData.value.data.varVal = newVal
   }
 }
-function hello() {
+function requireNodeName() {
   if (curNodeData.value) {
     if ('reqNodeName' in curNodeData.value) {
       return false
@@ -99,7 +96,7 @@ function hello() {
 function isNodeValueInputRequired() {
   if (curNodeData.value) {
     if (curNodeData.value.nodeType === nodeType.DriverNode) {
-      if (curNodeData.value.pValue.isRequired == true) {
+      if (curNodeData.value.pValue.isRequired === true) {
         //if not set , undefined is falsy value
         return true
       } else {
@@ -121,7 +118,7 @@ function isNodeValueInputRequired() {
           Node Type:
           <InputText disabled :placeholder="curNodeData?.label" size="small" />
         </div>
-        <div class="flex gap-2 items-center justify-between" v-show="hello()">
+        <div class="flex gap-2 items-center justify-between" v-show="requireNodeName()">
           Node Name:
           <InputText
             type="text"

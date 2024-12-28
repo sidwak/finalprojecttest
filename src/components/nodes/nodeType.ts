@@ -9,9 +9,12 @@ export default interface nodeData {
     isRuntime: boolean
     connnectedNodeId: string
     value: string | null
+    edgeId: string
   }
   pCmd?: {
     value: string
+    isValueRequired?: boolean
+    isGetOnly?: boolean
   }
   flow: {
     prevNodeId?: string

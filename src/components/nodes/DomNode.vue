@@ -4,12 +4,13 @@ import { ref, onMounted, onUnmounted, shallowRef } from 'vue'
 import InputText from 'primevue/inputtext'
 import type nodeData from './nodeType'
 
-/* const props = defineProps(['id', 'label', 'data', 'selected']) */
+//#region Props
 const props = defineProps<{
   id: string
   data: nodeData
   selected: boolean
 }>()
+//#endregion
 const inputRef = ref(null)
 </script>
 <template>

@@ -12,9 +12,17 @@ import {
 } from 'vue'
 import { CascadeSelect, InputText } from 'primevue'
 import type nodeData from './nodeType'
-
 const { updateNodeData, removeEdges, findNode } = useVueFlow()
-const props = defineProps(['id', 'label', 'data', 'selected'])
+enum fieldState {
+  Hidden,
+  Block,
+  Grayed,
+}
+
+//#region Props
+const props = defineProps(['id', 'data', 'selected'])
+//#endregion
+//#region Refs
 const varNameRef = computed(() => {
   if (selectedCmd.value) {
     return selectedCmd.value.cmd
@@ -22,13 +30,11 @@ const varNameRef = computed(() => {
     return 'null_cmd'
   }
 })
-const varValueRef = computed({
+const varInputRef = computed({
   get() {
     if (nodesData.value) {
-      varValDisabled.value = true
       return nodesData.value.pValue.value
     } else {
-      varValDisabled.value = false
       return driverNodeData.pValue.value
     }
   },
@@ -40,9 +46,7 @@ const varValueRef = computed({
     }
   },
 })
-const varValDisabled = ref(false)
-const requiresVarValue = ref(false)
-
+const varStateRef = ref<fieldState>(fieldState.Hidden)
 const selectedCmd = ref()
 const countries = ref([
   {
@@ -51,6 +55,7 @@ const countries = ref([
       {
         cmd: 'get',
         isValueRequired: true,
+        isGetOnly: false,
       },
       {
         cmd: 'getTitle',
@@ -70,21 +75,27 @@ const countries = ref([
       {
         cmd: 'click',
         isValueRequired: true,
+        isGetOnly: false,
       },
       {
         cmd: 'input',
         isValueRequired: true,
+        isGetOnly: false,
       },
       {
         cmd: 'left-click',
         isValueRequired: true,
+        isGetOnly: false,
       },
       {
         cmd: 'double-click',
         isValueRequired: true,
+        isGetOnly: false,
       },
       {
         cmd: 'drag',
+        isValueRequired: true,
+        isGetOnly: false,
       },
     ],
   },
@@ -93,19 +104,29 @@ const countries = ref([
     group: [
       {
         cmd: 'back',
+        isValueRequired: false,
+        isGetOnly: false,
       },
       {
         cmd: 'forward',
+        isValueRequired: false,
+        isGetOnly: false,
       },
       {
         cmd: 'refresh',
+        isValueRequired: false,
+        isGetOnly: false,
       },
     ],
   },
   {
     cmd: 'Start',
+    isValueRequired: false,
+    isGetOnly: false,
   },
 ])
+//#endregion
+//#region Primevue
 const cascadeSelect_dt = {
   root: {
     paddingX: '0.4rem',
@@ -126,42 +147,34 @@ const cascadeSelect_pt = {
     class: 'w-[10px] h-[10px]',
   },
 }
-
+//#endregion
+//#region VueFlow
+const driverNodeData: nodeData = useNodesData(props.id).value?.data
+let data = useNodesData(() => connections.value.map((connection) => connection.source))
+const nodesData = computed<nodeData | null | any>(() => {
+  console.log(data.value)
+  if (data.value.length > 0) {
+    return data.value[0].data
+  } else {
+    return null
+  }
+})
+//#endregion
 onBeforeMount(() => {
   console.log(selectedCmd.value)
-  if (
-    driverNodeData.pCmd?.value === 'get' ||
-    driverNodeData.pCmd?.value === 'click' ||
-    driverNodeData.pCmd?.value === 'input'
-  ) {
-    requiresVarValue.value = true
-    selectedCmd.value = { cmd: driverNodeData.pCmd?.value, isValueRequired: true }
-    //updatePostion()
-  } else if (driverNodeData.pCmd?.value === 'Start') {
-    selectedCmd.value = { cmd: driverNodeData.pCmd?.value }
-    //updatePostion()
-  }
-  console.log(selectedCmd.value)
-  /* if (driverNodeData.pValue.isRequired) {
-    if (driverNodeData.pValue.isConnected) {
-      nodesData.value = useNodesData(driverNodeData.pValue.connnectedNodeId)
+  console.log(driverNodeData.pCmd?.value)
+  if (driverNodeData.pCmd?.value !== 'cmd not set') {
+    // only set when loading node from data not while adding new
+    selectedCmd.value = {
+      cmd: driverNodeData.pCmd?.value,
+      isValueRequired: driverNodeData.pCmd?.isValueRequired,
+      isGetOnly: driverNodeData.pCmd?.isGetOnly,
     }
-  } */
+  }
+  updateFieldsState()
 })
 
-function updatePostion() {
-  const newData = findNode(props.id)
-  const pos: any = newData?.position
-  //pos.x = 0
-  //pos.y = 0
-  console.log(pos)
-  if (newData) {
-    newData.position = pos
-  }
-}
-
-const driverNodeData: nodeData = useNodesData(props.id).value?.data
-/* watch(varValueRef, (newVal, oldVal) => {
+/* watch(varInputRef, (newVal, oldVal) => {
   if (driverNodeData.value) {
     driverNodeData.value.data.varVal = newVal
   }
@@ -174,100 +187,92 @@ const connections = useHandleConnections({
     if (connection[0].sourceHandle === 'var-get') {
       driverNodeData.pValue.isConnected = true
       driverNodeData.pValue.connnectedNodeId = connection[0].source
+      driverNodeData.pValue.edgeId = connection[0].edgeId
+      updateFieldsState()
     }
   },
   onDisconnect: (connection) => {
     driverNodeData.pValue.isConnected = false
     driverNodeData.pValue.connnectedNodeId = '-1'
+    driverNodeData.pValue.edgeId = '-1'
+    updateFieldsState()
   },
 })
 
-let data = useNodesData(() => connections.value.map((connection) => connection.source))
-const nodesData = computed<nodeData | null | any>(() => {
-  console.log(data.value)
-  if (data.value.length > 0) {
-    return data.value[0].data
-  } else {
-    return null
+function updateFieldsState() {
+  if (selectedCmd.value) {
+    if (driverNodeData.pValue.isConnected == true) {
+      varStateRef.value = selectedCmd.value.isValueRequired ? fieldState.Grayed : fieldState.Hidden
+    } else {
+      varStateRef.value = selectedCmd.value.isValueRequired ? fieldState.Block : fieldState.Hidden
+      varStateRef.value = selectedCmd.value.isGetOnly ? fieldState.Grayed : varStateRef.value
+    }
   }
-})
+  console.log(`varStateRef: ${varStateRef.value}`)
+}
 
 function onDropdownItemSelected(curCmd: any) {
   console.log(curCmd)
+  callNodeDataUpdate(curCmd)
   if (curCmd.isValueRequired === true) {
-    callNodeDataUpdate(curCmd.cmd)
     driverNodeData.pValue.isRequired = true
-    requiresVarValue.value = true
     if (curCmd.isGetOnly === true) {
-      if (nodesData.value) {
-        removeEdges(connections.value[0].edgeId)
-      }
+      removeUnconnectedEdges()
     }
   } else {
-    if (nodesData.value) {
-      removeEdges(connections.value[0].edgeId)
-    }
+    removeUnconnectedEdges()
     driverNodeData.pValue.isRequired = false
-    requiresVarValue.value = false
-    callNodeDataUpdate(curCmd.cmd)
   }
   console.log(connections.value.map((connection) => connection.source))
+  updateFieldsState()
   //console.log(nodesData.value[0].type)
-
-  //dropdownOpen.value = false
 }
-function callNodeDataUpdate(newCmd: string) {
+function removeUnconnectedEdges() {
+  if (driverNodeData.pValue.isConnected === true) {
+    removeEdges(driverNodeData.pValue.edgeId)
+  }
+}
+function callNodeDataUpdate(newCmd: any) {
   if (driverNodeData.pCmd) {
-    driverNodeData.pCmd.value = newCmd
+    driverNodeData.pCmd.value = newCmd.cmd
+    driverNodeData.pCmd.isValueRequired = newCmd.isValueRequired
+    driverNodeData.pCmd.isGetOnly = newCmd.isGetOnly
   }
 }
-const requiresVarSetHandle = computed(() => {
-  if (selectedCmd.value) {
-    if (selectedCmd.value.isValueRequired === true) {
-      /* if (selectedCmd.value.isGetOnly === true) {
-        return false
-      } else {
-        console.log(`${selectedCmd} varhandle`)
-        return true
-      } */
-      return true
-    } else {
-      return false
-    }
-  } else {
-    return false
-  }
-})
-const isVarInputDisabled = computed(() => {
-  if (selectedCmd.value) {
-    if (selectedCmd.value.isValueRequired === true) {
-      if (selectedCmd.value.isGetOnly === true) {
-        return true
-      } else {
-        console.log(`${selectedCmd} varinput`)
-        if (varValDisabled.value === true) {
-          return true
-        } else {
-          return false
-        }
-      }
-    }
-  } else {
-    return false
-  }
-})
 </script>
 <template>
   <div class="node-container" :class="{ 'node-container-highlight': props.selected }">
     <div class="node-heading">Driver Node</div>
     <div class="node-content">
-      <Handle
-        type="target"
-        :position="Position.Left"
-        id="var-set"
-        style="top: 118px; background-color: yellow; border-color: yellow"
-        v-show="requiresVarSetHandle"
-      />
+      <div v-show="varStateRef === fieldState.Block || varStateRef === fieldState.Grayed">
+        <Handle
+          type="target"
+          :position="Position.Left"
+          id="var-set"
+          style="top: 118px; background-color: yellow; border-color: yellow"
+          v-show="varStateRef !== fieldState.Grayed"
+        />
+        <Handle
+          type="source"
+          :position="Position.Right"
+          id="var-get"
+          style="top: 118px; background-color: limegreen; border-color: limegreen"
+        />
+      </div>
+      <div>
+        <Handle
+          type="target"
+          :position="Position.Left"
+          id="domin-set"
+          style="top: 173px; background-color: yellow; border-color: yellow"
+        />
+        <Handle
+          type="source"
+          :position="Position.Right"
+          id="domin-get"
+          style="top: 173px; background-color: limegreen; border-color: limegreen"
+        />
+      </div>
       <div class="">
         <div>
           <p class="mb-1">Command</p>
@@ -294,14 +299,21 @@ const isVarInputDisabled = computed(() => {
             </CascadeSelect>
           </div>
         </div>
-        <div class="text-xs" v-show="requiresVarValue">
+        <div
+          class=""
+          v-show="varStateRef === fieldState.Block || varStateRef === fieldState.Grayed"
+        >
           <p class="mt-2 mb-1">{{ varNameRef }}</p>
           <InputText
             type="text"
-            v-model="varValueRef"
+            v-model="varInputRef"
             class="text-xs py-[0.3rem] px-[0.4rem] w-full"
-            :disabled="isVarInputDisabled"
+            :disabled="varStateRef === fieldState.Grayed"
           />
+        </div>
+        <div>
+          <p class="mt-2 mb-1">DOM Input</p>
+          <InputText type="text" class="text-xs py-[0.3rem] px-[0.4rem] w-full" />
         </div>
         <div class="flex justify-between mb-1">
           <p class="">
@@ -336,13 +348,6 @@ const isVarInputDisabled = computed(() => {
           </p>
         </div>
       </div>
-      <Handle
-        type="source"
-        :position="Position.Right"
-        id="var-get"
-        style="top: 118px; background-color: limegreen; border-color: limegreen"
-        v-show="requiresVarValue"
-      />
     </div>
   </div>
 </template>

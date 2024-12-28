@@ -3,7 +3,7 @@ import { VueFlow, useVueFlow, useNodesData } from '@vue-flow/core'
 import { Background } from '@vue-flow/background'
 import { Controls } from '@vue-flow/controls'
 import { ref } from 'vue'
-import TestNode from '.././nodes/DriverNode.vue'
+import DriverNode from '.././nodes/DriverNode.vue'
 import VarNode from '.././nodes/VarNode.vue'
 import DomNode from '.././nodes/DomNode.vue'
 import PropertiesModal from '.././modals/PropertiesModal.vue'
@@ -23,6 +23,7 @@ const nodesData: nodeData[] = [
       isRuntime: false,
       connnectedNodeId: '-1',
       value: 'value not set',
+      edgeId: '-1',
     },
     flow: {
       prevNodeId: '-1',
@@ -38,6 +39,7 @@ const nodesData: nodeData[] = [
       isRuntime: false,
       connnectedNodeId: '-1',
       value: 'value not set',
+      edgeId: '-1',
     },
     flow: {
       prevNodeId: '-1',
@@ -53,6 +55,7 @@ const nodesData: nodeData[] = [
       isRuntime: false,
       connnectedNodeId: '-1',
       value: 'value not set',
+      edgeId: '-1',
     },
     flow: {
       prevNodeId: '-1',
@@ -161,6 +164,7 @@ const calledFromParent = (data: any) => {
           isRuntime: false,
           connnectedNodeId: '-1',
           value: 'value not set',
+          edgeId: '-1',
         },
         flow: {
           prevNodeId: '-1',
@@ -183,6 +187,7 @@ const calledFromParent = (data: any) => {
           isRuntime: false,
           connnectedNodeId: '-1',
           value: 'value not set',
+          edgeId: '-1',
         },
         flow: {
           prevNodeId: '-1',
@@ -205,6 +210,7 @@ const calledFromParent = (data: any) => {
           isRuntime: false,
           connnectedNodeId: '-1',
           value: 'value not set',
+          edgeId: '-1',
         },
         flow: {
           prevNodeId: '-1',
@@ -263,7 +269,7 @@ defineExpose({
     <!-- style="background-color: #1d1d1d" -->
     <Controls />
     <template #node-driver-node="props">
-      <TestNode :id="props.id" :data="props.data" :selected="props.selected" />
+      <DriverNode :id="props.id" :data="props.data" :selected="props.selected" />
     </template>
     <template #node-var-node="props">
       <VarNode :id="props.id" :data="props.data" :selected="props.selected" />
