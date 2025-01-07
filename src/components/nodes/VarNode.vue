@@ -2,7 +2,7 @@
 import { Position, Handle } from '@vue-flow/core'
 import { ref, onMounted, onUnmounted, shallowRef } from 'vue'
 import InputText from 'primevue/inputtext'
-import type nodeData from './nodeType'
+import type { nodeData } from '@/ts_types/nodeType'
 
 //#region Props
 const props = defineProps<{

@@ -1,4 +1,4 @@
-export default interface nodeData {
+export interface nodeData {
   label: string
   reqNodeName?: boolean
   nodeName: string | null

@@ -5,13 +5,19 @@ import MainMenuBar from './components/menus&bars/MenuBar.vue'
 import MainToolBar from './components/menus&bars/ToolBar.vue'
 import CanvasPanel from './components/panels/CanvasPanel.vue'
 import RightClickMenu from './components/menus&bars/RightClickMenu.vue'
-import { nextTick, onMounted, ref, useTemplateRef } from 'vue'
+import { nextTick, onMounted, ref, useTemplateRef, watch } from 'vue'
 import type { TreeNode } from 'primevue/treenode'
 import Tree from 'primevue/tree'
 import Splitter from 'primevue/splitter'
 import SplitterPanel from 'primevue/splitterpanel'
 import LeftPanel from './components/panels/LeftPanel.vue'
 import LogTerminal from './components/panels/LogPanel.vue'
+import { useToast } from 'primevue'
+import Toast, { type ToastMessageOptions } from 'primevue/toast'
+import { useToastStore } from './pinia_stores/toastStore'
+
+const toast = useToast()
+const toastStore = useToastStore()
 
 const contextMenuActive = ref(false)
 const contextMenuPos = ref({
@@ -71,6 +77,12 @@ function rightClickMenuClicked(e: any) {
 function checkContextMenu(e: any) {
   contextMenuActive.value = false
 }
+watch(
+  () => toastStore.toastAddObject,
+  (newObj, oldObj) => {
+    toast.add(newObj)
+  },
+)
 function callFromContextmenu(data: any) {
   if (mainCanvas.value) {
     data.posX = contextMenuAbsPos.value.left // can remove this to be based on exact mouse position
@@ -97,6 +109,7 @@ function toggleDarkMode() {
     >
       <RightClickMenu :call-from-context-menu="callFromContextmenu" />
     </div> -->
+    <Toast />
     <RightClickMenu
       ref="contextMenuDiv-ref"
       :call-from-context-menu="callFromContextmenu"

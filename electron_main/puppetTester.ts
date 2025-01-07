@@ -1,14 +1,21 @@
-import { writeFileSync, readFileSync, appendFileSync, appendFile, writeFile } from 'fs'
+import {
+  writeFileSync,
+  readFileSync,
+  appendFileSync,
+  appendFile,
+  writeFile,
+  PathOrFileDescriptor,
+} from 'fs'
 import { exec } from 'child_process'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import { dirname } from 'path'
 const __filename = fileURLToPath(import.meta.url)
-const __dirname = dirname(__filename)
+const __dirname = dirname(__filename).replace('\\dist', '')
 
-let varArr = []
-let cmdsArr = []
-let flowNodes = {}
+let varArr: string[] = []
+let cmdsArr: string[] = []
+let flowNodes: any = {}
 
 let initialCode = `import puppeteer from 'puppeteer-core'
 import { io } from 'socket.io-client';
@@ -31,7 +38,7 @@ socket.emit('cmdExe', 'This test is about to start')
 
 `
 
-let cmdToCode = {
+let cmdToCode: any = {
   get: 'await page.goto($value);\n',
   click: 'await page.locator($value).click();\n',
   input: 'await page.locator($value).fill($input);\n',
@@ -39,15 +46,15 @@ let cmdToCode = {
 let logText = `Command executed successfully - Command: $cmd DOMcss: $value DOMinput: $input`
 let logCmd = `socket.emit('cmdExe', '$log')\n\n`
 
-function getObject(filePath) {
+function getObject(filePath: any) {
   const data = readFileSync(filePath, 'utf8')
   const obj = JSON.parse(data) // Convert JSON string back to object
   return obj
 }
 
-function getEndNode(nodes) {
+function getEndNode(nodes: any[]) {
   let lastId = -1
-  nodes.forEach((node) => {
+  nodes.forEach((node: any) => {
     if (node.type === 'driver-node') {
       if (node.data.pCmd === 'Stop') {
         lastId = node.id
@@ -57,9 +64,9 @@ function getEndNode(nodes) {
   return lastId
 }
 
-function getAllVariables(nodes) {
+function getAllVariables(nodes: any[]) {
   let newVar = 'def-var'
-  nodes.forEach((node) => {
+  nodes.forEach((node: any) => {
     if (node.type === 'var-node') {
       newVar = 'let v_var' + node.id + " = '" + node.data.pValue.value + "'\n"
     } else if (node.type === 'dom-node') {
@@ -72,10 +79,9 @@ function getAllVariables(nodes) {
   console.log(varArr)
 }
 
-function getAllCommands(nodes) {
-  nodes.forEach((node) => {
+function getAllCommands(nodes: any[]) {
+  nodes.forEach((node: any) => {
     if (node.type === 'driver-node') {
-      let newCmd = 'def-cmd'
       if (node.data.pValue.isRequired === true) {
         if (node.data.pValue.isConnected) {
           let connectedNodeVarName = ''
@@ -108,10 +114,7 @@ function getAllCommands(nodes) {
           let newCmd = cmdToCode[node.data.pCmd.value]
           let logOut = logText
           logOut = logOut.replace('$cmd', node.data.pCmd.value)
-          logOut = logOut.replace(
-            '$value',
-            flowNodes[node.data.pValue.connnectedNodeId].data.pValue.value,
-          )
+          logOut = logOut.replace('$value', flowNodes[node.id].data.pValue.value)
           newCmd = newCmd.replace('$value', connectedNodeVarName)
           let cmdOut = logCmd
           cmdOut = cmdOut.replace('$log', logOut)
@@ -144,8 +147,8 @@ function writeDataToFile() {
   )
 }
 
-function getAllFlowNodes(nodes) {
-  nodes.forEach((node) => {
+function getAllFlowNodes(nodes: any[]) {
+  nodes.forEach((node: { id: string | number }) => {
     flowNodes[node.id] = node
   })
   console.log(flowNodes)
@@ -154,12 +157,12 @@ function getAllFlowNodes(nodes) {
 //startTest()
 
 export function startTest() {
-  writeFileSync(path.join(__dirname, 'testcase_1.js'), '', (err) => {
-    if (err) {
-      return console.error(err)
-    }
+  try {
+    writeFileSync(path.join(__dirname, 'testcase_1.js'), '')
     console.log('File cleared successfully.')
-  })
+  } catch (err) {
+    return console.error(err)
+  }
   varArr = []
   cmdsArr = []
   flowNodes = {}
@@ -182,4 +185,15 @@ export function startTest() {
     }
     console.log(`Output: ${stdout}`)
   })
+}
+
+export function getProjectsInfoJson() {
+  const puppet_test_dir = __dirname.replace('\\electron_main', '\\puppet_test')
+  try {
+    const projectsInfoData = readFileSync(path.join(puppet_test_dir, 'projectsInfo.json'), 'utf8')
+    const projectsInfo = JSON.parse(projectsInfoData)
+    return projectsInfo
+  } catch (err) {
+    return 'error reading project.json or parsing'
+  }
 }

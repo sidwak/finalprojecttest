@@ -3,8 +3,9 @@ import { app, BrowserWindow, ipcMain } from 'electron'
 import { fileURLToPath } from 'url'
 import { dirname } from 'path'
 import { writeFileSync, readFileSync } from 'fs'
-import { startTest } from './puppetTester.js'
+import { startTest, getProjectsInfoJson } from './puppetTester.js'
 import { Server } from 'socket.io'
+import { createNewProject } from './projectsService.js'
 
 const io = new Server(3000, {
   cors: {
@@ -12,19 +13,18 @@ const io = new Server(3000, {
   },
 })
 
-io.on('connection', (socket) => {
+io.on('connection', (socket: any) => {
   console.log('A client connected:', socket.id)
-  socket.on('cmdExe', (data) => {
+  socket.on('cmdExe', (data: any) => {
     console.log(`Message from ${socket.id}: ${data}`)
     socket.broadcast.emit('broadcast', { sender: socket.id, message: data })
   })
 })
 
-let win
+let win: BrowserWindow | null
 const __filename = fileURLToPath(import.meta.url)
-const __dirname = dirname(__filename)
-
-// Create the window when the app is ready
+const __dirname = dirname(__filename).replace('\\dist', '')
+const __puppetDir = dirname(__filename).replace('\\electron_main\\dist', '')
 
 function createWindow() {
   win = new BrowserWindow({
@@ -32,22 +32,15 @@ function createWindow() {
     height: 960,
     autoHideMenuBar: true,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
+      preload: path.join(__dirname + '\\dist', 'preload.js'),
       contextIsolation: true,
       //enabling nodeIntegration will auto disable contextIsolation and enableRemoteModule
       //nodeIntegration: true, // You can enable Node integration, though it's recommended to use contextBridge instead
     },
   })
-
   win.webContents.openDevTools()
-  // In development mode, load Vite's dev server
-  /* if (process.env.NODE_ENV === 'development') {
-    win.loadURL('http://localhost:5173') // Default port for Vite
-  } else {
-    // In production mode, load the built app
-    win.loadFile('index.html')
-  } */
-
+  // In production mode, load the built app
+  // win.loadFile('index.html')
   console.log('hello')
 
   win.loadURL('http://localhost:5173')
@@ -58,7 +51,6 @@ function createWindow() {
 }
 
 ipcMain.handle('invoke-function', async (event, args) => {
-  // Replace with the function you want to call
   return yourFunction(args)
 })
 ipcMain.handle('save-tc-data', async (event, args) => {
@@ -70,15 +62,21 @@ ipcMain.handle('load-tc-data', async (event, args) => {
 ipcMain.handle('start-test', async (event, args) => {
   startTest()
 })
+ipcMain.handle('get-projects-info-json', async (event, args) => {
+  return loadProjectsInfoJson()
+})
+ipcMain.handle('create-new-project', async (event, args) => {
+  return createNewProject(args)
+})
 
-function yourFunction(args) {
-  // Perform your backend task
+function yourFunction(args: any) {
+  // Perform your backend task hello
   console.log(args)
   console.log('hello from frontend')
   return 'hello from backend'
 }
 
-function saveTestCaseData(data) {
+function saveTestCaseData(data: any) {
   console.log('save test case caleed')
   storeObject(path.join(__dirname, 'objectStore.txt'), data)
 }
@@ -88,16 +86,20 @@ function loadTestCaseData() {
   return obj
 }
 
-function storeObject(filePath, obj) {
+function storeObject(filePath: any, obj: any) {
   const data = JSON.stringify(obj, null, 2) // Convert object to a JSON string with indentation
   writeFileSync(filePath, data, 'utf8')
   console.log('Object stored successfully!')
 }
 
-function getObject(filePath) {
+function getObject(filePath: any) {
   const data = readFileSync(filePath, 'utf8')
   const obj = JSON.parse(data) // Convert JSON string back to object
   return obj
+}
+
+function loadProjectsInfoJson() {
+  return getProjectsInfoJson()
 }
 
 app.whenReady().then(createWindow)

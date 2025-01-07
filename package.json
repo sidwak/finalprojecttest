@@ -14,14 +14,18 @@
     "lint": "eslint . --fix",
     "format": "prettier --write src/",
     "electron": "electron .",
-    "dev:electron": "concurrently \"npm run dev\" \"npm run electron\""
+    "dev:electron": "concurrently \"npm run dev\" \"npm run electron\"",
+    "etron": "npx tsc --project electron_main/tsconfig.json && npm run electron",
+    "electron_tsc": "npx tsc --project electron_main/tsconfig.json",
+    "app": "concurrently \"npm run dev\" \"npm run etron\""
   },
-  "main": "electron_main/main.js",
+  "main": "electron_main/dist/main.js",
   "dependencies": {
     "@primevue/themes": "^4.2.4",
     "@vue-flow/background": "^1.3.2",
     "@vue-flow/controls": "^1.1.2",
     "@vue-flow/core": "^1.41.5",
+    "pinia": "^2.3.0",
     "primeicons": "^7.0.0",
     "primevue": "^4.2.4",
     "puppeteer-core": "^23.10.1",

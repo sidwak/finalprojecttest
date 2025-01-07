@@ -17,22 +17,12 @@ await page.setViewport({ width: 1080, height: 1024 })
 
 socket.emit('cmdExe', 'This test is about to start')
 
-let d_var0 = 'value not set'
 let d_var1 = 'value not set'
-let v_var2 = 'http://www.google.com'
-let d_var3 = 'value not set'
-let e_var4 = '.gLFyf'
-let d_var5 = 'python'
+let d_var2 = 'https://www.google.com'
 
 
-await page.goto(v_var2);
-socket.emit('cmdExe', 'Command executed successfully - Command: get cmdValue: http://www.google.com ')
-
-await page.locator(e_var4).click();
-socket.emit('cmdExe', 'Command executed successfully - Command: click DOMcss: .gLFyf ')
-
-await page.locator(e_var4).fill(d_var5);
-socket.emit('cmdExe', 'Command executed successfully - Command: input DOMcss: .gLFyf DOMinput: python')
+await page.goto(d_var2);
+socket.emit('cmdExe', 'Command executed successfully - Command: get DOMcss: https://www.google.com DOMinput: $input')
 
 //await browser.close()
 ;

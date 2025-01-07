@@ -1,0 +1,19 @@
+{
+  "projects": [
+    {
+      "id": 1,
+      "name": "first_project",
+      "desc": "no desc"
+    },
+    {
+      "id": 2,
+      "name": "aaa",
+      "desc": "hello"
+    },
+    {
+      "id": 3,
+      "name": "third",
+      "desc": "nothingg"
+    }
+  ]
+}

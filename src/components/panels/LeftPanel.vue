@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import PanelMenu from 'primevue/panelmenu'
-import { ref } from 'vue'
+import ContextMenu from 'primevue/contextmenu'
+import { ref, useTemplateRef } from 'vue'
+import { useProjectsInfoStore } from '@/pinia_stores/projectsInfoStore'
+import 'primeicons/primeicons.css'
 
+const projectsInfoStore = useProjectsInfoStore()
 const items = ref([
   {
     label: 'Nodes',
@@ -9,6 +13,9 @@ const items = ref([
     items: [
       {
         label: 'Node1',
+        command: () => {
+          addItem()
+        },
       },
       {
         label: 'Node2',
@@ -30,6 +37,9 @@ const items = ref([
     items: [
       {
         label: 'Var1',
+        command: (e: any) => {
+          selectedItem(e)
+        },
       },
       {
         label: 'Var2',
@@ -44,6 +54,9 @@ const items = ref([
         label: 'Var5',
       },
     ],
+    command: (e: any) => {
+      selectedItem(e)
+    },
   },
   {
     label: 'DOM Elements',
@@ -88,21 +101,52 @@ const items = ref([
     ],
   },
   {
-    label: 'Files',
+    label: 'Projects',
     icon: 'pi pi-file',
-    items: [
-      {
-        label: 'file1',
-      },
-      {
-        label: 'file2',
-      },
-      {
-        label: 'file3',
-      },
-    ],
+    //items: projectsInfoStore.projectsList,
   },
 ])
+const contextMenuItems = ref([
+  {
+    label: 'New',
+    icon: 'pi pi-file',
+    command: () => {
+      contextMenuItems.value = contextMenuItems2.value
+    },
+  },
+  {
+    label: 'Open',
+  },
+  {
+    label: 'Delete',
+  },
+])
+const contextMenuItems2 = ref([
+  {
+    label: 'Undo',
+  },
+  {
+    label: 'Redo',
+  },
+])
+const contextMenuItems3 = ref([
+  {
+    label: 'New',
+    icon: 'pi pi-file',
+    command: () => {
+      contextMenuItems.value = contextMenuItems2.value
+    },
+  },
+  {
+    label: 'Open',
+  },
+  {
+    label: 'Delete',
+  },
+])
+const contextMenuRef = useTemplateRef('contextMenu-ref')
+const curSelectedItem = ref('null')
+//#region Primevue
 const panelMenu_dt = {
   itemPadding: '0.3rem 0.6rem',
 }
@@ -113,10 +157,58 @@ const panelMenu_pt = {
     class: 'w-[13px] h-[13px]',
   },
 }
+const contextMenu_dt = {
+  itemPadding: '0.3rem 0.6rem',
+}
+const contextMenu_pt = {
+  root: {
+    class: 'min-w-[9rem]',
+  },
+  itemLabel: 'leading-[16px]',
+}
+//#endregion
+function addItem() {
+  //items.value[3].items.push({ label: 'new_testcase' })
+}
+function selectedItem(e: any) {
+  curSelectedItem.value = e.item.label
+  console.log(e)
+}
+const callToggleContextMenu = (e: any) => {
+  console.log(e)
+  contextMenuItems.value = contextMenuItems3.value
+  contextMenuRef.value?.show(e)
+}
+const callToggleContextMenu2 = (e: any) => {
+  contextMenuItems.value = contextMenuItems2.value
+  contextMenuRef.value?.show(e)
+}
 </script>
 <template>
-  <div class="leftpanel text-xs1 leading-xs1">
-    <PanelMenu :model="items" class="" multiple :pt="panelMenu_pt" :dt="panelMenu_dt" />
+  <ContextMenu
+    ref="contextMenu-ref"
+    :model="contextMenuItems"
+    class="text-xs1 leading-xs1"
+    :pt="contextMenu_pt"
+    :dt="contextMenu_dt"
+  />
+  <div class="leftpanel text-xs1 leading-xs1" @contextmenu="callToggleContextMenu">
+    <PanelMenu :model="items" class="" multiple :pt="panelMenu_pt" :dt="panelMenu_dt">
+      <template #item="{ item, active, hasSubmenu }">
+        <span
+          class="flex items-center px-2 py-2 cursor-pointer group gap-2 rounded-md"
+          :class="{ 'bg-highlight-emphasis': curSelectedItem === item.label }"
+          @contextmenu="callToggleContextMenu2"
+        >
+          <span
+            v-show="hasSubmenu"
+            :class="[{ 'pi pi-angle-down': active }, { 'pi pi-angle-right': !active }]"
+          ></span>
+          <span :class="[item.icon, 'group-hover:text-inherit']"></span>
+          <span :class="['ml-2', { 'font-semibold': item.items }]">{{ item.label }}</span>
+        </span>
+      </template>
+    </PanelMenu>
     <!-- w-full -->
   </div>
 </template>

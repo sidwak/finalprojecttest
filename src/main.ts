@@ -8,6 +8,8 @@ import Aura from '@primevue/themes/aura'
 import { definePreset } from '@primevue/themes'
 import Tooltip from 'primevue/tooltip'
 import ToastService from 'primevue/toastservice'
+import { createPinia } from 'pinia'
+import { initializeData } from './services/projectInfoService'
 
 const MyPreset = definePreset(Aura, {
   primitive: {
@@ -668,8 +670,10 @@ const MyPreset = definePreset(Aura, {
 })
 
 const app = createApp(App)
+const pinia = createPinia()
 
 app.use(router)
+app.use(pinia)
 app.use(PrimeVue, {
   theme: {
     preset: MyPreset,
@@ -688,4 +692,6 @@ app.use(PrimeVue, {
 })
 app.use(ToastService)
 app.directive('tooltip', Tooltip)
+initializeData()
+console.log('service initialization called')
 app.mount('#app')

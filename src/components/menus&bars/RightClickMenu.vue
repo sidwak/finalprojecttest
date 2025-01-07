@@ -5,6 +5,7 @@ import 'primeicons/primeicons.css'
 import { useToast } from 'primevue'
 import Toast from 'primevue/toast'
 
+const toast = useToast()
 const props = defineProps({
   callFromContextMenu: { type: Function, required: true },
   onCommandExecute: { type: Function, required: true },
@@ -83,6 +84,7 @@ const items = [
   { separator: true },
   { label: 'Delete', icon: 'pi pi-trash' },
 ]
+
 const contextMenu_dt = {
   itemPadding: '0.3rem 0.6rem',
 }
@@ -92,7 +94,7 @@ const contextMenu_pt = {
   },
   itemLabel: 'leading-[16px]',
 }
-const toast = useToast()
+
 function callFunction(e: any) {
   const data = {
     posX: e.clientX,
@@ -153,22 +155,6 @@ defineExpose({
 })
 </script>
 <template>
-  <!-- <div
-    class="h-64 w-44 pt-1 bg-mbackground-900 shadow-inner shadow-mbackground-800 text-white font-roboto_mono font-light text-sm select-none"
-  >
-    <div
-      class="h-fit w-full ps-4 py-1 hover:bg-mbackground-700"
-      @click="callFunction('custom-test')"
-    >
-      Add Driver Node
-    </div>
-    <div class="h-fit w-full ps-4 py-1 hover:bg-mbackground-700" @click="callFunction('var-node')">
-      Add Variable Node
-    </div>
-    <div class="h-fit w-full ps-4 py-1 hover:bg-mbackground-700">Add Assert Node</div>
-    <div class="h-fit w-full ps-4 py-1 hover:bg-mbackground-700">Add Wait Node</div>
-    <div class="h-fit w-full ps-4 py-1 hover:bg-mbackground-700">Add Note</div>
-  </div> -->
   <Toast @life-end="liefCycleEnd" />
   <ContextMenu
     ref="contextMenu-ref"

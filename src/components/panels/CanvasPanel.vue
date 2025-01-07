@@ -7,7 +7,7 @@ import DriverNode from '.././nodes/DriverNode.vue'
 import VarNode from '.././nodes/VarNode.vue'
 import DomNode from '.././nodes/DomNode.vue'
 import PropertiesModal from '.././modals/PropertiesModal.vue'
-import type nodeData from '../nodes/nodeType'
+import type { nodeData } from '@/ts_types/nodeType'
 
 const nodesData: nodeData[] = [
   {
@@ -137,13 +137,6 @@ function AddNodes(data: any) {
 }
 
 const patternColorRef = ref('#f0ff00')
-function isAppDark() {
-  if (document.documentElement.classList.contains('app-dark')) {
-    patternColorRef.value = '#7a7a7a'
-  } else {
-    patternColorRef.value = '#f0ff00'
-  }
-}
 
 const calledFromParent = (data: any) => {
   let nodeInfo: { id: string; data: nodeData; position: object; type: string }

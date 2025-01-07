@@ -11,7 +11,7 @@ import {
   onBeforeMount,
 } from 'vue'
 import { CascadeSelect, InputText } from 'primevue'
-import type nodeData from './nodeType'
+import type { nodeData } from '@/ts_types/nodeType'
 const { updateNodeData, removeEdges, findNode } = useVueFlow()
 enum fieldState {
   Hidden,

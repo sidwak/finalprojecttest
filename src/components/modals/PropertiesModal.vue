@@ -2,8 +2,8 @@
 import { Panel, useVueFlow } from '@vue-flow/core'
 import { Divider, InputText } from 'primevue'
 import { ref, computed, watch } from 'vue'
-import type nodeData from '../nodes/nodeType'
-import { nodeType } from '../nodes/nodeType'
+import type { nodeData } from '@/ts_types/nodeType'
+import { nodeType } from '../../ts_types/nodeType'
 const flowInst = useVueFlow()
 
 const props = defineProps(['curSelectedNodeId'])
