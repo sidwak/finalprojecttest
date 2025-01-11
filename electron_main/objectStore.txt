@@ -1,92 +1,75 @@
 {
-  "nodes": [
-    {
-      "id": "1",
-      "type": "driver-node",
-      "initialized": false,
-      "position": {
-        "x": 81.140625,
-        "y": 241
+  "testcaseData": {
+    "id": 0,
+    "name": "first"
+  },
+  "nodesData": {
+    "nodes": [
+      {
+        "id": "0",
+        "type": "driver-node",
+        "initialized": false,
+        "position": {
+          "x": 203.046875,
+          "y": 52
+        },
+        "data": {
+          "nodeName": "Node 0",
+          "nodeType": "driver-node",
+          "reqNodeName": false,
+          "label": "type: driver-node",
+          "pCmd": {
+            "value": "cmd not set"
+          },
+          "pValue": {
+            "isConnected": false,
+            "isRuntime": false,
+            "connnectedNodeId": "-1",
+            "value": "value not set",
+            "edgeId": "-1"
+          },
+          "flow": {
+            "prevNodeId": "-1",
+            "nextNodeId": "-1"
+          }
+        }
       },
-      "data": {
-        "nodeName": "Node 1",
-        "nodeType": "driver-node",
-        "reqNodeName": false,
-        "label": "type: driver-node",
-        "pCmd": {
-          "value": "Start",
-          "isValueRequired": false,
-          "isGetOnly": false
+      {
+        "id": "1",
+        "type": "var-node",
+        "initialized": false,
+        "position": {
+          "x": 359.046875,
+          "y": 133
         },
-        "pValue": {
-          "isConnected": false,
-          "isRuntime": false,
-          "connnectedNodeId": "-1",
-          "value": "value not set",
-          "edgeId": "-1",
-          "isRequired": false
-        },
-        "flow": {
-          "nextNodeId": "2"
+        "data": {
+          "nodeName": "Node 1",
+          "nodeType": "var-node",
+          "label": "type: var-node",
+          "pValue": {
+            "isConnected": false,
+            "isRuntime": false,
+            "connnectedNodeId": "-1",
+            "value": "value not set",
+            "edgeId": "-1"
+          },
+          "flow": {
+            "prevNodeId": "-1",
+            "nextNodeId": "-1"
+          }
         }
       }
-    },
-    {
-      "id": "2",
-      "type": "driver-node",
-      "initialized": false,
-      "position": {
-        "x": 368.140625,
-        "y": 217
-      },
-      "data": {
-        "nodeName": "Node 2",
-        "nodeType": "driver-node",
-        "reqNodeName": false,
-        "label": "type: driver-node",
-        "pCmd": {
-          "value": "get",
-          "isValueRequired": true,
-          "isGetOnly": false
-        },
-        "pValue": {
-          "isConnected": false,
-          "isRuntime": false,
-          "connnectedNodeId": "-1",
-          "value": "https://www.google.com",
-          "edgeId": "-1",
-          "isRequired": true
-        },
-        "flow": {
-          "prevNodeId": "1"
-        }
-      }
+    ],
+    "edges": [],
+    "position": [
+      0,
+      0
+    ],
+    "zoom": 1,
+    "viewport": {
+      "x": 0,
+      "y": 0,
+      "zoom": 1
     }
-  ],
-  "edges": [
-    {
-      "id": "vueflow__edge-1flow-next-2flow-prev",
-      "type": "default",
-      "source": "1",
-      "target": "2",
-      "sourceHandle": "flow-next",
-      "targetHandle": "flow-prev",
-      "data": {},
-      "label": "",
-      "sourceX": 248.3125,
-      "sourceY": 387.1875,
-      "targetX": 365.140625,
-      "targetY": 418.78125
-    }
-  ],
-  "position": [
-    0,
-    0
-  ],
-  "zoom": 1,
-  "viewport": {
-    "x": 0,
-    "y": 0,
-    "zoom": 1
   }
 }

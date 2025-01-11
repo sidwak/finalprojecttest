@@ -1,151 +1,174 @@
 <script setup lang="ts">
 import PanelMenu from 'primevue/panelmenu'
 import ContextMenu from 'primevue/contextmenu'
-import { ref, useTemplateRef } from 'vue'
-import { useProjectsInfoStore } from '@/pinia_stores/projectsInfoStore'
+import { ref, useTemplateRef, computed, watch } from 'vue'
+import { useProjectsStore } from '@/pinia_stores/projectsStore'
+import { useTestcasesStore } from '@/pinia_stores/testcasesStore'
 import 'primeicons/primeicons.css'
+import type { testcaseDataType } from '@/ts_types/puppet_test_types'
+import TestcaseNewModal from '../modals/TestcaseNewModal.vue'
+import { loadNewTestcase } from '@/services/testcaseService'
+import type { nodeData } from '@/ts_types/nodeType'
+import { useVueFlow, type ViewportTransform, type VueFlowStore } from '@vue-flow/core'
+import { useFlowStore } from '@/pinia_stores/flowStore'
 
-const projectsInfoStore = useProjectsInfoStore()
+let vueFlowInstance: VueFlowStore | null = null
+const { setViewport, fitView, onPaneReady } = useVueFlow()
+const projectsStore = useProjectsStore()
+const testcasesStore = useTestcasesStore()
+const flowStore = useFlowStore()
+
+const testcasesListItems = computed(() => {
+  const testcasesDataJson: any[] = testcasesStore.testcasesList
+  let returnList: any[] = []
+  testcasesDataJson.forEach((numTestcase: testcaseDataType) => {
+    const tempObj = {
+      label: numTestcase.name,
+      testcaseData: numTestcase,
+      command: (e: any) => {
+        openTestcase(e)
+      },
+    }
+    returnList.push(tempObj)
+  })
+  return returnList
+})
+const nodesListItems = computed(() => {
+  const nodesList: any[] = testcasesStore.nodesFlowData.nodes
+  let returnList: any[] = []
+  nodesList.forEach((nodeData) => {
+    const tempObj = {
+      label: `${nodeData.data.nodeType} [id:${nodeData.id}]`,
+      command: (e: any) => selectItem(e),
+      nData: nodeData,
+    }
+    if (nodeData.data.nodeType === 'driver-node') {
+      //tempObj.label = `${nodeData.data.nodeName} ${nodeData.id}`
+      returnList.push(tempObj)
+    }
+  })
+  return returnList
+})
+const varNodesListItems = computed(() => {
+  const nodesList: any[] = testcasesStore.nodesFlowData.nodes
+  let returnList: any[] = []
+  nodesList.forEach((nodeData) => {
+    const tempObj = {
+      label: `${nodeData.data.nodeName} [id:${nodeData.id}]`,
+      command: (e: any) => selectItem(e),
+    }
+    if (nodeData.data.nodeType === 'var-node') {
+      returnList.push(tempObj)
+    }
+  })
+  return returnList
+})
+const domNodesListItems = computed(() => {
+  const nodesList: any[] = testcasesStore.nodesFlowData.nodes
+  let returnList: any[] = []
+  nodesList.forEach((nodeData) => {
+    const tempObj = {
+      label: `${nodeData.data.nodeName} [id:${nodeData.id}]`,
+      command: (e: any) => selectItem(e),
+    }
+    if (nodeData.data.nodeType === 'dom-node') {
+      returnList.push(tempObj)
+    }
+  })
+  return returnList
+})
 const items = ref([
   {
     label: 'Nodes',
+    isRoot: true,
     icon: 'pi pi-ticket',
-    items: [
-      {
-        label: 'Node1',
-        command: () => {
-          addItem()
-        },
-      },
-      {
-        label: 'Node2',
-      },
-      {
-        label: 'Node3',
-      },
-      {
-        label: 'Node4',
-      },
-      {
-        label: 'Node5',
-      },
-    ],
+    items: nodesListItems,
   },
   {
     label: 'Variables',
+    isRoot: true,
     icon: 'pi pi-database',
-    items: [
-      {
-        label: 'Var1',
-        command: (e: any) => {
-          selectedItem(e)
-        },
-      },
-      {
-        label: 'Var2',
-      },
-      {
-        label: 'Var3',
-      },
-      {
-        label: 'Var4',
-      },
-      {
-        label: 'Var5',
-      },
-    ],
-    command: (e: any) => {
-      selectedItem(e)
-    },
+    items: varNodesListItems,
   },
   {
     label: 'DOM Elements',
+    isRoot: true,
     icon: 'pi pi-file-word',
-    items: [
-      {
-        label: 'tag1',
-      },
-      {
-        label: 'tag2',
-      },
-      {
-        label: 'tag3',
-      },
-      {
-        label: 'tag4',
-      },
-      {
-        label: 'tag5',
-      },
-    ],
+    items: domNodesListItems,
   },
   {
     label: 'Test Cases',
+    isRoot: true,
     icon: 'pi pi-code',
-    items: [
-      {
-        label: 'testcase1',
-      },
-      {
-        label: 'testcase2',
-      },
-      {
-        label: 'testcase3',
-      },
-      {
-        label: 'testcase4',
-      },
-      {
-        label: 'testcase5',
-      },
-    ],
+    items: testcasesListItems,
   },
   {
     label: 'Projects',
+    isRoot: true,
     icon: 'pi pi-file',
-    //items: projectsInfoStore.projectsList,
+    //items: projectsStore.projectsList,
   },
 ])
-const contextMenuItems = ref([
-  {
-    label: 'New',
-    icon: 'pi pi-file',
-    command: () => {
-      contextMenuItems.value = contextMenuItems2.value
-    },
-  },
+
+const contextMenuItemModal = ref([
   {
     label: 'Open',
+  },
+  {
+    label: 'Rename',
   },
   {
     label: 'Delete',
   },
 ])
-const contextMenuItems2 = ref([
+const contextMenuPanelModal = ref([
   {
-    label: 'Undo',
-  },
-  {
-    label: 'Redo',
-  },
-])
-const contextMenuItems3 = ref([
-  {
-    label: 'New',
-    icon: 'pi pi-file',
+    label: 'New Test Case',
     command: () => {
-      contextMenuItems.value = contextMenuItems2.value
+      testcaseNewModalRef.value?.toggleModalVisibility(null)
     },
   },
   {
-    label: 'Open',
+    label: 'New Node',
+    items: [
+      {
+        label: 'Driver Node',
+      },
+      {
+        label: 'Variable Node',
+      },
+      {
+        label: 'DOM Node',
+      },
+      {
+        label: 'Assert Node',
+      },
+      {
+        label: 'Math Node',
+      },
+    ],
+  },
+  { separator: true },
+  {
+    label: 'Collapse All',
+  },
+  { separator: true },
+  {
+    label: 'Save',
+  },
+  { separator: true },
+  {
+    label: 'Open Project',
   },
   {
-    label: 'Delete',
+    label: 'Close Project',
   },
 ])
+const contextMenuModal = ref()
 const contextMenuRef = useTemplateRef('contextMenu-ref')
+const testcaseNewModalRef = useTemplateRef('testcaseNewModal-ref')
 const curSelectedItem = ref('null')
+
 //#region Primevue
 const panelMenu_dt = {
   itemPadding: '0.3rem 0.6rem',
@@ -167,38 +190,71 @@ const contextMenu_pt = {
   itemLabel: 'leading-[16px]',
 }
 //#endregion
-function addItem() {
-  //items.value[3].items.push({ label: 'new_testcase' })
+
+function openTestcase(e: any) {
+  const testcaseData: testcaseDataType = e.item.testcaseData
+  loadNewTestcase(testcaseData.id)
+  selectItemWithLabel(e.item.label)
 }
-function selectedItem(e: any) {
+
+watch(
+  () => flowStore.instanceId,
+  (newId, oldId) => {
+    vueFlowInstance = useVueFlow(newId)
+  },
+)
+
+function selectItem(e: any) {
+  console.log(e)
   curSelectedItem.value = e.item.label
+  /* const trns: ViewportTransform = {
+    x: e.item.nData.position.x,
+    y: e.item.nData.position.y,
+    zoom: 1,
+  } */
+  //vueFlowInstance?.setViewport(trns)
+  vueFlowInstance?.fitView({ nodes: [e.item.nData.id] })
   console.log(e)
 }
-const callToggleContextMenu = (e: any) => {
+function selectItemWithLabel(labelValue: string) {
+  curSelectedItem.value = labelValue
+}
+const displayContextMenuPanel = (e: any) => {
   console.log(e)
-  contextMenuItems.value = contextMenuItems3.value
+  contextMenuModal.value = contextMenuPanelModal.value
   contextMenuRef.value?.show(e)
 }
-const callToggleContextMenu2 = (e: any) => {
-  contextMenuItems.value = contextMenuItems2.value
+const displayContextMenuItem = (e: any) => {
+  contextMenuModal.value = contextMenuItemModal.value
   contextMenuRef.value?.show(e)
+}
+const checkAndDisplayContextMenuItem = (e: any, item: any) => {
+  if (item.isRoot == true) {
+  } else {
+    displayContextMenuItem(e)
+  }
 }
 </script>
 <template>
+  <TestcaseNewModal ref="testcaseNewModal-ref" />
   <ContextMenu
     ref="contextMenu-ref"
-    :model="contextMenuItems"
+    :model="contextMenuModal"
     class="text-xs1 leading-xs1"
     :pt="contextMenu_pt"
     :dt="contextMenu_dt"
   />
-  <div class="leftpanel text-xs1 leading-xs1" @contextmenu="callToggleContextMenu">
+  <div class="leftpanel text-xs1 leading-xs1" @contextmenu="displayContextMenuPanel">
     <PanelMenu :model="items" class="" multiple :pt="panelMenu_pt" :dt="panelMenu_dt">
       <template #item="{ item, active, hasSubmenu }">
         <span
           class="flex items-center px-2 py-2 cursor-pointer group gap-2 rounded-md"
           :class="{ 'bg-highlight-emphasis': curSelectedItem === item.label }"
-          @contextmenu="callToggleContextMenu2"
+          @contextmenu="
+            (e: any) => {
+              checkAndDisplayContextMenuItem(e, item)
+            }
+          "
         >
           <span
             v-show="hasSubmenu"

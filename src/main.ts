@@ -9,7 +9,9 @@ import { definePreset } from '@primevue/themes'
 import Tooltip from 'primevue/tooltip'
 import ToastService from 'primevue/toastservice'
 import { createPinia } from 'pinia'
-import { initializeData } from './services/projectInfoService'
+import { initializeProjectService } from './services/projectService'
+import { initializeTestcaseService } from './services/testcaseService'
+import { useProjectsStore } from './pinia_stores/projectsStore'
 
 const MyPreset = definePreset(Aura, {
   primitive: {
@@ -692,6 +694,7 @@ app.use(PrimeVue, {
 })
 app.use(ToastService)
 app.directive('tooltip', Tooltip)
-initializeData()
+initializeProjectService()
+initializeTestcaseService()
 console.log('service initialization called')
 app.mount('#app')

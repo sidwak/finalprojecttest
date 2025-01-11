@@ -2,14 +2,13 @@
 import Dialog from 'primevue/dialog'
 import { InputText, Button } from 'primevue'
 import { ref, defineProps, defineExpose } from 'vue'
-import type { projectDataType } from '@/ts_types/puppet_test_types'
-import projectInfoService, {
-  initializeProjectService,
-  createNewProject,
-} from '@/services/projectService'
-import { useProjectsStore } from '@/pinia_stores/projectsStore'
+import type { testcaseDataType } from '@/ts_types/puppet_test_types'
+import { useTestcasesStore } from '@/pinia_stores/testcasesStore'
+import { createNewTestCase } from '@/services/testcaseService'
 
-const projectsStore = useProjectsStore()
+const props = defineProps(['isVisible'])
+const testcasesStore = useTestcasesStore()
+
 const dialog_pt = {}
 const dialog_dt = {
   header: {
@@ -20,23 +19,22 @@ const dialog_dt = {
   },
 }
 
-const props = defineProps(['isVisible'])
 const isVisible = ref(false)
-const projectNameInputRef = ref('')
-const projectDescriptionInputRef = ref('')
+const testcaseNameInputRef = ref('')
 
 const toggleModalVisibility = (e: any) => {
   isVisible.value = !isVisible.value
 }
+
 function saveBtnClick() {
   toggleModalVisibility(null)
-  const newProjectData: projectDataType = {
-    id: projectsStore.newProjectId,
-    name: projectNameInputRef.value,
-    desc: projectDescriptionInputRef.value,
+  const newTestcaseData: testcaseDataType = {
+    id: testcasesStore.newTestcaseId,
+    name: testcaseNameInputRef.value,
   }
-  createNewProject(newProjectData)
+  createNewTestCase(newTestcaseData)
 }
+
 defineExpose({
   toggleModalVisibility,
 })
@@ -46,7 +44,7 @@ defineExpose({
     <Dialog
       v-model:visible="isVisible"
       modal
-      header="New Project"
+      header="New Testcase"
       :style="{ width: '25rem' }"
       :pt="dialog_pt"
       :dt="dialog_dt"
@@ -55,15 +53,7 @@ defineExpose({
       <div class="flex items-center gap-4 mb-4">
         <label for="username" class="font-semibold w-24">Name</label>
         <InputText
-          v-model="projectNameInputRef"
-          type="text"
-          class="text-xs py-[0.3rem] px-[0.4rem] w-full"
-        />
-      </div>
-      <div class="flex items-center gap-4 mb-4">
-        <label for="email" class="font-semibold w-24">Description</label>
-        <InputText
-          v-model="projectDescriptionInputRef"
+          v-model="testcaseNameInputRef"
           type="text"
           class="text-xs py-[0.3rem] px-[0.4rem] w-full"
         />
@@ -75,4 +65,4 @@ defineExpose({
     </Dialog>
   </div>
 </template>
-<style scoped></style>
+<style></style>

@@ -1,13 +1,9 @@
 import { defineStore } from 'pinia'
 import type { projectDataType } from '@/ts_types/puppet_test_types'
 
-export const useProjectsInfoStore = defineStore('projectsInfo', {
+export const useProjectsStore = defineStore('projectsStore', {
   state: () => ({
-    projectsList: <projectDataType[]>[
-      {
-        name: 'None',
-      },
-    ],
+    projectsList: <projectDataType[]>[],
     newProjectId: 0,
     currentProject: <projectDataType>{
       id: -1,
@@ -16,16 +12,21 @@ export const useProjectsInfoStore = defineStore('projectsInfo', {
     },
   }),
   actions: {
-    setData(newData: any) {
+    setProjectsInfoJsonData(newData: any) {
       this.projectsList.length = 0
       newData.projects.forEach((project: projectDataType) => {
+        // here projects is the array
         this.projectsList.push(project)
         this.newProjectId = project.id + 1
       })
     },
-    incrementNewProjectId() {
-      this.newProjectId += 1
+    addNewProjectInList(projectData: projectDataType) {
+      this.projectsList.push(projectData)
+      this.newProjectId = projectData.id + 1
     },
+    /* incrementNewProjectId() {
+      this.newProjectId += 1
+    }, */
     setNewCurrentProject(projectId: number) {
       this.projectsList.forEach((project: projectDataType) => {
         if (project.id === projectId) {

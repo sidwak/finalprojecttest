@@ -2,15 +2,16 @@
 import Menubar from 'primevue/menubar'
 import ProjectNewModal from '../modals/ProjectNewModal.vue'
 import { ref, computed, watch, useTemplateRef } from 'vue'
-import { useProjectsInfoStore } from '@/pinia_stores/projectsInfoStore'
+import { useProjectsStore } from '@/pinia_stores/projectsStore'
 import type { projectDataType } from '@/ts_types/puppet_test_types'
 import { useToastStore } from '@/pinia_stores/toastStore'
+import { loadNewProject } from '@/services/projectService'
 
-const projectsInfoStore = useProjectsInfoStore()
+const projectsStore = useProjectsStore()
 const toastStore = useToastStore()
 
 const projectsListItems = computed(() => {
-  const projectsDataJson: any[] = projectsInfoStore.projectsList
+  const projectsDataJson: any[] = projectsStore.projectsList
   let returnList: any[] = []
   projectsDataJson.forEach((numProject: projectDataType) => {
     const tempObj = {
@@ -23,7 +24,7 @@ const projectsListItems = computed(() => {
   return returnList
 })
 const currentProjectName = computed(() => {
-  const projectName: string = 'project: ' + projectsInfoStore.currentProject.name
+  const projectName: string = 'project: ' + projectsStore.currentProject.name
   return projectName
 })
 const projectNewModalRef = useTemplateRef('projectNewModal-ref')
@@ -97,21 +98,12 @@ const menuBar_pt = {
 async function openProjectsInfoJson() {
   /* const result = await window.electron.getProjectsInfoJson('hello')
   console.log(result)
-  projectsInfoStore.setData(result) */
+  projectsStore.setProjectsInfoJsonData(result) */
   projectNewModalRef.value?.toggleModalVisibility(null)
 }
 function openProject(data: any) {
   console.log(data)
-  console.log(currentProjectName.value)
-  projectsInfoStore.setNewCurrentProject(data.item.id)
-  console.log(projectsInfoStore.currentProject)
-  console.log(items.value[6].label)
-  toastStore.displayNewMessage({
-    severity: 'success',
-    summary: 'Project Opened',
-    detail: data.item.label + ' was opened was successfully',
-    life: 3000,
-  })
+  loadNewProject(data.item.id)
 }
 </script>
 <template>

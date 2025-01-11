@@ -4,7 +4,9 @@ import ToggleSwitch from 'primevue/toggleswitch'
 import { ref } from 'vue'
 import { useToast } from 'primevue'
 import Toast from 'primevue/toast'
+import { useTestcasesStore } from '@/pinia_stores/testcasesStore'
 
+const testcasesStore = useTestcasesStore()
 const props = defineProps({
   callToggleInParent: { type: Function, required: true },
 })
@@ -52,7 +54,7 @@ async function startTestInBackend() {
     detail: 'backend',
     life: 3000,
   })
-  const result = await window.electron.startTest('hello')
+  const result = await window.electron.startTest(testcasesStore.getCurrentTestcase)
 }
 </script>
 <template>

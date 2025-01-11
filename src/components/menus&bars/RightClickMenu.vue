@@ -6,10 +6,14 @@ import { useToast } from 'primevue'
 import Toast from 'primevue/toast'
 
 const toast = useToast()
+
+//#region Props
 const props = defineProps({
   callFromContextMenu: { type: Function, required: true },
   onCommandExecute: { type: Function, required: true },
 })
+//#endregion
+//#region Refs
 const contextMenuRef = useTemplateRef('contextMenu-ref')
 const items = [
   {
@@ -42,6 +46,11 @@ const items = [
       },
       {
         label: 'Assert',
+        command: (e: any) => {
+          contextMenuValueChange(e)
+        },
+        nodeType: 'asr-node',
+        cmdType: 'add-node',
       },
       {
         label: 'Wait',
@@ -84,7 +93,8 @@ const items = [
   { separator: true },
   { label: 'Delete', icon: 'pi pi-trash' },
 ]
-
+//#endregion
+//#region Primevue
 const contextMenu_dt = {
   itemPadding: '0.3rem 0.6rem',
 }
@@ -94,15 +104,7 @@ const contextMenu_pt = {
   },
   itemLabel: 'leading-[16px]',
 }
-
-function callFunction(e: any) {
-  const data = {
-    posX: e.clientX,
-    posY: e.clientY,
-    node: e,
-  }
-  props.callFromContextMenu(data)
-}
+//#endregion
 
 function contextMenuValueChange(e: any) {
   if (e.item.cmdType === 'add-node') {

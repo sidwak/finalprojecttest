@@ -3,9 +3,16 @@ import { app, BrowserWindow, ipcMain } from 'electron'
 import { fileURLToPath } from 'url'
 import { dirname } from 'path'
 import { writeFileSync, readFileSync } from 'fs'
-import { startTest, getProjectsInfoJson } from './puppetTester.js'
+import { startTest } from './puppetTester.js'
 import { Server } from 'socket.io'
-import { createNewProject } from './projectsService.js'
+import { createNewProject, getProjectsInfoJson, setNewCurrentProject } from './projectsEService.js'
+import {
+  createNewTestcase,
+  getTestcasesInfoJson,
+  saveTestcaseData,
+  loadTestcaseData,
+  runTestcase,
+} from './testcasesEService.js'
 
 const io = new Server(3000, {
   cors: {
@@ -53,20 +60,35 @@ function createWindow() {
 ipcMain.handle('invoke-function', async (event, args) => {
   return yourFunction(args)
 })
+//
 ipcMain.handle('save-tc-data', async (event, args) => {
-  saveTestCaseData(args)
+  return saveTestcaseData(args)
+  //saveTestCaseData(args)
 })
 ipcMain.handle('load-tc-data', async (event, args) => {
-  return loadTestCaseData()
+  return loadTestcaseData(args)
 })
 ipcMain.handle('start-test', async (event, args) => {
-  startTest()
+  return runTestcase(args)
 })
+
+// projectsEService
 ipcMain.handle('get-projects-info-json', async (event, args) => {
-  return loadProjectsInfoJson()
+  return getProjectsInfoJson()
 })
 ipcMain.handle('create-new-project', async (event, args) => {
   return createNewProject(args)
+})
+ipcMain.handle('set-new-current-project', async (event, args) => {
+  return setNewCurrentProject(args)
+})
+
+// testcasesEService
+ipcMain.handle('get-testcases-info-json', async (event, args) => {
+  return getTestcasesInfoJson(args)
+})
+ipcMain.handle('create-new-testcase', async (event, args) => {
+  return createNewTestcase(args)
 })
 
 function yourFunction(args: any) {
@@ -96,10 +118,6 @@ function getObject(filePath: any) {
   const data = readFileSync(filePath, 'utf8')
   const obj = JSON.parse(data) // Convert JSON string back to object
   return obj
-}
-
-function loadProjectsInfoJson() {
-  return getProjectsInfoJson()
 }
 
 app.whenReady().then(createWindow)

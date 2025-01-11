@@ -2,13 +2,36 @@
 import { VueFlow, useVueFlow, useNodesData } from '@vue-flow/core'
 import { Background } from '@vue-flow/background'
 import { Controls } from '@vue-flow/controls'
-import { ref } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import DriverNode from '.././nodes/DriverNode.vue'
 import VarNode from '.././nodes/VarNode.vue'
 import DomNode from '.././nodes/DomNode.vue'
 import PropertiesModal from '.././modals/PropertiesModal.vue'
 import type { nodeData } from '@/ts_types/nodeType'
+import { useTestcasesStore } from '@/pinia_stores/testcasesStore'
+import { loadTestcaseData } from '@/services/testcaseService'
+import type { testcaseDataType, testcaseFlowDataType } from '@/ts_types/puppet_test_types'
+import { useFlowStore } from '@/pinia_stores/flowStore'
+import type { FlowExportObject } from '@vue-flow/core'
+import AssertNode from '../nodes/AssertNode.vue'
 
+const {
+  onConnect,
+  addEdges,
+  addNodes,
+  onNodesInitialized,
+  updateNode,
+  screenToFlowCoordinate,
+  toObject,
+  fromObject,
+  onNodeClick,
+  updateNodeData,
+  onPaneReady,
+} = useVueFlow()
+const testcasesStore = useTestcasesStore()
+const flowStore = useFlowStore()
+
+//#region Refs
 const nodesData: nodeData[] = [
   {
     nodeName: 'nodeName not set',
@@ -63,7 +86,6 @@ const nodesData: nodeData[] = [
     },
   },
 ]
-
 /* const nodes = ref([
   {
     id: '1',
@@ -88,19 +110,13 @@ const nodes = ref([])
 const curSelectedNodeId = ref('-1')
 const idRef = ref(0)
 const isPropertiesPanelVisible = ref(false)
+//#endregion
 let curNodeId = '0'
-const {
-  onConnect,
-  addEdges,
-  addNodes,
-  onNodesInitialized,
-  updateNode,
-  screenToFlowCoordinate,
-  toObject,
-  fromObject,
-  onNodeClick,
-  updateNodeData,
-} = useVueFlow()
+
+onPaneReady((evar) => {
+  console.log('one pan ready is ready called')
+  flowStore.setVueFlowInstance(evar.id)
+})
 
 onConnect((connection) => {
   console.log(connection)
@@ -128,6 +144,10 @@ onNodesInitialized(() => {
       y: node.position.y - node.dimensions.height,
     },
   }))
+})
+
+onMounted(() => {
+  loadTestCaseData()
 })
 
 function AddNodes(data: any) {
@@ -214,14 +234,35 @@ const calledFromParent = (data: any) => {
       type: data.node,
     }
     AddNodes(nodeInfo)
+  } else if (data.node === 'asr-node') {
+    nodeInfo = {
+      id: idRef.value.toString(),
+      data: {
+        nodeName: 'Node ' + idRef.value.toString(),
+        nodeType: 'asr-node',
+        label: 'type: ' + data.node,
+        pValue: {
+          isConnected: false,
+          isRuntime: false,
+          connnectedNodeId: '-1',
+          value: 'value not set',
+          edgeId: '-1',
+        },
+        flow: {
+          prevNodeId: '-1',
+          nextNodeId: '-1',
+        },
+      },
+      position: { x: data.posX, y: data.posY },
+      type: data.node,
+    }
+    AddNodes(nodeInfo)
   }
   idRef.value = idRef.value + 1
   curNodeId = (idRef.value - 1).toString()
 }
 const handleCommandExecute = (data: any) => {
   if (data.cmd === 'Save') {
-    //console.log('Data reterived')
-    //console.log(toObject())
     saveTestCaseData()
   } else if (data.cmd === 'Load') {
     loadTestCaseData()
@@ -229,11 +270,39 @@ const handleCommandExecute = (data: any) => {
 }
 
 async function saveTestCaseData() {
-  const result = await window.electron.saveTestCase(toObject())
+  const testcaseSaveData: testcaseFlowDataType = {
+    testcaseData: testcasesStore.getCurrentTestcase,
+    nodesData: toObject(),
+  }
+  //const result = await window.electron.saveTestCase(toObject())
+  const result = await window.electron.saveTestCase(testcaseSaveData)
   console.log(result)
 }
+async function savePreviousTestCase(oldTestcaseData: testcaseDataType) {
+  const oldTC_Data: testcaseDataType = {
+    id: oldTestcaseData.id,
+    name: oldTestcaseData.name,
+  }
+  const testcaseSaveData: testcaseFlowDataType = {
+    testcaseData: oldTC_Data,
+    nodesData: toObject(),
+  }
+  const result = await window.electron.saveTestCase(testcaseSaveData)
+  console.log(result)
+  console.log('previous testcase saved')
+}
+watch(
+  () => testcasesStore.currentTestcase,
+  (newTestcase, oldTestcase) => {
+    console.log('cur tc cahnged')
+    savePreviousTestCase(oldTestcase)
+    loadTestCaseData()
+  },
+)
 async function loadTestCaseData() {
-  const result = await window.electron.loadTestCase('hello')
+  const testcaseData = testcasesStore.getCurrentTestcase
+  const result = await window.electron.loadTestCase(testcaseData)
+  testcasesStore.setNodesFlowData(result)
   const numberOfNodes = result.nodes.length
   idRef.value = numberOfNodes
   curNodeId = numberOfNodes.toString()
@@ -269,6 +338,9 @@ defineExpose({
     </template>
     <template #node-dom-node="props">
       <DomNode :id="props.id" :data="props.data" :selected="props.selected" />
+    </template>
+    <template #node-asr-node="props">
+      <AssertNode :id="props.id" :data="props.data" :selected="props.selected" />
     </template>
     <PropertiesModal
       :class="{ propertiesPanel: !isPropertiesPanelVisible }"

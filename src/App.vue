@@ -5,7 +5,7 @@ import MainMenuBar from './components/menus&bars/MenuBar.vue'
 import MainToolBar from './components/menus&bars/ToolBar.vue'
 import CanvasPanel from './components/panels/CanvasPanel.vue'
 import RightClickMenu from './components/menus&bars/RightClickMenu.vue'
-import { nextTick, onMounted, ref, useTemplateRef, watch } from 'vue'
+import { computed, nextTick, onMounted, ref, useTemplateRef, watch } from 'vue'
 import type { TreeNode } from 'primevue/treenode'
 import Tree from 'primevue/tree'
 import Splitter from 'primevue/splitter'
@@ -15,9 +15,12 @@ import LogTerminal from './components/panels/LogPanel.vue'
 import { useToast } from 'primevue'
 import Toast, { type ToastMessageOptions } from 'primevue/toast'
 import { useToastStore } from './pinia_stores/toastStore'
+import EmptyCanvasPanel from './components/panels/EmptyCanvasPanel.vue'
+import { useTestcasesStore } from './pinia_stores/testcasesStore'
 
 const toast = useToast()
 const toastStore = useToastStore()
+const testcasesStore = useTestcasesStore()
 
 const contextMenuActive = ref(false)
 const contextMenuPos = ref({
@@ -53,6 +56,13 @@ let nodes: TreeNode[] = [
 ]
 const isToggleActive = ref(false)
 const mainCanvas = useTemplateRef('mainCanvas-ref')
+const isTestcaseOpen = computed(() => {
+  if (testcasesStore.currentTestcase.id === -99) {
+    return false
+  } else {
+    return true
+  }
+})
 
 function rightClickMenuClicked(e: any) {
   /* if (contextMenuActive.value === false) {
@@ -145,12 +155,14 @@ function toggleDarkMode() {
         <Splitter layout="vertical">
           <SplitterPanel :size="75">
             <div
+              v-if="isTestcaseOpen === true"
               class="w-full h-full"
               @contextmenu="rightClickMenuClicked"
               @click="checkContextMenu"
             >
               <CanvasPanel ref="mainCanvas-ref" />
             </div>
+            <EmptyCanvasPanel v-else />
           </SplitterPanel>
           <SplitterPanel :size="25">
             <LogTerminal />

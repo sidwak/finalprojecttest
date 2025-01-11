@@ -11,7 +11,14 @@ import {
   onBeforeMount,
 } from 'vue'
 import { CascadeSelect, InputText } from 'primevue'
-import type { nodeData } from '@/ts_types/nodeType'
+import type {
+  NodeType,
+  DomNodeType,
+  VarNodeType,
+  DriverNodeType,
+  AssertNodeType,
+} from '@/ts_types/nodeType'
+
 const { updateNodeData, removeEdges, findNode } = useVueFlow()
 enum fieldState {
   Hidden,
@@ -48,7 +55,7 @@ const varInputRef = computed({
 })
 const varStateRef = ref<fieldState>(fieldState.Hidden)
 const selectedCmd = ref()
-const countries = ref([
+const commandsList = ref([
   {
     cmdgroup: 'Document',
     group: [
@@ -149,9 +156,10 @@ const cascadeSelect_pt = {
 }
 //#endregion
 //#region VueFlow
-const driverNodeData: nodeData = useNodesData(props.id).value?.data
+const driverNodeData: NodeType = useNodesData(props.id).value?.data
+const nodeCoreData: DriverNodeType = useNodesData(props.id).value?.data.nodeData
 let data = useNodesData(() => connections.value.map((connection) => connection.source))
-const nodesData = computed<nodeData | null | any>(() => {
+const nodesData = computed<NodeType | null | any>(() => {
   console.log(data.value)
   if (data.value.length > 0) {
     return data.value[0].data
@@ -285,7 +293,7 @@ function callNodeDataUpdate(newCmd: any) {
           >
             <CascadeSelect
               v-model="selectedCmd"
-              :options="countries"
+              :options="commandsList"
               optionGroupLabel="cmdgroup"
               optionLabel="cmd"
               :optionGroupChildren="['group']"

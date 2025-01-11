@@ -10,8 +10,18 @@ import { exec } from 'child_process'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import { dirname } from 'path'
+import { __currentProjectDir } from './projectsEService.js'
+import { testcaseDataType } from '../src/ts_types/puppet_test_types.js'
+import type { nodeData, flowNode } from '../src/ts_types/nodeType.js'
+import { NodeType } from './allEnums.js'
+
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename).replace('\\dist', '')
+const __puppetDir = dirname(__filename).replace('\\electron_main\\dist', '\\puppet_test')
+let __projectDir = 'null'
+let __testcasesDir = 'null'
+
+let currentTestcase: testcaseDataType | null = null
 
 let varArr: string[] = []
 let cmdsArr: string[] = []
@@ -46,17 +56,17 @@ let cmdToCode: any = {
 let logText = `Command executed successfully - Command: $cmd DOMcss: $value DOMinput: $input`
 let logCmd = `socket.emit('cmdExe', '$log')\n\n`
 
-function getObject(filePath: any) {
-  const data = readFileSync(filePath, 'utf8')
-  const obj = JSON.parse(data) // Convert JSON string back to object
-  return obj
+function getTestcaseJsonObject(testcaseData: testcaseDataType) {
+  const str_jsonData = readFileSync(path.join(__testcasesDir, testcaseData.name + '.json'), 'utf8')
+  const jsonData = JSON.parse(str_jsonData)
+  return jsonData
 }
 
-function getEndNode(nodes: any[]) {
-  let lastId = -1
-  nodes.forEach((node: any) => {
+function getEndNode(nodes: flowNode[]): string {
+  let lastId = ''
+  nodes.forEach((node: flowNode) => {
     if (node.type === 'driver-node') {
-      if (node.data.pCmd === 'Stop') {
+      if (node.data.pCmd?.value === 'Stop') {
         lastId = node.id
       }
     }
@@ -64,14 +74,14 @@ function getEndNode(nodes: any[]) {
   return lastId
 }
 
-function getAllVariables(nodes: any[]) {
+function getAllVariables(nodes: flowNode[]) {
   let newVar = 'def-var'
-  nodes.forEach((node: any) => {
-    if (node.type === 'var-node') {
+  nodes.forEach((node: flowNode) => {
+    if (node.type === NodeType.varNode) {
       newVar = 'let v_var' + node.id + " = '" + node.data.pValue.value + "'\n"
-    } else if (node.type === 'dom-node') {
+    } else if (node.type === NodeType.domNode) {
       newVar = 'let e_var' + node.id + " = '" + node.data.pValue.value + "'\n"
-    } else if (node.type === 'driver-node') {
+    } else if (node.type === NodeType.driverNode) {
       newVar = 'let d_var' + node.id + " = '" + node.data.pValue.value + "'\n"
     }
     varArr.push(newVar)
@@ -79,9 +89,9 @@ function getAllVariables(nodes: any[]) {
   console.log(varArr)
 }
 
-function getAllCommands(nodes: any[]) {
-  nodes.forEach((node: any) => {
-    if (node.type === 'driver-node') {
+function getAllCommands(nodes: flowNode[]) {
+  nodes.forEach((node: flowNode) => {
+    if (node.type === NodeType.driverNode && node.data.pCmd) {
       if (node.data.pValue.isRequired === true) {
         if (node.data.pValue.isConnected) {
           let connectedNodeVarName = ''
@@ -91,7 +101,7 @@ function getAllCommands(nodes: any[]) {
             '$value',
             flowNodes[node.data.pValue.connnectedNodeId].data.pValue.value,
           )
-          if (flowNodes[node.data.pValue.connnectedNodeId].type === 'var-node') {
+          if (flowNodes[node.data.pValue.connnectedNodeId].type === NodeType.varNode) {
             logOut = logOut.replace('DOMcss', 'cmdValue')
             connectedNodeVarName = 'v_var' + node.data.pValue.connnectedNodeId
           } else {
@@ -127,38 +137,39 @@ function getAllCommands(nodes: any[]) {
   console.log(cmdsArr)
 }
 
+function getAllFlowNodes(nodes: flowNode[]) {
+  nodes.forEach((node: flowNode) => {
+    flowNodes[node.id] = node
+  })
+  console.log(flowNodes)
+}
+
 function writeDataToFile() {
-  writeFileSync(path.join(__dirname, 'testcase_1.js'), initialCode)
+  const testcasePath = path.join(__testcasesDir, currentTestcase?.name + '.js')
+  writeFileSync(testcasePath, initialCode)
   cmdsArr.push('//await browser.close()\n;')
   //cmdsArr = cmdsArr.reverse()
   varArr.forEach((varVal) => {
-    appendFileSync(path.join(__dirname, 'testcase_1.js'), varVal)
+    appendFileSync(testcasePath, varVal)
   })
-  appendFileSync(path.join(__dirname, 'testcase_1.js'), '\n\n')
+  appendFileSync(testcasePath, '\n\n')
   cmdsArr.forEach((cmdVal) => {
-    appendFileSync(path.join(__dirname, 'testcase_1.js'), cmdVal)
+    appendFileSync(testcasePath, cmdVal)
   })
-  appendFileSync(path.join(__dirname, 'testcase_1.js'), '\n})')
+  appendFileSync(testcasePath, '\n})')
   appendFileSync(
-    path.join(__dirname, 'testcase_1.js'),
+    testcasePath,
     `\nsocket.on('disconnect', async () => {
   process.kill(0)
 })`,
   )
 }
 
-function getAllFlowNodes(nodes: any[]) {
-  nodes.forEach((node: { id: string | number }) => {
-    flowNodes[node.id] = node
-  })
-  console.log(flowNodes)
-}
-
-//startTest()
-
-export function startTest() {
+export function compileAndRun(testcaseData: testcaseDataType) {
+  currentTestcase = testcaseData
+  const testcasePath = path.join(__testcasesDir, currentTestcase?.name + '.js')
   try {
-    writeFileSync(path.join(__dirname, 'testcase_1.js'), '')
+    writeFileSync(testcasePath, '')
     console.log('File cleared successfully.')
   } catch (err) {
     return console.error(err)
@@ -166,15 +177,15 @@ export function startTest() {
   varArr = []
   cmdsArr = []
   flowNodes = {}
-  const nodes = getObject(path.join(__dirname, 'objectStore.txt')).nodes
+  const nodes = getTestcaseJsonObject(testcaseData).nodes
   const endNodeId = getEndNode(nodes)
   getAllFlowNodes(nodes)
   getAllVariables(nodes)
   getAllCommands(nodes)
   writeDataToFile()
-  console.log('hello from puppetTester')
-
-  exec(`node electron_main/testcase_1.js`, (error, stdout, stderr) => {
+  console.log(`testcase: ${testcaseData.name} running successfully`)
+  const executePath = 'node ' + testcasePath
+  exec(executePath, (error, stdout, stderr) => {
     if (error) {
       console.error(`Error executing file: ${error}`)
       return
@@ -185,4 +196,9 @@ export function startTest() {
     }
     console.log(`Output: ${stdout}`)
   })
+}
+
+export function initializeERunnerService() {
+  __projectDir = __currentProjectDir
+  __testcasesDir = path.join(__projectDir, 'test_cases')
 }
