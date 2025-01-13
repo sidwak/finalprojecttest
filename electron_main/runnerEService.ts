@@ -12,8 +12,8 @@ import { fileURLToPath } from 'url'
 import { dirname } from 'path'
 import { __currentProjectDir } from './projectsEService.js'
 import { testcaseDataType } from '../src/ts_types/puppet_test_types.js'
-import type { nodeData, flowNode } from '../src/ts_types/nodeType.js'
-import { NodeType } from './allEnums.js'
+import type { NodeType, flowNode } from '../src/ts_types/nodeType.js'
+import { ENode } from './allEnums.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename).replace('\\dist', '')
@@ -65,8 +65,9 @@ function getTestcaseJsonObject(testcaseData: testcaseDataType) {
 function getEndNode(nodes: flowNode[]): string {
   let lastId = ''
   nodes.forEach((node: flowNode) => {
+    const coreData: NodeType = node.data
     if (node.type === 'driver-node') {
-      if (node.data.pCmd?.value === 'Stop') {
+      if (coreData.nodeData.cmd!.value === 'Stop') {
         lastId = node.id
       }
     }
@@ -77,12 +78,13 @@ function getEndNode(nodes: flowNode[]): string {
 function getAllVariables(nodes: flowNode[]) {
   let newVar = 'def-var'
   nodes.forEach((node: flowNode) => {
-    if (node.type === NodeType.varNode) {
-      newVar = 'let v_var' + node.id + " = '" + node.data.pValue.value + "'\n"
-    } else if (node.type === NodeType.domNode) {
-      newVar = 'let e_var' + node.id + " = '" + node.data.pValue.value + "'\n"
-    } else if (node.type === NodeType.driverNode) {
-      newVar = 'let d_var' + node.id + " = '" + node.data.pValue.value + "'\n"
+    const coreData: NodeType = node.data
+    if (node.type === ENode.varNode) {
+      newVar = 'let v_var' + node.id + " = '" + coreData.nodeData.para1!.value + "'\n"
+    } else if (node.type === ENode.domNode) {
+      newVar = 'let e_var' + node.id + " = '" + coreData.nodeData.para1!.value + "'\n"
+    } else if (node.type === ENode.driverNode) {
+      newVar = 'let d_var' + node.id + " = '" + coreData.nodeData.para1!.value + "'\n"
     }
     varArr.push(newVar)
   })
@@ -91,28 +93,28 @@ function getAllVariables(nodes: flowNode[]) {
 
 function getAllCommands(nodes: flowNode[]) {
   nodes.forEach((node: flowNode) => {
-    if (node.type === NodeType.driverNode && node.data.pCmd) {
-      if (node.data.pValue.isRequired === true) {
-        if (node.data.pValue.isConnected) {
+    const coreData: NodeType = node.data
+    if (node.type === ENode.driverNode) {
+      if (coreData.nodeData.para1!.isRequired === true) {
+        if (coreData.nodeData.para1!.isConnected) {
           let connectedNodeVarName = ''
           let logOut = logText
-          logOut = logOut.replace('$cmd', node.data.pCmd.value)
-          logOut = logOut.replace(
-            '$value',
-            flowNodes[node.data.pValue.connnectedNodeId].data.pValue.value,
-          )
-          if (flowNodes[node.data.pValue.connnectedNodeId].type === NodeType.varNode) {
+          const connectedNodeCoreData: NodeType =
+            flowNodes[coreData.nodeData.para1!.connectedNodeId].data
+          logOut = logOut.replace('$cmd', coreData.nodeData.cmd!.value)
+          logOut = logOut.replace('$value', connectedNodeCoreData.nodeData.para1!.value)
+          if (flowNodes[coreData.nodeData.para1!.connectedNodeId].type === ENode.varNode) {
             logOut = logOut.replace('DOMcss', 'cmdValue')
-            connectedNodeVarName = 'v_var' + node.data.pValue.connnectedNodeId
+            connectedNodeVarName = 'v_var' + coreData.nodeData.para1!.connectedNodeId
           } else {
-            connectedNodeVarName = 'e_var' + node.data.pValue.connnectedNodeId
+            connectedNodeVarName = 'e_var' + coreData.nodeData.para1!.connectedNodeId
           }
-          let newCmd = cmdToCode[node.data.pCmd.value]
+          let newCmd = cmdToCode[coreData.nodeData.cmd!.value]
           newCmd = newCmd.replace('$value', connectedNodeVarName)
-          if (node.data.pCmd.value === 'input') {
+          if (coreData.nodeData.cmd!.value === 'input') {
             const nodeVarName = 'd_var' + node.id
             newCmd = newCmd.replace('$input', nodeVarName)
-            logOut = logOut.replace('$input', flowNodes[node.id].data.pValue.value)
+            logOut = logOut.replace('$input', coreData.nodeData.para1!.value) // should be para2 here, not implemented yet
           } else {
             logOut = logOut.replace('DOMinput: $input', '')
           }
@@ -121,10 +123,10 @@ function getAllCommands(nodes: flowNode[]) {
           cmdsArr.push(newCmd + cmdOut)
         } else {
           const connectedNodeVarName = 'd_var' + node.id
-          let newCmd = cmdToCode[node.data.pCmd.value]
+          let newCmd = cmdToCode[coreData.nodeData.cmd!.value]
           let logOut = logText
-          logOut = logOut.replace('$cmd', node.data.pCmd.value)
-          logOut = logOut.replace('$value', flowNodes[node.id].data.pValue.value)
+          logOut = logOut.replace('$cmd', coreData.nodeData.cmd!.value)
+          logOut = logOut.replace('$value', coreData.nodeData.para1!.value)
           newCmd = newCmd.replace('$value', connectedNodeVarName)
           let cmdOut = logCmd
           cmdOut = cmdOut.replace('$log', logOut)
@@ -145,7 +147,7 @@ function getAllFlowNodes(nodes: flowNode[]) {
 }
 
 function writeDataToFile() {
-  const testcasePath = path.join(__testcasesDir, currentTestcase?.name + '.js')
+  const testcasePath = path.join(__testcasesDir, currentTestcase!.name + '.js')
   writeFileSync(testcasePath, initialCode)
   cmdsArr.push('//await browser.close()\n;')
   //cmdsArr = cmdsArr.reverse()
@@ -167,7 +169,7 @@ function writeDataToFile() {
 
 export function compileAndRun(testcaseData: testcaseDataType) {
   currentTestcase = testcaseData
-  const testcasePath = path.join(__testcasesDir, currentTestcase?.name + '.js')
+  const testcasePath = path.join(__testcasesDir, currentTestcase!.name + '.js')
   try {
     writeFileSync(testcasePath, '')
     console.log('File cleared successfully.')

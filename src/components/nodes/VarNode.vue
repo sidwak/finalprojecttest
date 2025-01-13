@@ -2,12 +2,12 @@
 import { Position, Handle } from '@vue-flow/core'
 import { ref, onMounted, onUnmounted, shallowRef } from 'vue'
 import InputText from 'primevue/inputtext'
-import type { nodeData } from '@/ts_types/nodeType'
+import type { NodeType } from '@/ts_types/nodeType'
 
 //#region Props
 const props = defineProps<{
   id: string
-  data: nodeData
+  data: NodeType
   selected: boolean
 }>()
 //#endregion
@@ -27,7 +27,7 @@ const inputRef = ref(null)
         <p class="mb-1">{{ props.data.nodeName }}</p>
         <InputText
           type="text"
-          v-model="props.data.pValue.value"
+          v-model="props.data.nodeData.para1!.value"
           class="text-xs py-[0.3rem] px-[0.4rem] w-full"
         />
         <div class="flex justify-between mt-1 mb-1">

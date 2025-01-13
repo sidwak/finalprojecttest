@@ -7,7 +7,7 @@ import DriverNode from '.././nodes/DriverNode.vue'
 import VarNode from '.././nodes/VarNode.vue'
 import DomNode from '.././nodes/DomNode.vue'
 import PropertiesModal from '.././modals/PropertiesModal.vue'
-import type { nodeData } from '@/ts_types/nodeType'
+import type { NodeType } from '@/ts_types/nodeType'
 import { useTestcasesStore } from '@/pinia_stores/testcasesStore'
 import { loadTestcaseData } from '@/services/testcaseService'
 import type { testcaseDataType, testcaseFlowDataType } from '@/ts_types/puppet_test_types'
@@ -32,7 +32,7 @@ const testcasesStore = useTestcasesStore()
 const flowStore = useFlowStore()
 
 //#region Refs
-const nodesData: nodeData[] = [
+/* const nodesData: nodeData[] = [
   {
     nodeName: 'nodeName not set',
     nodeType: 'driver-node',
@@ -85,7 +85,7 @@ const nodesData: nodeData[] = [
       nextNodeId: '-1',
     },
   },
-]
+] */
 /* const nodes = ref([
   {
     id: '1',
@@ -107,6 +107,7 @@ const nodesData: nodeData[] = [
   },
 ]) */
 const nodes = ref([])
+const edges = ref([])
 const curSelectedNodeId = ref('-1')
 const idRef = ref(0)
 const isPropertiesPanelVisible = ref(false)
@@ -114,19 +115,18 @@ const isPropertiesPanelVisible = ref(false)
 let curNodeId = '0'
 
 onPaneReady((evar) => {
-  console.log('one pan ready is ready called')
   flowStore.setVueFlowInstance(evar.id)
 })
 
 onConnect((connection) => {
-  console.log(connection)
+  //console.log(connection)
   if (connection.sourceHandle === 'flow-next' && connection.targetHandle === 'flow-prev') {
-    const newTargetData: Partial<nodeData> = {
+    const newTargetData: Partial<NodeType> = {
       flow: {
         prevNodeId: connection.source,
       },
     }
-    const newSourceData: Partial<nodeData> = {
+    const newSourceData: Partial<NodeType> = {
       flow: {
         nextNodeId: connection.target,
       },
@@ -159,7 +159,7 @@ function AddNodes(data: any) {
 const patternColorRef = ref('#f0ff00')
 
 const calledFromParent = (data: any) => {
-  let nodeInfo: { id: string; data: nodeData; position: object; type: string }
+  let nodeInfo: { id: string; data: NodeType; position: object; type: string }
 
   if (data.node === 'driver-node') {
     nodeInfo = {
@@ -167,23 +167,25 @@ const calledFromParent = (data: any) => {
       data: {
         nodeName: 'Node ' + idRef.value.toString(),
         nodeType: 'driver-node',
-        reqNodeName: false,
-        label: 'type: ' + data.node,
-        pCmd: {
-          value: 'cmd not set',
-        },
-        pValue: {
-          isConnected: false,
-          isRuntime: false,
-          connnectedNodeId: '-1',
-          value: 'value not set',
-          edgeId: '-1',
+        displayName: 'type: ' + data.node,
+        nodeData: {
+          cmd: {
+            isRequired: true,
+            value: 'cmd not set',
+          },
+          para1: {
+            value: 'value not set',
+            isConnected: false,
+            isRequired: false,
+            connectedNodeId: '-1',
+            edgeId: '-1',
+          },
         },
         flow: {
           prevNodeId: '-1',
           nextNodeId: '-1',
         },
-      },
+      } as NodeType,
       position: { x: data.posX, y: data.posY },
       type: data.node,
     }
@@ -194,19 +196,25 @@ const calledFromParent = (data: any) => {
       data: {
         nodeName: 'Node ' + idRef.value.toString(),
         nodeType: 'var-node',
-        label: 'type: ' + data.node,
-        pValue: {
-          isConnected: false,
-          isRuntime: false,
-          connnectedNodeId: '-1',
-          value: 'value not set',
-          edgeId: '-1',
+        displayName: 'type: ' + data.node,
+        nodeData: {
+          cmd: {
+            isRequired: true,
+            value: 'cmd not set',
+          },
+          para1: {
+            value: 'value not set',
+            isConnected: false,
+            isRequired: false,
+            connectedNodeId: '-1',
+            edgeId: '-1',
+          },
         },
         flow: {
           prevNodeId: '-1',
           nextNodeId: '-1',
         },
-      },
+      } as NodeType,
       position: { x: data.posX, y: data.posY },
       type: data.node,
     }
@@ -217,19 +225,25 @@ const calledFromParent = (data: any) => {
       data: {
         nodeName: 'Node ' + idRef.value.toString(),
         nodeType: 'dom-node',
-        label: 'type: ' + data.node,
-        pValue: {
-          isConnected: false,
-          isRuntime: false,
-          connnectedNodeId: '-1',
-          value: 'value not set',
-          edgeId: '-1',
+        displayName: 'type: ' + data.node,
+        nodeData: {
+          cmd: {
+            isRequired: true,
+            value: 'cmd not set',
+          },
+          para1: {
+            value: 'value not set',
+            isConnected: false,
+            isRequired: false,
+            connectedNodeId: '-1',
+            edgeId: '-1',
+          },
         },
         flow: {
           prevNodeId: '-1',
           nextNodeId: '-1',
         },
-      },
+      } as NodeType,
       position: { x: data.posX, y: data.posY },
       type: data.node,
     }
@@ -240,19 +254,25 @@ const calledFromParent = (data: any) => {
       data: {
         nodeName: 'Node ' + idRef.value.toString(),
         nodeType: 'asr-node',
-        label: 'type: ' + data.node,
-        pValue: {
-          isConnected: false,
-          isRuntime: false,
-          connnectedNodeId: '-1',
-          value: 'value not set',
-          edgeId: '-1',
+        displayName: 'type: ' + data.node,
+        nodeData: {
+          cmd: {
+            isRequired: true,
+            value: 'cmd not set',
+          },
+          para1: {
+            value: 'value not set',
+            isConnected: false,
+            isRequired: false,
+            connectedNodeId: '-1',
+            edgeId: '-1',
+          },
         },
         flow: {
           prevNodeId: '-1',
           nextNodeId: '-1',
         },
-      },
+      } as NodeType,
       position: { x: data.posX, y: data.posY },
       type: data.node,
     }
@@ -300,6 +320,8 @@ watch(
   },
 )
 async function loadTestCaseData() {
+  nodes.value = []
+  edges.value = []
   const testcaseData = testcasesStore.getCurrentTestcase
   const result = await window.electron.loadTestCase(testcaseData)
   testcasesStore.setNodesFlowData(result)
@@ -326,7 +348,7 @@ defineExpose({
 })
 </script>
 <template>
-  <VueFlow :nodes="nodes" @pane-click="afterPaneClick">
+  <VueFlow :nodes="nodes" :edges="edges" @pane-click="afterPaneClick">
     <Background :gap="16" :size="2" class="mainbackground" pattern-color="#585858" />
     <!-- style="background-color: #1d1d1d" -->
     <Controls />

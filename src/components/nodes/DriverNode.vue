@@ -1,5 +1,12 @@
 <script setup lang="ts">
-import { Handle, Position, useVueFlow, useNodesData, useHandleConnections } from '@vue-flow/core'
+import {
+  Handle,
+  Position,
+  useVueFlow,
+  useNodesData,
+  useHandleConnections,
+  type GraphNode,
+} from '@vue-flow/core'
 import {
   ref,
   reactive,
@@ -11,13 +18,7 @@ import {
   onBeforeMount,
 } from 'vue'
 import { CascadeSelect, InputText } from 'primevue'
-import type {
-  NodeType,
-  DomNodeType,
-  VarNodeType,
-  DriverNodeType,
-  AssertNodeType,
-} from '@/ts_types/nodeType'
+import type { NodeType } from '@/ts_types/nodeType'
 
 const { updateNodeData, removeEdges, findNode } = useVueFlow()
 enum fieldState {
@@ -39,21 +40,39 @@ const varNameRef = computed(() => {
 })
 const varInputRef = computed({
   get() {
-    if (nodesData.value) {
-      return nodesData.value.pValue.value
+    if (connectedNodePara1Data.value) {
+      return connectedNodePara1Data.value.nodeData.para1?.value
     } else {
-      return driverNodeData.pValue.value
+      return driverNodeData.nodeData.para1?.value
     }
   },
   set(newValue) {
-    if (driverNodeData) {
-      driverNodeData.pValue.value = newValue
-    } else if (nodesData.value) {
+    if (driverNodeData && newValue) {
+      driverNodeData.nodeData.para1!.value = newValue
+    } else if (connectedNodePara1Data.value) {
       //nodesData.value.data.varVal = newValue
     }
   },
 })
 const varStateRef = ref<fieldState>(fieldState.Hidden)
+const varSetHandleState = ref<fieldState>(fieldState.Block)
+const dominInputRef = computed({
+  get() {
+    if (connectedNodePara2Data.value) {
+      return connectedNodePara2Data.value.nodeData.para1?.value
+    } else {
+      return driverNodeData.nodeData.para2?.value
+    }
+  },
+  set(newValue) {
+    if (driverNodeData && newValue) {
+      driverNodeData.nodeData.para2!.value = newValue
+    } else if (connectedNodePara2Data.value) {
+      //nodesData.value.data.varVal = newValue
+    }
+  },
+})
+const dominStateRef = ref<fieldState>(fieldState.Hidden)
 const selectedCmd = ref()
 const commandsList = ref([
   {
@@ -63,16 +82,19 @@ const commandsList = ref([
         cmd: 'get',
         isValueRequired: true,
         isGetOnly: false,
+        isDominRequired: false,
       },
       {
         cmd: 'getTitle',
         isValueRequired: true,
         isGetOnly: true,
+        isDominRequired: false,
       },
       {
         cmd: 'getConstantURL',
         isValueRequired: true,
         isGetOnly: true,
+        isDominRequired: false,
       },
     ],
   },
@@ -83,26 +105,31 @@ const commandsList = ref([
         cmd: 'click',
         isValueRequired: true,
         isGetOnly: false,
+        isDominRequired: false,
       },
       {
         cmd: 'input',
         isValueRequired: true,
+        isDominRequired: true,
         isGetOnly: false,
       },
       {
         cmd: 'left-click',
         isValueRequired: true,
         isGetOnly: false,
+        isDominRequired: false,
       },
       {
         cmd: 'double-click',
         isValueRequired: true,
         isGetOnly: false,
+        isDominRequired: false,
       },
       {
         cmd: 'drag',
         isValueRequired: true,
         isGetOnly: false,
+        isDominRequired: false,
       },
     ],
   },
@@ -113,16 +140,19 @@ const commandsList = ref([
         cmd: 'back',
         isValueRequired: false,
         isGetOnly: false,
+        isDominRequired: false,
       },
       {
         cmd: 'forward',
         isValueRequired: false,
         isGetOnly: false,
+        isDominRequired: false,
       },
       {
         cmd: 'refresh',
         isValueRequired: false,
         isGetOnly: false,
+        isDominRequired: false,
       },
     ],
   },
@@ -130,6 +160,7 @@ const commandsList = ref([
     cmd: 'Start',
     isValueRequired: false,
     isGetOnly: false,
+    isDominRequired: false,
   },
 ])
 //#endregion
@@ -157,26 +188,61 @@ const cascadeSelect_pt = {
 //#endregion
 //#region VueFlow
 const driverNodeData: NodeType = useNodesData(props.id).value?.data
-const nodeCoreData: DriverNodeType = useNodesData(props.id).value?.data.nodeData
-let data = useNodesData(() => connections.value.map((connection) => connection.source))
-const nodesData = computed<NodeType | null | any>(() => {
+/* const data = useNodesData(() => connectionPara1.value.map((connection) => connection.source))
+const connectedNodesData = computed(() => {
   console.log(data.value)
   if (data.value.length > 0) {
-    return data.value[0].data
+    const nodesList: NodeType[] = []
+    data.value.forEach((nodeData) => {
+      if (nodeData.type === 'var-node') {
+        connectedNodePara1Data.value = nodeData.data
+      }
+      if (nodeData.type === 'dom-node') {
+        //connectedNodePara2Data.value = nodeData.data
+      }
+      nodesList.push(nodeData.data)
+    })
+    return nodesList as NodeType[]
+  } else {
+    return null
+  }
+}) */
+const connectedPara1HandleData = useNodesData(() =>
+  connectionPara1.value.map((connection) => connection.source),
+)
+const connectedNodePara1Data = computed(() => {
+  if (connectedPara1HandleData.value.length > 0) {
+    return connectedPara1HandleData.value[0].data
   } else {
     return null
   }
 })
+const connectedPara2HandleData = useNodesData(() =>
+  connectionPara2.value.map((connection) => connection.source),
+)
+const connectedNodePara2Data = computed(() => {
+  if (connectedPara2HandleData.value.length > 0) {
+    return connectedPara2HandleData.value[0].data
+  } else {
+    return null
+  }
+})
+
 //#endregion
 onBeforeMount(() => {
-  console.log(selectedCmd.value)
-  console.log(driverNodeData.pCmd?.value)
-  if (driverNodeData.pCmd?.value !== 'cmd not set') {
+  if (driverNodeData.nodeData.cmd?.value !== 'cmd not set') {
     // only set when loading node from data not while adding new
+    let isDominReq = false
+    if (driverNodeData.nodeData.para2) {
+      if (driverNodeData.nodeData.para2.isRequired) {
+        isDominReq = true
+      }
+    }
     selectedCmd.value = {
-      cmd: driverNodeData.pCmd?.value,
-      isValueRequired: driverNodeData.pCmd?.isValueRequired,
-      isGetOnly: driverNodeData.pCmd?.isGetOnly,
+      cmd: driverNodeData.nodeData.cmd?.value,
+      isValueRequired: driverNodeData.nodeData.cmd?.isRequired,
+      isGetOnly: driverNodeData.nodeData.cmd?.isGetOnly,
+      isDominRequired: isDominReq,
     }
   }
   updateFieldsState()
@@ -188,63 +254,110 @@ onBeforeMount(() => {
   }
 })
  */
-const connections = useHandleConnections({
+const connectionPara1 = useHandleConnections({
   type: 'target',
   id: 'var-set',
   onConnect: (connection) => {
+    console.log(connection)
     if (connection[0].sourceHandle === 'var-get') {
-      driverNodeData.pValue.isConnected = true
-      driverNodeData.pValue.connnectedNodeId = connection[0].source
-      driverNodeData.pValue.edgeId = connection[0].edgeId
+      driverNodeData.nodeData.para1!.isConnected = true
+      driverNodeData.nodeData.para1!.connectedNodeId = connection[0].source
+      driverNodeData.nodeData.para1!.edgeId = connection[0].edgeId
       updateFieldsState()
     }
   },
   onDisconnect: (connection) => {
-    driverNodeData.pValue.isConnected = false
-    driverNodeData.pValue.connnectedNodeId = '-1'
-    driverNodeData.pValue.edgeId = '-1'
-    updateFieldsState()
+    if (driverNodeData.nodeData.para1) {
+      driverNodeData.nodeData.para1.isConnected = false
+      driverNodeData.nodeData.para1.connectedNodeId = '-1'
+      driverNodeData.nodeData.para1.edgeId = '-1'
+      updateFieldsState()
+    }
+  },
+})
+const connectionPara2 = useHandleConnections({
+  type: 'target',
+  id: 'domin-set',
+  onConnect: (connection) => {
+    if (connection[0].sourceHandle === 'var-get') {
+      if (driverNodeData.nodeData.para2) {
+        driverNodeData.nodeData.para2!.isConnected = true
+        driverNodeData.nodeData.para2!.connectedNodeId = connection[0].source
+        driverNodeData.nodeData.para2!.edgeId = connection[0].edgeId
+        updateFieldsState()
+      } else {
+        driverNodeData.nodeData.para2 = {
+          isConnected: true,
+          isRequired: true,
+          connectedNodeId: connection[0].source,
+          edgeId: connection[0].edgeId,
+          value: 'value not set',
+        }
+        updateFieldsState()
+      }
+    }
+  },
+  onDisconnect: (connection) => {
+    if (driverNodeData.nodeData.para2) {
+      driverNodeData.nodeData.para2.isConnected = false
+      driverNodeData.nodeData.para2.connectedNodeId = '-1'
+      driverNodeData.nodeData.para2.edgeId = '-1'
+      updateFieldsState()
+    }
   },
 })
 
 function updateFieldsState() {
-  if (selectedCmd.value) {
-    if (driverNodeData.pValue.isConnected == true) {
+  if (selectedCmd.value && driverNodeData.nodeData.para1) {
+    if (selectedCmd.value.isGetOnly) {
+      varSetHandleState.value = fieldState.Hidden
+    } else {
+      varSetHandleState.value = fieldState.Block
+    }
+    if (driverNodeData.nodeData.para1.isConnected == true) {
       varStateRef.value = selectedCmd.value.isValueRequired ? fieldState.Grayed : fieldState.Hidden
     } else {
       varStateRef.value = selectedCmd.value.isValueRequired ? fieldState.Block : fieldState.Hidden
       varStateRef.value = selectedCmd.value.isGetOnly ? fieldState.Grayed : varStateRef.value
     }
+    if (selectedCmd.value.cmd === 'input') {
+      if (driverNodeData.nodeData.para2?.isConnected == true) {
+        dominStateRef.value = fieldState.Grayed
+      } else {
+        dominStateRef.value = fieldState.Block
+      }
+    } else {
+      dominStateRef.value = fieldState.Hidden
+    }
   }
-  console.log(`varStateRef: ${varStateRef.value}`)
 }
 
 function onDropdownItemSelected(curCmd: any) {
   console.log(curCmd)
   callNodeDataUpdate(curCmd)
-  if (curCmd.isValueRequired === true) {
-    driverNodeData.pValue.isRequired = true
-    if (curCmd.isGetOnly === true) {
+  if (driverNodeData.nodeData.para1) {
+    if (curCmd.isValueRequired === true) {
+      driverNodeData.nodeData.para1.isRequired = true
+      if (curCmd.isGetOnly === true) {
+        removeUnconnectedEdges()
+      }
+    } else {
       removeUnconnectedEdges()
+      driverNodeData.nodeData.para1.isRequired = false
     }
-  } else {
-    removeUnconnectedEdges()
-    driverNodeData.pValue.isRequired = false
   }
-  console.log(connections.value.map((connection) => connection.source))
   updateFieldsState()
-  //console.log(nodesData.value[0].type)
 }
 function removeUnconnectedEdges() {
-  if (driverNodeData.pValue.isConnected === true) {
-    removeEdges(driverNodeData.pValue.edgeId)
+  if (driverNodeData.nodeData.para1?.isConnected === true) {
+    removeEdges(driverNodeData.nodeData.para1.edgeId)
   }
 }
 function callNodeDataUpdate(newCmd: any) {
-  if (driverNodeData.pCmd) {
-    driverNodeData.pCmd.value = newCmd.cmd
-    driverNodeData.pCmd.isValueRequired = newCmd.isValueRequired
-    driverNodeData.pCmd.isGetOnly = newCmd.isGetOnly
+  if (driverNodeData.nodeData.cmd) {
+    driverNodeData.nodeData.cmd.value = newCmd.cmd
+    driverNodeData.nodeData.cmd.isRequired = newCmd.isValueRequired
+    driverNodeData.nodeData.cmd.isGetOnly = newCmd.isGetOnly
   }
 }
 </script>
@@ -258,8 +371,8 @@ function callNodeDataUpdate(newCmd: any) {
           :position="Position.Left"
           id="var-set"
           style="top: 118px; background-color: yellow; border-color: yellow"
-          v-show="varStateRef !== fieldState.Grayed"
-        />
+          v-show="varSetHandleState !== fieldState.Hidden"
+        /><!-- v-show="varStateRef !== fieldState.Grayed" -->
         <Handle
           type="source"
           :position="Position.Right"
@@ -267,7 +380,7 @@ function callNodeDataUpdate(newCmd: any) {
           style="top: 118px; background-color: limegreen; border-color: limegreen"
         />
       </div>
-      <div>
+      <div v-show="dominStateRef === fieldState.Block || dominStateRef === fieldState.Grayed">
         <Handle
           type="target"
           :position="Position.Left"
@@ -319,9 +432,14 @@ function callNodeDataUpdate(newCmd: any) {
             :disabled="varStateRef === fieldState.Grayed"
           />
         </div>
-        <div>
+        <div v-show="dominStateRef === fieldState.Block || dominStateRef === fieldState.Grayed">
           <p class="mt-2 mb-1">DOM Input</p>
-          <InputText type="text" class="text-xs py-[0.3rem] px-[0.4rem] w-full" />
+          <InputText
+            type="text"
+            v-model="dominInputRef"
+            class="text-xs py-[0.3rem] px-[0.4rem] w-full"
+            :disabled="dominStateRef === fieldState.Grayed"
+          />
         </div>
         <div class="flex justify-between mb-1">
           <p class="">

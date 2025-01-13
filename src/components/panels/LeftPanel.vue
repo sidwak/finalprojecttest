@@ -8,7 +8,7 @@ import 'primeicons/primeicons.css'
 import type { testcaseDataType } from '@/ts_types/puppet_test_types'
 import TestcaseNewModal from '../modals/TestcaseNewModal.vue'
 import { loadNewTestcase } from '@/services/testcaseService'
-import type { nodeData } from '@/ts_types/nodeType'
+import type { NodeType, flowNode } from '@/ts_types/nodeType'
 import { useVueFlow, type ViewportTransform, type VueFlowStore } from '@vue-flow/core'
 import { useFlowStore } from '@/pinia_stores/flowStore'
 
@@ -36,13 +36,13 @@ const testcasesListItems = computed(() => {
 const nodesListItems = computed(() => {
   const nodesList: any[] = testcasesStore.nodesFlowData.nodes
   let returnList: any[] = []
-  nodesList.forEach((nodeData) => {
+  nodesList.forEach((nodeData: flowNode) => {
     const tempObj = {
-      label: `${nodeData.data.nodeType} [id:${nodeData.id}]`,
+      label: `${nodeData.data.nodeName} [id:${nodeData.id}]`,
       command: (e: any) => selectItem(e),
       nData: nodeData,
     }
-    if (nodeData.data.nodeType === 'driver-node') {
+    if (nodeData.data.nodeType === 'driver-node' || nodeData.data.nodeType === 'asr-node') {
       //tempObj.label = `${nodeData.data.nodeName} ${nodeData.id}`
       returnList.push(tempObj)
     }
@@ -52,10 +52,11 @@ const nodesListItems = computed(() => {
 const varNodesListItems = computed(() => {
   const nodesList: any[] = testcasesStore.nodesFlowData.nodes
   let returnList: any[] = []
-  nodesList.forEach((nodeData) => {
+  nodesList.forEach((nodeData: flowNode) => {
     const tempObj = {
       label: `${nodeData.data.nodeName} [id:${nodeData.id}]`,
       command: (e: any) => selectItem(e),
+      nData: nodeData,
     }
     if (nodeData.data.nodeType === 'var-node') {
       returnList.push(tempObj)
@@ -66,10 +67,11 @@ const varNodesListItems = computed(() => {
 const domNodesListItems = computed(() => {
   const nodesList: any[] = testcasesStore.nodesFlowData.nodes
   let returnList: any[] = []
-  nodesList.forEach((nodeData) => {
+  nodesList.forEach((nodeData: flowNode) => {
     const tempObj = {
       label: `${nodeData.data.nodeName} [id:${nodeData.id}]`,
       command: (e: any) => selectItem(e),
+      nData: nodeData,
     }
     if (nodeData.data.nodeType === 'dom-node') {
       returnList.push(tempObj)

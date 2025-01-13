@@ -5,23 +5,26 @@
       "type": "driver-node",
       "initialized": false,
       "position": {
-        "x": 97.046875,
-        "y": -13
+        "x": -65.30640109086818,
+        "y": -149.37671359086818
       },
       "data": {
         "nodeName": "Node 0",
         "nodeType": "driver-node",
-        "reqNodeName": false,
-        "label": "type: driver-node",
-        "pCmd": {
-          "value": "cmd not set"
-        },
-        "pValue": {
-          "isConnected": false,
-          "isRuntime": false,
-          "connnectedNodeId": "-1",
-          "value": "value not set",
-          "edgeId": "-1"
+        "displayName": "type: driver-node",
+        "nodeData": {
+          "cmd": {
+            "isRequired": true,
+            "value": "click",
+            "isGetOnly": false
+          },
+          "para1": {
+            "value": "value not sett",
+            "isConnected": false,
+            "isRequired": true,
+            "connectedNodeId": "-1",
+            "edgeId": "-1"
+          }
         },
         "flow": {
           "prevNodeId": "-1",
@@ -31,22 +34,28 @@
     },
     {
       "id": "1",
-      "type": "dom-node",
+      "type": "var-node",
       "initialized": false,
       "position": {
-        "x": 76.046875,
-        "y": 130
+        "x": 221.9897316408583,
+        "y": 74.74360678091115
       },
       "data": {
-        "nodeName": "Node 1",
-        "nodeType": "dom-node",
-        "label": "type: dom-node",
-        "pValue": {
-          "isConnected": false,
-          "isRuntime": false,
-          "connnectedNodeId": "-1",
-          "value": "value not set",
-          "edgeId": "-1"
+        "nodeName": "Node 133",
+        "nodeType": "var-node",
+        "displayName": "type: var-node",
+        "nodeData": {
+          "cmd": {
+            "isRequired": true,
+            "value": "cmd not set"
+          },
+          "para1": {
+            "value": "value not sety",
+            "isConnected": false,
+            "isRequired": false,
+            "connectedNodeId": "-1",
+            "edgeId": "-1"
+          }
         },
         "flow": {
           "prevNodeId": "-1",
@@ -56,22 +65,184 @@
     },
     {
       "id": "2",
-      "type": "dom-node",
+      "type": "var-node",
       "initialized": false,
       "position": {
-        "x": 316.046875,
-        "y": 152
+        "x": 161.65780871708546,
+        "y": 220.01698438652983
       },
       "data": {
         "nodeName": "Node 2",
+        "nodeType": "var-node",
+        "displayName": "type: var-node",
+        "nodeData": {
+          "cmd": {
+            "isRequired": true,
+            "value": "cmd not set"
+          },
+          "para1": {
+            "value": "value not set",
+            "isConnected": false,
+            "isRequired": false,
+            "connectedNodeId": "-1",
+            "edgeId": "-1"
+          }
+        },
+        "flow": {
+          "prevNodeId": "-1",
+          "nextNodeId": "-1"
+        }
+      }
+    },
+    {
+      "id": "3",
+      "type": "dom-node",
+      "initialized": false,
+      "position": {
+        "x": 186.67450634238077,
+        "y": -52.69923872048915
+      },
+      "data": {
+        "nodeName": "Node 56",
         "nodeType": "dom-node",
-        "label": "type: dom-node",
-        "pValue": {
-          "isConnected": false,
-          "isRuntime": false,
-          "connnectedNodeId": "-1",
-          "value": "value not set",
-          "edgeId": "-1"
+        "displayName": "type: dom-node",
+        "nodeData": {
+          "cmd": {
+            "isRequired": true,
+            "value": "cmd not set"
+          },
+          "para1": {
+            "value": "value not se",
+            "isConnected": false,
+            "isRequired": false,
+            "connectedNodeId": "-1",
+            "edgeId": "-1"
+          }
+        },
+        "flow": {
+          "prevNodeId": "-1",
+          "nextNodeId": "-1"
+        }
+      }
+    },
+    {
+      "id": "4",
+      "type": "asr-node",
+      "initialized": false,
+      "position": {
+        "x": -64.48069942960694,
+        "y": 132.34083630830628
+      },
+      "data": {
+        "nodeName": "Node 4",
+        "nodeType": "asr-node",
+        "displayName": "type: asr-node",
+        "nodeData": {
+          "cmd": {
+            "isRequired": true,
+            "value": "cmd not set"
+          },
+          "para1": {
+            "value": "value not set",
+            "isConnected": false,
+            "isRequired": false,
+            "connectedNodeId": "-1",
+            "edgeId": "-1"
+          }
+        },
+        "flow": {
+          "prevNodeId": "-1",
+          "nextNodeId": "-1"
+        }
+      }
+    },
+    {
+      "id": "5",
+      "type": "driver-node",
+      "initialized": false,
+      "position": {
+        "x": 718.9075122265917,
+        "y": 164.20379484347833
+      },
+      "data": {
+        "nodeName": "Node 5",
+        "nodeType": "driver-node",
+        "displayName": "type: driver-node",
+        "nodeData": {
+          "cmd": {
+            "isRequired": true,
+            "value": "input",
+            "isGetOnly": false
+          },
+          "para1": {
+            "value": "value not set",
+            "isConnected": true,
+            "isRequired": true,
+            "connectedNodeId": "6",
+            "edgeId": "vueflow__edge-6var-get-5var-set"
+          }
+        },
+        "flow": {
+          "prevNodeId": "-1",
+          "nextNodeId": "-1"
+        }
+      }
+    },
+    {
+      "id": "6",
+      "type": "dom-node",
+      "initialized": false,
+      "position": {
+        "x": 454.90751222659173,
+        "y": 109.20379484347833
+      },
+      "data": {
+        "nodeName": "Node 6",
+        "nodeType": "dom-node",
+        "displayName": "type: dom-node",
+        "nodeData": {
+          "cmd": {
+            "isRequired": true,
+            "value": "cmd not set"
+          },
+          "para1": {
+            "value": "value not set",
+            "isConnected": false,
+            "isRequired": false,
+            "connectedNodeId": "-1",
+            "edgeId": "-1"
+          }
+        },
+        "flow": {
+          "prevNodeId": "-1",
+          "nextNodeId": "-1"
+        }
+      }
+    },
+    {
+      "id": "7",
+      "type": "var-node",
+      "initialized": false,
+      "position": {
+        "x": 431.9075122265917,
+        "y": 246.20379484347836
+      },
+      "data": {
+        "nodeName": "Node 7",
+        "nodeType": "var-node",
+        "displayName": "type: var-node",
+        "nodeData": {
+          "cmd": {
+            "isRequired": true,
+            "value": "cmd not set"
+          },
+          "para1": {
+            "value": "value not set",
+            "isConnected": false,
+            "isRequired": false,
+            "connectedNodeId": "-1",
+            "edgeId": "-1"
+          }
         },
         "flow": {
           "prevNodeId": "-1",
@@ -80,15 +251,44 @@
       }
     }
   ],
-  "edges": [],
-  "position": [
-    89.40625,
-    181.5
+  "edges": [
+    {
+      "id": "vueflow__edge-6var-get-5var-set",
+      "type": "default",
+      "source": "6",
+      "target": "5",
+      "sourceHandle": "var-get",
+      "targetHandle": "var-set",
+      "data": {},
+      "label": "",
+      "sourceX": 620.9075122265917,
+      "sourceY": 198.20379484347833,
+      "targetX": 715.9075122265917,
+      "targetY": 282.20379484347836
+    },
+    {
+      "id": "vueflow__edge-7var-get-5domin-set",
+      "type": "default",
+      "source": "7",
+      "target": "5",
+      "sourceHandle": "var-get",
+      "targetHandle": "domin-set",
+      "data": {},
+      "label": "",
+      "sourceX": 597.9075122265917,
+      "sourceY": 335.20379484347836,
+      "targetX": 715.9075122265917,
+      "targetY": 337.20379484347836
+    }
   ],
-  "zoom": 2,
+  "position": [
+    173.86239388451986,
+    150.3623382953529
+  ],
+  "zoom": 1.1486983549970349,
   "viewport": {
-    "x": 89.40625,
-    "y": 181.5,
-    "zoom": 2
+    "x": 173.86239388451986,
+    "y": 150.3623382953529,
+    "zoom": 1.1486983549970349
   }
 }

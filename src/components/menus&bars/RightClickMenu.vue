@@ -147,7 +147,7 @@ function contextMenuValueChange(e: any) {
   }
 }
 function liefCycleEnd() {
-  console.log('end')
+  //console.log('end')
 }
 const callToggleContextMenu = (e: any) => {
   contextMenuRef.value?.show(e)

@@ -24,9 +24,30 @@
 } */
 
 export interface NodeType {
-  nodeName: string | null
+  nodeName: string
   nodeType: string
-  nodeData: DriverNodeType | VarNodeType | DomNodeType | AssertNodeType
+  displayName: string
+  nodeData: {
+    cmd?: {
+      value: string
+      isRequired: boolean
+      isGetOnly: boolean
+    }
+    para1?: {
+      value: string
+      isRequired: boolean
+      isConnected: boolean
+      connectedNodeId: string
+      edgeId: string
+    }
+    para2?: {
+      value: string | null
+      isRequired: boolean
+      isConnected: boolean
+      connectedNodeId: string
+      edgeId: string
+    }
+  }
   flow: {
     prevNodeId?: string
     nextNodeId?: string
@@ -39,16 +60,16 @@ export interface DriverNodeType {
     isRequired: boolean
     isGetOnly: boolean
   }
-  para1?: {
+  para1: {
     value: string | null
-    isRequired?: boolean
+    isRequired: boolean
     isConnected: boolean
     connectedNodeId: string
     edgeId: string
   }
   para2?: {
     value: string | null
-    isRequired?: boolean
+    isRequired: boolean
     isConnected: boolean
     connectedNodeId: string
     edgeId: string

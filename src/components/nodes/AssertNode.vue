@@ -11,7 +11,7 @@ import {
   onBeforeMount,
 } from 'vue'
 import { CascadeSelect, InputText } from 'primevue'
-import type { nodeData } from '@/ts_types/nodeType'
+import type { NodeType } from '@/ts_types/nodeType'
 enum fieldState {
   Hidden,
   Block,
@@ -21,7 +21,7 @@ enum fieldState {
 //#region Props
 const props = defineProps<{
   id: string
-  data: nodeData
+  data: NodeType
   selected: boolean
 }>()
 //#endregion
@@ -35,7 +35,7 @@ const varNameRef = computed(() => {
   }
 })
 const varInputRef = ref()
-const varStateRef = ref<fieldState>(fieldState.Block)
+const var1StateRef = ref<fieldState>(fieldState.Block)
 const commandsList = ref([
   {
     cmdgroup: 'Compare',
@@ -75,10 +75,10 @@ const commandsList = ref([
     cmdgroup: 'Length',
     group: [
       {
-        cmd: 'above',
+        cmd: 'lengthAbove',
       },
       {
-        cmd: 'below',
+        cmd: 'lengthBelow',
       },
     ],
   },
@@ -110,17 +110,83 @@ const cascadeSelect_pt = {
 }
 //#endregion
 //#region Vueflow
+const assertNodeData: NodeType = useNodesData(props.id).value?.data
+const para1ConnectedNodeId = ref('-1')
+const para1ConnectedNode = useNodesData(para1ConnectedNodeId) // .value?.data gives undefined (dont' know why?), can use computed() to cal further
+const para1InputRef = computed({
+  get() {
+    if (para1ConnectedNode.value) {
+      return para1ConnectedNode.value!.data.nodeData.para1!.value
+    } else {
+      return assertNodeData.nodeData.para1!.value
+    }
+  },
+  set(newValue: string) {
+    if (para1ConnectedNode.value) {
+    } else {
+      assertNodeData.nodeData.para1!.value = newValue
+    }
+  },
+})
 
-//#endregion
+const para1Connection = useHandleConnections({
+  type: 'target',
+  id: 'var-set',
+  onConnect: (connection) => {
+    if (connection[0].sourceHandle === 'var-get') {
+      console.log('node set connected on assert')
+      para1ConnectedNodeId.value = connection[0].source
+      console.log(para1ConnectedNode.value)
+      //assertNodeData.nodeData.para1!.value = para1ConnectedNode.nodeData.para1!.value
+      updateFieldsState()
+    }
+  },
+  onDisconnect: (connection) => {
+    console.log('node set disconnected on assert')
+    if (para1ConnectedNode) {
+      para1ConnectedNodeId.value = '-1'
+      updateFieldsState()
+    }
+  },
+})
+
+function updateFieldsState() {
+  if (para1ConnectedNode.value) {
+    var1StateRef.value = fieldState.Grayed
+  } else {
+    var1StateRef.value = fieldState.Block
+  }
+}
 
 function onDropdownItemSelected(curCmd: any) {
   console.log(curCmd)
+  if (props.data.nodeData.cmd) {
+    props.data.nodeData.cmd!.value = curCmd.cmd
+  } else {
+    props.data.nodeData.cmd = {
+      value: curCmd.cmd,
+      isGetOnly: false,
+      isRequired: true,
+    }
+  }
 }
 </script>
 <template>
   <div class="node-container" :class="{ 'node-container-highlight': props.selected }">
     <div class="node-heading">Assert Node</div>
     <div class="node-content">
+      <Handle
+        type="target"
+        :position="Position.Left"
+        id="var-set"
+        style="top: 119px; background-color: mediumaquamarine; border-color: mediumaquamarine"
+      />
+      <Handle
+        type="source"
+        :position="Position.Right"
+        id="var-get"
+        style="top: 119px; background-color: lime; border-color: lime"
+      />
       <div>
         <p class="mb-1">Assert Condition</p>
         <div
@@ -146,21 +212,31 @@ function onDropdownItemSelected(curCmd: any) {
           </CascadeSelect>
         </div>
       </div>
-      <div class="" v-show="varStateRef === fieldState.Block || varStateRef === fieldState.Grayed">
-        <p class="mt-2 mb-1">{{ varNameRef }}</p>
+      <div class="">
+        <p class="mt-2 mb-1">Value 1</p>
         <InputText
           type="text"
-          v-model="varInputRef"
+          v-model="para1InputRef"
           class="text-xs py-[0.3rem] px-[0.4rem] w-full"
-          :disabled="varStateRef === fieldState.Grayed"
+          :disabled="var1StateRef === fieldState.Grayed"
         />
+        <!-- <p class="mt-2 mb-1">{{ varNameRef }}</p> -->
+        <div>
+          <p class="mt-2 mb-1">Value 2</p>
+          <InputText
+            type="text"
+            v-model="props.data.nodeData.para1!.value"
+            class="text-xs py-[0.3rem] px-[0.4rem] w-full"
+            :disabled="var1StateRef === fieldState.Grayed"
+          />
+        </div>
       </div>
       <div class="flex justify-between mb-1">
         <p class="">
           <Handle
             type="target"
             :position="Position.Left"
-            id="var-set"
+            id="flow-prev"
             style="
               position: relative;
               left: -12px;
@@ -175,7 +251,7 @@ function onDropdownItemSelected(curCmd: any) {
           <Handle
             type="source"
             :position="Position.Right"
-            id="var-get"
+            id="flow-next"
             style="
               position: relative;
               right: -32px;
