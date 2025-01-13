@@ -464,7 +464,7 @@ function callNodeDataUpdate(newCmd: any) {
               id="flow-next"
               style="
                 position: relative;
-                right: -32px;
+                right: -31px;
                 top: 15px;
                 background-color: limegreen;
                 border-color: limegreen;

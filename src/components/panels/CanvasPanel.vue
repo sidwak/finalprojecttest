@@ -263,6 +263,13 @@ const calledFromParent = (data: any) => {
           para1: {
             value: 'value not set',
             isConnected: false,
+            isRequired: true,
+            connectedNodeId: '-1',
+            edgeId: '-1',
+          },
+          para2: {
+            value: 'value not set',
+            isConnected: false,
             isRequired: false,
             connectedNodeId: '-1',
             edgeId: '-1',
