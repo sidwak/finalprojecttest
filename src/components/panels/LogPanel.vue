@@ -9,6 +9,7 @@ const scrollContent = ref()
 const bottomItem = ref()
 
 socket.on('broadcast', (data) => {
+  console.log(data)
   console.log(data.message)
   innerTest.value = innerTest.value + '<br />$&nbsp' + data.message
   //bottomItem.value.scrollIntoView({ behaviour: 'smooth', block: 'end' })

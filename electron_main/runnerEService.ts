@@ -48,13 +48,24 @@ socket.emit('cmdExe', 'This test is about to start')
 
 `
 
-let cmdToCode: any = {
+const cmdToCode: any = {
   get: 'await page.goto($value);\n',
   click: 'await page.locator($value).click();\n',
   input: 'await page.locator($value).fill($input);\n',
 }
 let logText = `Command executed successfully - Command: $cmd DOMcss: $value DOMinput: $input`
 let logCmd = `socket.emit('cmdExe', '$log')\n\n`
+const fullCmdToCode: any = {
+  equal: 
+  `try {
+    $fullcmd
+  }
+  catch (e)
+  {
+    socket.emit('cmdExe', e.message);
+  }\n\n
+  `
+}
 
 function getTestcaseJsonObject(testcaseData: testcaseDataType) {
   const str_jsonData = readFileSync(path.join(__testcasesDir, testcaseData.name + '.json'), 'utf8')
@@ -120,7 +131,10 @@ function getAllCommands(nodes: flowNode[]) {
           }
           let cmdOut = logCmd
           cmdOut = cmdOut.replace('$log', logOut)
-          cmdsArr.push(newCmd + cmdOut)
+          let newFullCmd: string = fullCmdToCode['equal']
+          newFullCmd = newFullCmd.replace('$fullcmd',newCmd+cmdOut)
+          cmdsArr.push(newFullCmd)
+          //cmdsArr.push(newCmd + cmdOut)
         } else {
           const connectedNodeVarName = 'd_var' + node.id
           let newCmd = cmdToCode[coreData.nodeData.cmd!.value]
@@ -130,7 +144,10 @@ function getAllCommands(nodes: flowNode[]) {
           newCmd = newCmd.replace('$value', connectedNodeVarName)
           let cmdOut = logCmd
           cmdOut = cmdOut.replace('$log', logOut)
-          cmdsArr.push(newCmd + cmdOut)
+          let newFullCmd: string = fullCmdToCode['equal']
+          newFullCmd = newFullCmd.replace('$fullcmd',newCmd+cmdOut)
+          cmdsArr.push(newFullCmd)
+          //cmdsArr.push(newCmd + cmdOut)
         }
       } else {
       }

@@ -5,8 +5,8 @@
       "type": "driver-node",
       "initialized": false,
       "position": {
-        "x": 266.9056756903618,
-        "y": 178.18958683997624
+        "x": 257.5367947026781,
+        "y": 28.042642001557994
       },
       "data": {
         "nodeName": "Node 0",
@@ -15,21 +15,21 @@
         "nodeData": {
           "cmd": {
             "isRequired": true,
-            "value": "input",
-            "isGetOnly": false
+            "value": "getTitle",
+            "isGetOnly": true
           },
           "para1": {
             "value": "value not set",
-            "isConnected": true,
+            "isConnected": false,
             "isRequired": true,
-            "connectedNodeId": "1",
-            "edgeId": "vueflow__edge-1var-get-0var-set"
+            "connectedNodeId": "-1",
+            "edgeId": "-1"
           },
           "para2": {
-            "isConnected": true,
+            "isConnected": false,
             "isRequired": true,
-            "connectedNodeId": "2",
-            "edgeId": "vueflow__edge-2var-get-0domin-set",
+            "connectedNodeId": "-1",
+            "edgeId": "-1",
             "value": "value not sett"
           }
         },
@@ -140,34 +140,6 @@
   ],
   "edges": [
     {
-      "id": "vueflow__edge-1var-get-0var-set",
-      "type": "default",
-      "source": "1",
-      "target": "0",
-      "sourceHandle": "var-get",
-      "targetHandle": "var-set",
-      "data": {},
-      "label": "",
-      "sourceX": 211.3032981495856,
-      "sourceY": 242.43490006618794,
-      "targetX": 263.90569831881066,
-      "targetY": 296.1895256920115
-    },
-    {
-      "id": "vueflow__edge-2var-get-0domin-set",
-      "type": "default",
-      "source": "2",
-      "target": "0",
-      "sourceHandle": "var-get",
-      "targetHandle": "domin-set",
-      "data": {},
-      "label": "",
-      "sourceX": 208.72337784225448,
-      "sourceY": 382.6913732357285,
-      "targetX": 263.90569831881066,
-      "targetY": 351.18949644733266
-    },
-    {
       "id": "vueflow__edge-0flow-next-5flow-prev",
       "type": "default",
       "source": "0",
@@ -176,10 +148,10 @@
       "targetHandle": "flow-prev",
       "data": {},
       "label": "",
-      "sourceX": 433.0775026604359,
-      "sourceY": 379.9707418794642,
-      "targetX": 480.6651421065678,
-      "targetY": 378.8328359609645
+      "sourceX": 423.6993008061937,
+      "sourceY": 173.44264734213417,
+      "targetX": 480.6650493671706,
+      "targetY": 377.65168702499216
     },
     {
       "id": "vueflow__edge-2var-get-5var2-set",
@@ -190,10 +162,10 @@
       "targetHandle": "var2-set",
       "data": {},
       "label": "",
-      "sourceX": 208.72337784225448,
-      "sourceY": 382.6913732357285,
-      "targetX": 480.6651421065678,
-      "targetY": 351.0516180414909
+      "sourceX": 208.72346064873568,
+      "sourceY": 382.69143360426114,
+      "targetX": 480.6650493671706,
+      "targetY": 351.05168092147653
     },
     {
       "id": "vueflow__edge-1var-get-5var-set",
@@ -204,20 +176,20 @@
       "targetHandle": "var-set",
       "data": {},
       "label": "",
-      "sourceX": 211.3032981495856,
-      "sourceY": 242.43490006618794,
-      "targetX": 480.6651421065678,
-      "targetY": 296.05161223069547
+      "sourceX": 211.3033984838039,
+      "sourceY": 242.4349196572004,
+      "targetX": 480.6650493671706,
+      "targetY": 296.05168092147653
     }
   ],
   "position": [
-    19.09225200949379,
-    80.22671649742256
+    71.97731353097441,
+    68.12833939404527
   ],
-  "zoom": 0.870550563296124,
+  "zoom": 1.0592967812096714,
   "viewport": {
-    "x": 19.09225200949379,
-    "y": 80.22671649742256,
-    "zoom": 0.870550563296124
+    "x": 71.97731353097441,
+    "y": 68.12833939404527,
+    "zoom": 1.0592967812096714
   }
 }
