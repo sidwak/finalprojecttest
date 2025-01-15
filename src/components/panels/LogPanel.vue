@@ -18,7 +18,7 @@ socket.on('broadcast', (data) => {
 </script>
 <template>
   <div class="p-1 flex flex-col h-full">
-    <p class="mb-1 flex-none">Logs Terminal</p>
+    <p class="mb-1 flex-none">Logs</p>
     <ScrollPanel
       :ref="scrollContent"
       class="border bottom-1 rounded-md p-2 grow font-thin text-sm h-20"

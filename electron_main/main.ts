@@ -48,7 +48,7 @@ function createWindow() {
   win.webContents.openDevTools()
   // In production mode, load the built app
   // win.loadFile('index.html')
-  console.log('hello')
+  console.log('Hello from Backend!')
 
   win.loadURL('http://localhost:5173')
 
