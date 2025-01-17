@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { Position, Handle } from '@vue-flow/core'
-import { ref, onMounted, onUnmounted, shallowRef } from 'vue'
+import { ref, onMounted, onUnmounted, shallowRef, watch } from 'vue'
 import InputText from 'primevue/inputtext'
 import type { NodeType } from '@/ts_types/nodeType'
+import { useTestcasesStore } from '@/pinia_stores/testcasesStore'
 
+const testcaseStore = useTestcasesStore()
 //#region Props
 const props = defineProps<{
   id: string
@@ -12,6 +14,15 @@ const props = defineProps<{
 }>()
 //#endregion
 const inputRef = ref(null)
+
+watch(
+  () => props.selected,
+  (newValue, oldValue) => {
+    if (newValue === true) {
+      testcaseStore.selectNodeWithId(props.id)
+    }
+  },
+)
 </script>
 <template>
   <div class="node-container" :class="{ 'node-container-highlight': props.selected }">
@@ -25,22 +36,13 @@ const inputRef = ref(null)
       />
       <div class="">
         <p class="mb-1">{{ props.data.nodeName }}</p>
-        <InputText
-          type="text"
-          v-model="props.data.nodeData.para1!.value"
-          class="text-xs py-[0.3rem] px-[0.4rem] w-full"
-        />
+        <InputText type="text" v-model="props.data.nodeData.para1!.value" class="text-xs py-[0.3rem] px-[0.4rem] w-full" />
         <div class="flex justify-between mt-1 mb-1">
           <p class="">Set</p>
           <p class="">Get</p>
         </div>
       </div>
-      <Handle
-        type="source"
-        :position="Position.Right"
-        id="var-get"
-        style="top: 89px; background-color: lime; border-color: lime"
-      />
+      <Handle type="source" :position="Position.Right" id="var-get" style="top: 89px; background-color: lime; border-color: lime" />
     </div>
   </div>
 </template>

@@ -41,26 +41,15 @@ defineExpose({
 </script>
 <template>
   <div class="card flex justify-center">
-    <Dialog
-      v-model:visible="isVisible"
-      modal
-      header="New Testcase"
-      :style="{ width: '25rem' }"
-      :pt="dialog_pt"
-      :dt="dialog_dt"
-    >
+    <Dialog v-model:visible="isVisible" modal header="New Testcase" :style="{ width: '25rem' }" :pt="dialog_pt" :dt="dialog_dt">
       <span class="text-surface-500 dark:text-surface-400 block mb-4">Enter the details</span>
       <div class="flex items-center gap-4 mb-4">
         <label for="username" class="font-semibold w-24">Name</label>
-        <InputText
-          v-model="testcaseNameInputRef"
-          type="text"
-          class="text-xs py-[0.3rem] px-[0.4rem] w-full"
-        />
+        <InputText v-model="testcaseNameInputRef" type="text" class="text-xs py-[0.3rem] px-[0.4rem] w-full" />
       </div>
       <div class="flex justify-end gap-2">
         <Button label="Cancel" class="py-[0.3rem] px-[0.4rem]" @click="toggleModalVisibility" />
-        <Button label="Save" class="py-[0.3rem] px-[0.4rem]" @click="saveBtnClick" />
+        <Button label="Create" class="py-[0.3rem] px-[0.4rem]" @click="saveBtnClick" />
       </div>
     </Dialog>
   </div>

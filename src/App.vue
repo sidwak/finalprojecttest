@@ -78,7 +78,6 @@ function rightClickMenuClicked(e: any) {
   } */
   contextMenuAbsPos.value.top = e.clientY
   contextMenuAbsPos.value.left = e.clientX
-  console.log('right clicked pressed')
   //console.log(e.clientX)
   //console.log(e.clientY)
 
@@ -120,11 +119,7 @@ function toggleDarkMode() {
       <RightClickMenu :call-from-context-menu="callFromContextmenu" />
     </div> -->
     <Toast />
-    <RightClickMenu
-      ref="contextMenuDiv-ref"
-      :call-from-context-menu="callFromContextmenu"
-      :on-command-execute="afterCommandExecute"
-    />
+    <RightClickMenu ref="contextMenuDiv-ref" :call-from-context-menu="callFromContextmenu" :on-command-execute="afterCommandExecute" />
     <!-- <div
       class="w-screen h-6 bg-mbackground-700 border-b-2 border-mbackground-def text-white flex items-center ps-1 select-none"
     >
@@ -154,12 +149,7 @@ function toggleDarkMode() {
       <SplitterPanel class="" :size="85">
         <Splitter layout="vertical">
           <SplitterPanel :size="75">
-            <div
-              v-if="isTestcaseOpen === true"
-              class="w-full h-full"
-              @contextmenu="rightClickMenuClicked"
-              @click="checkContextMenu"
-            >
+            <div v-if="isTestcaseOpen === true" class="w-full h-full" @contextmenu="rightClickMenuClicked" @click="checkContextMenu">
               <CanvasPanel ref="mainCanvas-ref" />
             </div>
             <EmptyCanvasPanel v-else />

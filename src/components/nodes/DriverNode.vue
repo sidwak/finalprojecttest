@@ -1,22 +1,6 @@
 <script setup lang="ts">
-import {
-  Handle,
-  Position,
-  useVueFlow,
-  useNodesData,
-  useHandleConnections,
-  type GraphNode,
-} from '@vue-flow/core'
-import {
-  ref,
-  reactive,
-  onMounted,
-  onUnmounted,
-  shallowRef,
-  computed,
-  watch,
-  onBeforeMount,
-} from 'vue'
+import { Handle, Position, useVueFlow, useNodesData, useHandleConnections, type GraphNode } from '@vue-flow/core'
+import { ref, reactive, onMounted, onUnmounted, shallowRef, computed, watch, onBeforeMount } from 'vue'
 import { CascadeSelect, InputText } from 'primevue'
 import type { NodeType } from '@/ts_types/nodeType'
 
@@ -114,7 +98,7 @@ const commandsList = ref([
         isGetOnly: false,
       },
       {
-        cmd: 'left-click',
+        cmd: 'right-click',
         isValueRequired: true,
         isGetOnly: false,
         isDominRequired: false,
@@ -126,9 +110,9 @@ const commandsList = ref([
         isDominRequired: false,
       },
       {
-        cmd: 'drag',
-        isValueRequired: true,
-        isGetOnly: false,
+        cmd: 'innerHTML',
+        isValueRequired: false,
+        isGetOnly: true,
         isDominRequired: false,
       },
     ],
@@ -207,9 +191,7 @@ const connectedNodesData = computed(() => {
     return null
   }
 }) */
-const connectedPara1HandleData = useNodesData(() =>
-  connectionPara1.value.map((connection) => connection.source),
-)
+const connectedPara1HandleData = useNodesData(() => connectionPara1.value.map((connection) => connection.source))
 const connectedNodePara1Data = computed(() => {
   if (connectedPara1HandleData.value.length > 0) {
     return connectedPara1HandleData.value[0].data
@@ -217,9 +199,7 @@ const connectedNodePara1Data = computed(() => {
     return null
   }
 })
-const connectedPara2HandleData = useNodesData(() =>
-  connectionPara2.value.map((connection) => connection.source),
-)
+const connectedPara2HandleData = useNodesData(() => connectionPara2.value.map((connection) => connection.source))
 const connectedNodePara2Data = computed(() => {
   if (connectedPara2HandleData.value.length > 0) {
     return connectedPara2HandleData.value[0].data
@@ -285,7 +265,7 @@ const connectionPara2 = useHandleConnections({
         driverNodeData.nodeData.para2!.connectedNodeId = connection[0].source
         driverNodeData.nodeData.para2!.edgeId = connection[0].edgeId
         updateFieldsState()
-      } else {
+      } /* else {
         driverNodeData.nodeData.para2 = {
           isConnected: true,
           isRequired: true,
@@ -294,7 +274,7 @@ const connectionPara2 = useHandleConnections({
           value: 'value not set',
         }
         updateFieldsState()
-      }
+      } */
     }
   },
   onDisconnect: (connection) => {
@@ -333,17 +313,39 @@ function updateFieldsState() {
 }
 
 function onDropdownItemSelected(curCmd: any) {
-  console.log(curCmd)
   callNodeDataUpdate(curCmd)
   if (driverNodeData.nodeData.para1) {
     if (curCmd.isValueRequired === true) {
       driverNodeData.nodeData.para1.isRequired = true
       if (curCmd.isGetOnly === true) {
         removeUnconnectedEdges()
+        driverNodeData.nodeData.cmd!.isGetOnly = true
+        driverNodeData.nodeData.para1.value = '[Value]'
+      } else {
+        driverNodeData.nodeData.cmd!.isGetOnly = false
+        driverNodeData.nodeData.para1.value = 'value not set'
       }
     } else {
       removeUnconnectedEdges()
       driverNodeData.nodeData.para1.isRequired = false
+    }
+  }
+  if (curCmd.isDominRequired) {
+    if (driverNodeData.nodeData.para2 === undefined) {
+      console.log('domin is required and para2 not created')
+      driverNodeData.nodeData.para2 = {
+        value: 'value not set',
+        isRequired: true,
+        isConnected: false,
+        connectedNodeId: '1',
+        edgeId: '-1',
+      }
+    } else {
+      driverNodeData.nodeData.para2.isRequired = true
+    }
+  } else {
+    if (driverNodeData.nodeData.para2 !== undefined) {
+      driverNodeData.nodeData.para2.isRequired = false
     }
   }
   updateFieldsState()
@@ -381,12 +383,7 @@ function callNodeDataUpdate(newCmd: any) {
         />
       </div>
       <div v-show="dominStateRef === fieldState.Block || dominStateRef === fieldState.Grayed">
-        <Handle
-          type="target"
-          :position="Position.Left"
-          id="domin-set"
-          style="top: 173px; background-color: yellow; border-color: yellow"
-        />
+        <Handle type="target" :position="Position.Left" id="domin-set" style="top: 173px; background-color: yellow; border-color: yellow" />
         <Handle
           type="source"
           :position="Position.Right"
@@ -420,10 +417,7 @@ function callNodeDataUpdate(newCmd: any) {
             </CascadeSelect>
           </div>
         </div>
-        <div
-          class=""
-          v-show="varStateRef === fieldState.Block || varStateRef === fieldState.Grayed"
-        >
+        <div class="" v-show="varStateRef === fieldState.Block || varStateRef === fieldState.Grayed">
           <p class="mt-2 mb-1">{{ varNameRef }}</p>
           <InputText
             type="text"
@@ -447,13 +441,7 @@ function callNodeDataUpdate(newCmd: any) {
               type="target"
               :position="Position.Left"
               id="flow-prev"
-              style="
-                position: relative;
-                left: -12px;
-                top: 15px;
-                background-color: yellow;
-                border-color: yellow;
-              "
+              style="position: relative; left: -12px; top: 15px; background-color: yellow; border-color: yellow"
             />
             Previous
           </p>
@@ -462,13 +450,7 @@ function callNodeDataUpdate(newCmd: any) {
               type="source"
               :position="Position.Right"
               id="flow-next"
-              style="
-                position: relative;
-                right: -31px;
-                top: 15px;
-                background-color: limegreen;
-                border-color: limegreen;
-              "
+              style="position: relative; right: -31px; top: 15px; background-color: limegreen; border-color: limegreen"
             />
             Next
           </p>

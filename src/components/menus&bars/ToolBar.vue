@@ -5,6 +5,7 @@ import { ref } from 'vue'
 import { useToast } from 'primevue'
 import Toast from 'primevue/toast'
 import { useTestcasesStore } from '@/pinia_stores/testcasesStore'
+import { saveTestcaseDataInBackend } from '@/services/testcaseService'
 
 const testcasesStore = useTestcasesStore()
 const props = defineProps({
@@ -54,6 +55,7 @@ async function startTestInBackend() {
     detail: 'backend',
     life: 3000,
   })
+  const saveResult = await saveTestcaseDataInBackend()
   const result = await window.electron.startTest(testcasesStore.getCurrentTestcase)
 }
 </script>
@@ -87,18 +89,9 @@ async function startTestInBackend() {
     <div class="toolbar-icon">
       <span class="pi pi-bolt toolbar-icon-span"></span>
     </div>
-    <ToggleSwitch
-      v-model="checked"
-      @update:model-value="toggleValueChanged($event)"
-      :dt="amberSwitch"
-    >
+    <ToggleSwitch v-model="checked" @update:model-value="toggleValueChanged($event)" :dt="amberSwitch">
       <template #handle="{ checked }">
-        <i
-          :class="[
-            '!text-xxs !leading-xxs pi dark:text-white',
-            { 'pi-moon': checked, 'pi-sun': !checked },
-          ]"
-        />
+        <i :class="['!text-xxs !leading-xxs pi dark:text-white', { 'pi-moon': checked, 'pi-sun': !checked }]" />
       </template>
     </ToggleSwitch>
   </div>

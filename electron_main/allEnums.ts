@@ -4,3 +4,9 @@ export enum ENode {
   domNode = 'dom-node',
   assertNode = 'asr-node',
 }
+
+export enum EMenuItem {
+  Unknown = 'unknown',
+  Node = 'node',
+  Testcase = 'testcase',
+}

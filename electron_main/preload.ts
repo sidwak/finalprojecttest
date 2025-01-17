@@ -10,4 +10,5 @@ contextBridge.exposeInMainWorld('electron', {
   setNewCurrentProject: (args: any) => ipcRenderer.invoke('set-new-current-project', args),
   getTestcasesInfoJson: (args: any) => ipcRenderer.invoke('get-testcases-info-json', args),
   createNewTestcase: (args: any) => ipcRenderer.invoke('create-new-testcase', args),
+  deleteTestcase: (args: any) => ipcRenderer.invoke('delete-testcase', args),
 })

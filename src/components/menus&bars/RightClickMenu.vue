@@ -4,9 +4,10 @@ import ContextMenu from 'primevue/contextmenu'
 import 'primeicons/primeicons.css'
 import { useToast } from 'primevue'
 import Toast from 'primevue/toast'
+import { useTestcasesStore } from '@/pinia_stores/testcasesStore'
 
 const toast = useToast()
-
+const testcaseStore = useTestcasesStore()
 //#region Props
 const props = defineProps({
   callFromContextMenu: { type: Function, required: true },
@@ -91,7 +92,14 @@ const items = [
   { label: 'Paste', icon: 'pi pi-clipboard' },
   { label: 'Rename', icon: 'pi pi-file-edit' },
   { separator: true },
-  { label: 'Delete', icon: 'pi pi-trash' },
+  {
+    label: 'Delete',
+    icon: 'pi pi-trash',
+    cmdType: 'node-opr',
+    command: (e: any) => {
+      contextMenuValueChange(e)
+    },
+  },
 ]
 //#endregion
 //#region Primevue
@@ -144,6 +152,10 @@ function contextMenuValueChange(e: any) {
       }
       props.onCommandExecute(data)
     }
+  } else if (e.item.cmdType === 'node-opr') {
+    if (e.item.label === 'Delete') {
+      testcaseStore.deleteNodeWithId(testcaseStore.selectedNodeId)
+    }
   }
 }
 function liefCycleEnd() {
@@ -158,12 +170,6 @@ defineExpose({
 </script>
 <template>
   <Toast @life-end="liefCycleEnd" />
-  <ContextMenu
-    ref="contextMenu-ref"
-    :model="items"
-    class="text-xs1 leading-xs1"
-    :pt="contextMenu_pt"
-    :dt="contextMenu_dt"
-  />
+  <ContextMenu ref="contextMenu-ref" :model="items" class="text-xs1 leading-xs1" :pt="contextMenu_pt" :dt="contextMenu_dt" />
 </template>
 <style scoped></style>

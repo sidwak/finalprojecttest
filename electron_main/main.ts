@@ -12,6 +12,7 @@ import {
   saveTestcaseData,
   loadTestcaseData,
   runTestcase,
+  deleteTestcase,
 } from './testcasesEService.js'
 
 const io = new Server(3000, {
@@ -89,6 +90,9 @@ ipcMain.handle('get-testcases-info-json', async (event, args) => {
 })
 ipcMain.handle('create-new-testcase', async (event, args) => {
   return createNewTestcase(args)
+})
+ipcMain.handle('delete-testcase', async (event, args) => {
+  return deleteTestcase(args)
 })
 
 function yourFunction(args: any) {

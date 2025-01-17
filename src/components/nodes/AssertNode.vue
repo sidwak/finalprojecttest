@@ -1,15 +1,6 @@
 <script setup lang="ts">
 import { Handle, Position, useVueFlow, useNodesData, useHandleConnections } from '@vue-flow/core'
-import {
-  ref,
-  reactive,
-  onMounted,
-  onUnmounted,
-  shallowRef,
-  computed,
-  watch,
-  onBeforeMount,
-} from 'vue'
+import { ref, reactive, onMounted, onUnmounted, shallowRef, computed, watch, onBeforeMount } from 'vue'
 import { CascadeSelect, InputText } from 'primevue'
 import type { NodeType } from '@/ts_types/nodeType'
 enum fieldState {
@@ -209,14 +200,11 @@ const para2Connection = useHandleConnections({
 onBeforeMount(() => {
   if (assertNodeData.nodeData.cmd?.value !== 'cmd not set') {
     let isVar2Req = false
-    console.log(assertNodeData.nodeData)
-    console.log(assertNodeData.nodeData.cmd?.value)
     if (assertNodeData.nodeData.para2) {
       if (assertNodeData.nodeData.para2.isRequired) {
         isVar2Req = true
       }
     }
-    console.log(isVar2Req)
     selectedCmd.value = {
       cmd: assertNodeData.nodeData.cmd!.value,
       isVar2Required: isVar2Req,
@@ -228,7 +216,6 @@ onBeforeMount(() => {
 })
 
 function updateFieldsState() {
-  console.log(selectedCmd.value)
   if (selectedCmd.value) {
     if (assertNodeData.nodeData.para1!.isConnected) {
       var1StateRef.value = fieldState.Grayed
@@ -236,9 +223,7 @@ function updateFieldsState() {
       var1StateRef.value = fieldState.Block
     }
     if (selectedCmd.value.isVar2Required) {
-      var2StateRef.value = assertNodeData.nodeData.para2!.isConnected
-        ? fieldState.Grayed
-        : fieldState.Block
+      var2StateRef.value = assertNodeData.nodeData.para2!.isConnected ? fieldState.Grayed : fieldState.Block
     } else {
       var2StateRef.value = fieldState.Hidden
     }
@@ -280,12 +265,7 @@ function onDropdownItemSelected(curCmd: any) {
         id="var-set"
         style="top: 119px; background-color: mediumaquamarine; border-color: mediumaquamarine"
       />
-      <Handle
-        type="source"
-        :position="Position.Right"
-        id="var-get"
-        style="top: 119px; background-color: lime; border-color: lime"
-      />
+      <Handle type="source" :position="Position.Right" id="var-get" style="top: 119px; background-color: lime; border-color: lime" />
       <div v-show="var2StateRef === fieldState.Block || var2StateRef === fieldState.Grayed">
         <Handle
           type="target"
@@ -293,12 +273,7 @@ function onDropdownItemSelected(curCmd: any) {
           id="var2-set"
           style="top: 174px; background-color: mediumaquamarine; border-color: mediumaquamarine"
         />
-        <Handle
-          type="source"
-          :position="Position.Right"
-          id="var2-get"
-          style="top: 174px; background-color: lime; border-color: lime"
-        />
+        <Handle type="source" :position="Position.Right" id="var2-get" style="top: 174px; background-color: lime; border-color: lime" />
       </div>
       <div>
         <p class="mb-1">Assert Condition</p>
@@ -350,13 +325,7 @@ function onDropdownItemSelected(curCmd: any) {
             type="target"
             :position="Position.Left"
             id="flow-prev"
-            style="
-              position: relative;
-              left: -12px;
-              top: 15px;
-              background-color: yellow;
-              border-color: yellow;
-            "
+            style="position: relative; left: -12px; top: 15px; background-color: yellow; border-color: yellow"
           />
           Previous
         </p>
@@ -365,13 +334,7 @@ function onDropdownItemSelected(curCmd: any) {
             type="source"
             :position="Position.Right"
             id="flow-next"
-            style="
-              position: relative;
-              right: -31px;
-              top: 15px;
-              background-color: limegreen;
-              border-color: limegreen;
-            "
+            style="position: relative; right: -31px; top: 15px; background-color: limegreen; border-color: limegreen"
           />
           Next
         </p>

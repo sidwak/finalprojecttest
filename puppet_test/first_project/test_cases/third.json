@@ -50,7 +50,7 @@
             "isGetOnly": false
           },
           "para1": {
-            "value": "https:\\www.google.com",
+            "value": "https:\\\\www.google.com",
             "isConnected": false,
             "isRequired": true,
             "connectedNodeId": "-1",
@@ -67,8 +67,8 @@
       "type": "var-node",
       "initialized": false,
       "position": {
-        "x": -27.055594175833278,
-        "y": 21.437167956957794
+        "x": -35.25515070132707,
+        "y": 18.703982448459897
       },
       "data": {
         "nodeName": "Node 2",
@@ -80,7 +80,7 @@
             "value": "cmd not set"
           },
           "para1": {
-            "value": "https:\\www.google.com",
+            "value": "14",
             "isConnected": false,
             "isRequired": false,
             "connectedNodeId": "-1",
@@ -98,8 +98,8 @@
       "type": "asr-node",
       "initialized": false,
       "position": {
-        "x": 430.1706402427694,
-        "y": 72.6196788316199
+        "x": 434.7259494235992,
+        "y": 84.46348270177751
       },
       "data": {
         "nodeName": "Node 3",
@@ -108,19 +108,19 @@
         "nodeData": {
           "cmd": {
             "isRequired": true,
-            "value": "true"
+            "value": "greaterThan"
           },
           "para1": {
             "value": "11",
-            "isConnected": false,
+            "isConnected": true,
             "isRequired": true,
-            "connectedNodeId": "-1",
-            "edgeId": "-1"
+            "connectedNodeId": "2",
+            "edgeId": "vueflow__edge-2var-get-3var-set"
           },
           "para2": {
             "value": "12",
             "isConnected": false,
-            "isRequired": false,
+            "isRequired": true,
             "connectedNodeId": "-1",
             "edgeId": "-1"
           }
@@ -157,8 +157,22 @@
       "label": "",
       "sourceX": 366.0811516199416,
       "sourceY": 272.35355743056516,
-      "targetX": 427.17065237840154,
-      "targetY": 218.80723676947633
+      "targetX": 431.72596155923134,
+      "targetY": 286.2447916539023
+    },
+    {
+      "id": "vueflow__edge-2var-get-3var-set",
+      "type": "default",
+      "source": "2",
+      "target": "3",
+      "sourceHandle": "var-get",
+      "targetHandle": "var-set",
+      "data": {},
+      "label": "",
+      "sourceX": 130.7448786145877,
+      "sourceY": 107.70401454026705,
+      "targetX": 431.72596155923134,
+      "targetY": 203.46353245431027
     }
   ],
   "position": [

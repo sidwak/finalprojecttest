@@ -7,7 +7,7 @@ import DriverNode from '.././nodes/DriverNode.vue'
 import VarNode from '.././nodes/VarNode.vue'
 import DomNode from '.././nodes/DomNode.vue'
 import PropertiesModal from '.././modals/PropertiesModal.vue'
-import type { NodeType } from '@/ts_types/nodeType'
+import type { flowNode, NodeType } from '@/ts_types/nodeType'
 import { useTestcasesStore } from '@/pinia_stores/testcasesStore'
 import { loadTestcaseData } from '@/services/testcaseService'
 import type { testcaseDataType, testcaseFlowDataType } from '@/ts_types/puppet_test_types'
@@ -27,6 +27,7 @@ const {
   onNodeClick,
   updateNodeData,
   onPaneReady,
+  removeNodes,
 } = useVueFlow()
 const testcasesStore = useTestcasesStore()
 const flowStore = useFlowStore()
@@ -287,6 +288,7 @@ const calledFromParent = (data: any) => {
   }
   idRef.value = idRef.value + 1
   curNodeId = (idRef.value - 1).toString()
+  reloadNodesFlowData()
 }
 const handleCommandExecute = (data: any) => {
   if (data.cmd === 'Save') {
@@ -294,6 +296,11 @@ const handleCommandExecute = (data: any) => {
   } else if (data.cmd === 'Load') {
     loadTestCaseData()
   }
+}
+
+function reloadNodesFlowData() {
+  // for leftpanel to be updated after adding a new node
+  testcasesStore.setNodesFlowData(toObject())
 }
 
 async function saveTestCaseData() {
@@ -318,6 +325,7 @@ async function savePreviousTestCase(oldTestcaseData: testcaseDataType) {
   console.log(result)
   console.log('previous testcase saved')
 }
+
 watch(
   () => testcasesStore.currentTestcase,
   (newTestcase, oldTestcase) => {
@@ -326,6 +334,14 @@ watch(
     loadTestCaseData()
   },
 )
+watch(
+  () => testcasesStore.deleteNodeId,
+  (newId, oldId) => {
+    removeNodes(newId, true)
+    reloadNodesFlowData()
+  },
+)
+
 async function loadTestCaseData() {
   nodes.value = []
   edges.value = []
@@ -333,8 +349,15 @@ async function loadTestCaseData() {
   const result = await window.electron.loadTestCase(testcaseData)
   testcasesStore.setNodesFlowData(result)
   const numberOfNodes = result.nodes.length
-  idRef.value = numberOfNodes
-  curNodeId = numberOfNodes.toString()
+  let maxId = 0
+  result.nodes.forEach((node: flowNode) => {
+    if (Number(node.id) > maxId) {
+      maxId = Number(node.id)
+    }
+  })
+  maxId = maxId + 1
+  idRef.value = maxId // result.nodes.length
+  curNodeId = maxId.toString() // numberOfNodes.toString()
   fromObject(result)
 }
 onNodeClick((node) => {
@@ -371,10 +394,7 @@ defineExpose({
     <template #node-asr-node="props">
       <AssertNode :id="props.id" :data="props.data" :selected="props.selected" />
     </template>
-    <PropertiesModal
-      :class="{ propertiesPanel: !isPropertiesPanelVisible }"
-      :cur-selected-node-id="curSelectedNodeId"
-    />
+    <PropertiesModal :class="{ propertiesPanel: !isPropertiesPanelVisible }" :cur-selected-node-id="curSelectedNodeId" />
   </VueFlow>
 </template>
 <style scoped>

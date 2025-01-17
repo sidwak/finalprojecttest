@@ -1,0 +1,85 @@
+{
+  "nodes": [
+    {
+      "id": "1",
+      "type": "driver-node",
+      "initialized": false,
+      "position": {
+        "x": 343.046875,
+        "y": 218
+      },
+      "data": {
+        "nodeName": "Node 1",
+        "nodeType": "driver-node",
+        "displayName": "type: driver-node",
+        "nodeData": {
+          "cmd": {
+            "isRequired": true,
+            "value": "getTitle",
+            "isGetOnly": true
+          },
+          "para1": {
+            "value": "[Value]",
+            "isConnected": false,
+            "isRequired": true,
+            "connectedNodeId": "-1",
+            "edgeId": "-1"
+          },
+          "para2": {
+            "value": "value not",
+            "isRequired": false,
+            "isConnected": false,
+            "connectedNodeId": "-1",
+            "edgeId": "-1"
+          }
+        },
+        "flow": {
+          "prevNodeId": "-1",
+          "nextNodeId": "-1"
+        }
+      }
+    },
+    {
+      "id": "2",
+      "type": "var-node",
+      "initialized": false,
+      "position": {
+        "x": 45.046875,
+        "y": 209
+      },
+      "data": {
+        "nodeName": "Node 2",
+        "nodeType": "var-node",
+        "displayName": "type: var-node",
+        "nodeData": {
+          "cmd": {
+            "isRequired": true,
+            "value": "cmd not set"
+          },
+          "para1": {
+            "value": "value ",
+            "isConnected": false,
+            "isRequired": false,
+            "connectedNodeId": "-1",
+            "edgeId": "-1"
+          }
+        },
+        "flow": {
+          "prevNodeId": "-1",
+          "nextNodeId": "-1"
+        }
+      }
+    }
+  ],
+  "edges": [],
+  "position": [
+    0,
+    0
+  ],
+  "zoom": 1,
+  "viewport": {
+    "x": 0,
+    "y": 0,
+    "zoom": 1
+  }
+}

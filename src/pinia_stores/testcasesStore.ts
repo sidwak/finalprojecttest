@@ -21,6 +21,8 @@ export const useTestcasesStore = defineStore('testcasesStore', {
         zoom: 1,
       },
     },
+    selectedNodeId: '-1',
+    deleteNodeId: '-1',
   }),
   getters: {
     getCurrentTestcase: (state) => {
@@ -29,14 +31,26 @@ export const useTestcasesStore = defineStore('testcasesStore', {
         name: state.currentTestcase.name,
       } as testcaseDataType // can't directly return or else clone error
     },
+    getNodesFlowData: (state) => {
+      return {
+        nodes: JSON.parse(JSON.stringify(state.nodesFlowData.nodes)),
+        edges: JSON.parse(JSON.stringify(state.nodesFlowData.edges)),
+        position: JSON.parse(JSON.stringify(state.nodesFlowData.position)),
+        zoom: JSON.parse(JSON.stringify(state.nodesFlowData.zoom)),
+        viewport: JSON.parse(JSON.stringify(state.nodesFlowData.viewport)),
+      } as FlowExportObject
+    },
   },
   actions: {
     setTestcaseInfoJsonData(newData: any) {
       this.testcasesList.length = 0
+      this.newTestcaseId = 0
       newData.testCases.forEach((testcase: testcaseDataType) => {
         // here testcases is the array
         this.testcasesList.push(testcase)
-        this.newTestcaseId = testcase.id + 1
+        if (testcase.id >= this.newTestcaseId) {
+          this.newTestcaseId = testcase.id + 1
+        }
       })
     },
     addNewTestcaseInList(testcaseData: testcaseDataType) {
@@ -59,9 +73,21 @@ export const useTestcasesStore = defineStore('testcasesStore', {
           this.currentTestcase = testcase
         }
       })
+      if (testcaseId == -99) {
+        this.currentTestcase = {
+          id: -99,
+          name: 'No Testcase',
+        }
+      }
     },
     setNodesFlowData(newData: FlowExportObject) {
       this.nodesFlowData = newData
+    },
+    deleteNodeWithId(nodeId: string) {
+      this.deleteNodeId = nodeId
+    },
+    selectNodeWithId(nodeId: string) {
+      this.selectedNodeId = nodeId
     },
   },
 })

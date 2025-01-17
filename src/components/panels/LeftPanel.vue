@@ -7,10 +7,17 @@ import { useTestcasesStore } from '@/pinia_stores/testcasesStore'
 import 'primeicons/primeicons.css'
 import type { testcaseDataType } from '@/ts_types/puppet_test_types'
 import TestcaseNewModal from '../modals/TestcaseNewModal.vue'
-import { loadNewTestcase } from '@/services/testcaseService'
+import { deleteNodeFromTestcase, deleteTestcase, loadNewTestcase } from '@/services/testcaseService'
 import type { NodeType, flowNode } from '@/ts_types/nodeType'
 import { useVueFlow, type ViewportTransform, type VueFlowStore } from '@vue-flow/core'
 import { useFlowStore } from '@/pinia_stores/flowStore'
+import { EMenuItem } from '../../../electron_main/allEnums'
+import TestcaseDeleteModal from '../modals/TestcaseDeleteModal.vue'
+
+export interface MenuItem {
+  itemType: EMenuItem
+  itemData: flowNode | testcaseDataType | null
+}
 
 let vueFlowInstance: VueFlowStore | null = null
 const { setViewport, fitView, onPaneReady } = useVueFlow()
@@ -41,6 +48,7 @@ const nodesListItems = computed(() => {
       label: `${nodeData.data.nodeName} [id:${nodeData.id}]`,
       command: (e: any) => selectItem(e),
       nData: nodeData,
+      icon: 'pi pi-expand',
     }
     if (nodeData.data.nodeType === 'driver-node' || nodeData.data.nodeType === 'asr-node') {
       //tempObj.label = `${nodeData.data.nodeName} ${nodeData.id}`
@@ -57,6 +65,7 @@ const varNodesListItems = computed(() => {
       label: `${nodeData.data.nodeName} [id:${nodeData.id}]`,
       command: (e: any) => selectItem(e),
       nData: nodeData,
+      icon: 'pi pi-expand',
     }
     if (nodeData.data.nodeType === 'var-node') {
       returnList.push(tempObj)
@@ -72,6 +81,7 @@ const domNodesListItems = computed(() => {
       label: `${nodeData.data.nodeName} [id:${nodeData.id}]`,
       command: (e: any) => selectItem(e),
       nData: nodeData,
+      icon: 'pi pi-expand',
     }
     if (nodeData.data.nodeType === 'dom-node') {
       returnList.push(tempObj)
@@ -115,12 +125,21 @@ const items = ref([
 const contextMenuItemModal = ref([
   {
     label: 'Open',
+    command: (e: any) => {
+      contextMenuValueChanged(e)
+    },
   },
   {
     label: 'Rename',
+    command: (e: any) => {
+      contextMenuValueChanged(e)
+    },
   },
   {
     label: 'Delete',
+    command: (e: any) => {
+      contextMenuValueChanged(e)
+    },
   },
 ])
 const contextMenuPanelModal = ref([
@@ -169,7 +188,9 @@ const contextMenuPanelModal = ref([
 const contextMenuModal = ref()
 const contextMenuRef = useTemplateRef('contextMenu-ref')
 const testcaseNewModalRef = useTemplateRef('testcaseNewModal-ref')
+const testcaseDeleteModalRef = useTemplateRef('testcaseDeleteModal-ref')
 const curSelectedItem = ref('null')
+const curRightClickItem = ref<MenuItem>({ itemType: EMenuItem.Unknown, itemData: null })
 
 //#region Primevue
 const panelMenu_dt = {
@@ -216,13 +237,13 @@ function selectItem(e: any) {
   } */
   //vueFlowInstance?.setViewport(trns)
   vueFlowInstance?.fitView({ nodes: [e.item.nData.id] })
-  console.log(e)
 }
+
 function selectItemWithLabel(labelValue: string) {
   curSelectedItem.value = labelValue
 }
+// context menu functsion
 const displayContextMenuPanel = (e: any) => {
-  console.log(e)
   contextMenuModal.value = contextMenuPanelModal.value
   contextMenuRef.value?.show(e)
 }
@@ -230,22 +251,43 @@ const displayContextMenuItem = (e: any) => {
   contextMenuModal.value = contextMenuItemModal.value
   contextMenuRef.value?.show(e)
 }
+function contextMenuValueChanged(e: any) {
+  if (e.item.label === 'Open') {
+  } else if (e.item.label === 'Rename') {
+  } else if (e.item.label === 'Delete') {
+    if (curRightClickItem.value.itemType === EMenuItem.Node) {
+      const nodeId: string = curRightClickItem.value.itemData!.id as string
+      deleteNodeFromTestcase(nodeId)
+    } else if (curRightClickItem.value.itemType === EMenuItem.Testcase) {
+      const testcaseData = curRightClickItem.value.itemData as testcaseDataType
+      //deleteTestcase(testcaseData)
+      testcaseDeleteModalRef.value?.toggleModalVisibility(null, testcaseData)
+    }
+  }
+}
 const checkAndDisplayContextMenuItem = (e: any, item: any) => {
   if (item.isRoot == true) {
   } else {
+    if (item.nData) {
+      curRightClickItem.value = {
+        itemType: EMenuItem.Node,
+        itemData: item.nData,
+      }
+    } else if (item.testcaseData) {
+      curRightClickItem.value = {
+        itemType: EMenuItem.Testcase,
+        itemData: item.testcaseData,
+      }
+    }
+    console.log(curRightClickItem.value)
     displayContextMenuItem(e)
   }
 }
 </script>
 <template>
   <TestcaseNewModal ref="testcaseNewModal-ref" />
-  <ContextMenu
-    ref="contextMenu-ref"
-    :model="contextMenuModal"
-    class="text-xs1 leading-xs1"
-    :pt="contextMenu_pt"
-    :dt="contextMenu_dt"
-  />
+  <TestcaseDeleteModal ref="testcaseDeleteModal-ref" />
+  <ContextMenu ref="contextMenu-ref" :model="contextMenuModal" class="text-xs1 leading-xs1" :pt="contextMenu_pt" :dt="contextMenu_dt" />
   <div class="leftpanel text-xs1 leading-xs1" @contextmenu="displayContextMenuPanel">
     <PanelMenu :model="items" class="" multiple :pt="panelMenu_pt" :dt="panelMenu_dt">
       <template #item="{ item, active, hasSubmenu }">
@@ -258,10 +300,7 @@ const checkAndDisplayContextMenuItem = (e: any, item: any) => {
             }
           "
         >
-          <span
-            v-show="hasSubmenu"
-            :class="[{ 'pi pi-angle-down': active }, { 'pi pi-angle-right': !active }]"
-          ></span>
+          <span v-show="hasSubmenu" :class="[{ 'pi pi-angle-down': active }, { 'pi pi-angle-right': !active }]"></span>
           <span :class="[item.icon, 'group-hover:text-inherit']"></span>
           <span :class="['ml-2', { 'font-semibold': item.items }]">{{ item.label }}</span>
         </span>
