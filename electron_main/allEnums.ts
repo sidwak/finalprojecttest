@@ -3,6 +3,7 @@ export enum ENode {
   varNode = 'var-node',
   domNode = 'dom-node',
   assertNode = 'asr-node',
+  logNode = 'log-node',
 }
 
 export enum EMenuItem {

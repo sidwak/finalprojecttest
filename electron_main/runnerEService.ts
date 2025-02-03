@@ -20,6 +20,7 @@ let currentTestcase: testcaseDataType | null = null
 let varArr: string[] = []
 let cmdsArr: string[] = []
 let flowNodes: any = {}
+let nodesPath: flowNode[] = []
 
 let initialCode = `import puppeteer from 'puppeteer-core'
 import { io } from 'socket.io-client';
@@ -47,7 +48,7 @@ const driverCmds: any = {
   get: 'await page.goto($value);\n',
   click: 'await page.locator($value).click();\n',
   input: 'await page.locator($value).fill($input);\n',
-  getTitle: 'const $var = await page.title();\n',
+  getTitle: '$var = await page.title();\n',
   'right-click': '',
   'double-click': '',
   back: '',
@@ -55,12 +56,13 @@ const driverCmds: any = {
   refresh: '',
 }
 
-let logText = `Command Executed - Command: $cmd DOMcss: $value DOMinput: $input`
+let logText = `'Command Executed - Command: $cmd DOMcss: $value DOMinput: $input'`
+const infoText = 'Info - $text'
 
-const assertPassLogText = 'Assert Passed - Command: expect Parameter 1: $value1 $cmd Parameter 2: $value2'
-const assertFailLogText = 'Assert Failed - Command: expect Parameter 1: $value1 $cmd Parameter 2: $value2'
+const assertPassLogText = '`Assert Passed - Command: expect Parameter 1: ${$value1} $cmd Parameter 2: ${$value2}`'
+const assertFailLogText = '`Assert Failed - Command: expect Parameter 1: ${$value1} $cmd Parameter 2: ${$value2}`'
 
-let logEmitCmd = `socket.emit('cmdExe', '$log')\n\n`
+let logEmitCmd = `socket.emit('cmdExe', $log)\n\n`
 
 const chaiCmds: any = {
   equal: 'expect($value1).to.equal($value2);',
@@ -105,7 +107,10 @@ function getEndNode(nodes: flowNode[]): string {
   nodes.forEach((node: flowNode) => {
     const coreData: NodeType = node.data
     if (node.type === 'driver-node') {
-      if (coreData.nodeData.cmd!.value === 'Stop') {
+      /* if (coreData.nodeData.cmd.value === 'Stop') {
+        lastId = node.id
+      } */
+      if (coreData.nextNodeId === '-') {
         lastId = node.id
       }
     }
@@ -118,18 +123,18 @@ function getAllVariables(nodes: flowNode[]) {
   nodes.forEach((node: flowNode) => {
     const coreData: NodeType = node.data
     if (node.type === ENode.varNode) {
-      newVar = 'let v_var' + node.id + ' = ' + convertToAppropriateType(coreData.nodeData.para1!.value) + '\n'
+      newVar = 'let v_var' + node.id + ' = ' + convertToAppropriateType(coreData.nodeData.para1.value) + '\n'
     } else if (node.type === ENode.domNode) {
-      newVar = 'let e_var' + node.id + ' = ' + convertToAppropriateType(coreData.nodeData.para1!.value) + '\n'
+      newVar = 'let e_var' + node.id + ' = ' + convertToAppropriateType(coreData.nodeData.para1.value) + '\n'
     } else if (node.type === ENode.driverNode) {
-      newVar = 'let d_var' + node.id + ' = ' + convertToAppropriateType(coreData.nodeData.para1!.value) + '\n'
+      newVar = 'let d1_var' + node.id + ' = ' + convertToAppropriateType(coreData.nodeData.para1.value) + '\n'
+      let para2Var = 'let d2_var' + node.id + ' = ' + convertToAppropriateType(coreData.nodeData.para2.value) + '\n'
+      varArr.push(para2Var)
       // add here d_in_var for input cmd
     } else if (node.type === ENode.assertNode) {
-      newVar = 'let a1_var' + node.id + ' = ' + convertToAppropriateType(coreData.nodeData.para1!.value) + '\n'
-      if (coreData.nodeData.para2?.isRequired) {
-        let new2Var = 'let a2_var' + node.id + ' = ' + convertToAppropriateType(coreData.nodeData.para2.value!) + '\n'
-        varArr.push(new2Var)
-      }
+      newVar = 'let a1_var' + node.id + ' = ' + convertToAppropriateType(coreData.nodeData.para1.value) + '\n'
+      let para2Var = 'let a2_var' + node.id + ' = ' + convertToAppropriateType(coreData.nodeData.para2.value) + '\n'
+      varArr.push(para2Var)
     }
     varArr.push(newVar)
   })
@@ -161,100 +166,112 @@ function getAllCommands(nodes: flowNode[]) {
   nodes.forEach((node: flowNode) => {
     const coreData: NodeType = node.data
     if (node.type === ENode.driverNode) {
-      if (coreData.nodeData.para1!.isRequired === true) {
-        // both get and non-get will get here, cause in get valueIsRequired is still set true
-        if (coreData.nodeData.para1!.isConnected) {
-          let connectedNodeVarName = ''
-          let logRaw = logText
-          const connectedNodeCoreData: NodeType = flowNodes[coreData.nodeData.para1!.connectedNodeId].data
-          logRaw = logRaw.replace('$cmd', coreData.nodeData.cmd!.value) // can chain with below one
-          logRaw = logRaw.replace('$value', connectedNodeCoreData.nodeData.para1!.value)
-          // if connected node to set is DOM node
-          if (flowNodes[coreData.nodeData.para1!.connectedNodeId].type === ENode.varNode) {
-            logRaw = logRaw.replace('DOMcss', 'cmdValue')
-            connectedNodeVarName = 'v_var' + coreData.nodeData.para1!.connectedNodeId
-          } else {
-            connectedNodeVarName = 'e_var' + coreData.nodeData.para1!.connectedNodeId
-          }
-          let cmdRaw = driverCmds[coreData.nodeData.cmd!.value]
-          cmdRaw = cmdRaw.replace('$value', connectedNodeVarName) // use var name NO DIRECT VALUE for any to be compiled JS code because of quotation marks ''
-          // when there is a need for 2nd para like for input cmd
-          if (coreData.nodeData.cmd!.value === 'input') {
-            const nodeVarName = 'd_var' + node.id
-            cmdRaw = cmdRaw.replace('$input', nodeVarName)
-            logRaw = logRaw.replace('$input', coreData.nodeData.para1!.value) // should be para2 here, not implemented yet
-          } else {
-            logRaw = logRaw.replace('DOMinput: $input', '')
-          }
-          let compiledLogMsg = logEmitCmd
-          compiledLogMsg = compiledLogMsg.replace('$log', logRaw)
-          let compiledCmdCode: string = fullCmdToCode
-          compiledCmdCode = compiledCmdCode.replace('$drivercmd', cmdRaw + compiledLogMsg)
-          cmdsArr.push(compiledCmdCode)
-          //cmdsArr.push(cmdRaw + compiledLogMsg)
-        } else {
-          const connectedNodeVarName = 'd_var' + node.id
-          let cmdRaw = driverCmds[coreData.nodeData.cmd!.value]
-          let logRaw = logText
-          logRaw = logRaw.replace('$cmd', coreData.nodeData.cmd!.value)
-          logRaw = logRaw.replace('$value', coreData.nodeData.para1!.value)
-          cmdRaw = cmdRaw.replace('$value', connectedNodeVarName)
-          // when there is a need for 2nd para like for input cmd
-          if (coreData.nodeData.cmd!.value === 'input') {
-            const nodeVarName = 'd_var' + node.id
-            cmdRaw = cmdRaw.replace('$input', nodeVarName)
-            logRaw = logRaw.replace('$input', coreData.nodeData.para1!.value) // should be para2 here, not implemented yet
-          } else {
-            logRaw = logRaw.replace('DOMinput: $input', '')
-          }
-          let compiledLogMsg = logEmitCmd
-          compiledLogMsg = compiledLogMsg.replace('$log', logRaw)
-          let compiledCmdCode: string = fullCmdToCode
-          compiledCmdCode = compiledCmdCode.replace('$drivercmd', cmdRaw + compiledLogMsg)
-          cmdsArr.push(compiledCmdCode)
-          //cmdsArr.push(cmdRaw + compiledLogMsg)
-        }
-      } else {
-        // This will not be executed, cause para1IsRequired is always true
-        // this is for driver get cmds when there is no need for any input parameter
-      }
+      compileDriverNode(node, coreData)
     } else if (node.type === ENode.assertNode) {
       compileAssertNode(node, coreData)
+    } else if (node.type === ENode.logNode) {
+      compileLogNode(node, coreData)
     }
   })
   console.log(cmdsArr)
 }
 
+function compileDriverNode(node: flowNode, coreData: NodeType) {
+  if (coreData.nodeData.para1.isRequired === true) {
+    // both get and non-get will get here, cause in get valueIsRequired is still set true
+    if (coreData.nodeData.para1.isConnected) {
+      let connectedNodeVarName = ''
+      let logRaw = logText
+      const connectedNodeCoreData: NodeType = flowNodes[coreData.nodeData.para1.connectedNodeId].data
+      logRaw = logRaw.replace('$cmd', coreData.nodeData.cmd.value) // can chain with below one
+      logRaw = logRaw.replace('$value', connectedNodeCoreData.nodeData.para1!.value)
+      // if connected node to set is DOM node
+      if (flowNodes[coreData.nodeData.para1.connectedNodeId].type === ENode.varNode) {
+        logRaw = logRaw.replace('DOMcss', 'cmdValue')
+        connectedNodeVarName = 'v_var' + coreData.nodeData.para1.connectedNodeId
+      } else {
+        connectedNodeVarName = 'e_var' + coreData.nodeData.para1.connectedNodeId
+      }
+      let cmdRaw = driverCmds[coreData.nodeData.cmd.value]
+      cmdRaw = cmdRaw.replace('$value', connectedNodeVarName) // use var name NO DIRECT VALUE for any to be compiled JS code because of quotation marks ''
+      // when there is a need for 2nd para like for input cmd
+      if (coreData.nodeData.cmd.value === 'input') {
+        const nodeVarName = 'd1_var' + node.id
+        cmdRaw = cmdRaw.replace('$input', nodeVarName)
+        logRaw = logRaw.replace('$input', coreData.nodeData.para1.value) // should be para2 here, not implemented yet
+      } else {
+        logRaw = logRaw.replace('DOMinput: $input', '')
+      }
+      if (coreData.nodeData.cmd.isGetOnly) {
+        cmdRaw = cmdRaw.replace('$var', connectedNodeVarName)
+      }
+      let compiledLogMsg = logEmitCmd
+      compiledLogMsg = compiledLogMsg.replace('$log', logRaw)
+      let compiledCmdCode: string = fullCmdToCode
+      compiledCmdCode = compiledCmdCode.replace('$drivercmd', cmdRaw + compiledLogMsg)
+      cmdsArr.push(compiledCmdCode)
+      //cmdsArr.push(cmdRaw + compiledLogMsg)
+    } else {
+      const connectedNodeVarName = 'd1_var' + node.id
+      let cmdRaw = driverCmds[coreData.nodeData.cmd.value]
+      let logRaw = logText
+      logRaw = logRaw.replace('$cmd', coreData.nodeData.cmd!.value)
+      logRaw = logRaw.replace('$value', coreData.nodeData.para1.value)
+      cmdRaw = cmdRaw.replace('$value', connectedNodeVarName)
+      // when there is a need for 2nd para like for input cmd
+      if (coreData.nodeData.cmd.value === 'input') {
+        const nodeVarName = 'd1_var' + node.id
+        cmdRaw = cmdRaw.replace('$input', nodeVarName)
+        logRaw = logRaw.replace('$input', coreData.nodeData.para1.value) // should be para2 here, not implemented yet
+      } else {
+        logRaw = logRaw.replace('DOMinput: $input', '')
+      }
+      if (coreData.nodeData.cmd.isGetOnly) {
+        cmdRaw = cmdRaw.replace('$var', connectedNodeVarName)
+      }
+      let compiledLogMsg = logEmitCmd
+      compiledLogMsg = compiledLogMsg.replace('$log', logRaw)
+      let compiledCmdCode: string = fullCmdToCode
+      compiledCmdCode = compiledCmdCode.replace('$drivercmd', cmdRaw + compiledLogMsg)
+      cmdsArr.push(compiledCmdCode)
+      //cmdsArr.push(cmdRaw + compiledLogMsg)
+    }
+  } else {
+    // This will not be executed, cause para1IsRequired is always true
+    // this is for driver get cmds when there is no need for any input parameter
+  }
+}
+
 function compileAssertNode(node: flowNode, coreData: NodeType) {
-  let cmdRaw = chaiCmds[coreData.nodeData.cmd!.value]
-  let logPassRaw = assertPassLogText.replace('$cmd', coreData.nodeData.cmd!.value)
-  let logFailRaw = assertFailLogText.replace('$cmd', coreData.nodeData.cmd!.value)
-  if (coreData.nodeData.para1!.isConnected) {
-    let para1ConnectedNodeName = 'v_var' + coreData.nodeData.para1!.connectedNodeId
-    const connectedNodeCoreData: NodeType = flowNodes[coreData.nodeData.para1!.connectedNodeId].data
+  let cmdRaw = chaiCmds[coreData.nodeData.cmd.value]
+  let logPassRaw = assertPassLogText.replace('$cmd', coreData.nodeData.cmd.value)
+  let logFailRaw = assertFailLogText.replace('$cmd', coreData.nodeData.cmd.value)
+  if (coreData.nodeData.para1.isConnected) {
+    let para1ConnectedNodeName = 'v_var' + coreData.nodeData.para1.connectedNodeId
+    const connectedNodeCoreData: NodeType = flowNodes[coreData.nodeData.para1.connectedNodeId].data
     cmdRaw = cmdRaw.replace('$value1', para1ConnectedNodeName)
-    logPassRaw = logPassRaw.replace('$value1', connectedNodeCoreData.nodeData.para1!.value)
-    logFailRaw = logFailRaw.replace('$value1', connectedNodeCoreData.nodeData.para1!.value)
+    logPassRaw = logPassRaw.replace('$value1', para1ConnectedNodeName)
+    logFailRaw = logFailRaw.replace('$value1', para1ConnectedNodeName)
   } else {
     // para1 not connected
     const connectedNodeVarName = 'a1_var' + node.id
     cmdRaw = cmdRaw.replace('$value1', connectedNodeVarName)
-    logPassRaw = logPassRaw.replace('$value1', coreData.nodeData.para1!.value)
-    logFailRaw = logFailRaw.replace('$value1', coreData.nodeData.para1!.value)
+    logPassRaw = logPassRaw.replace('$value1', connectedNodeVarName)
+    logFailRaw = logFailRaw.replace('$value1', connectedNodeVarName)
   }
-  if (coreData.nodeData.para2!.isRequired) {
-    if (coreData.nodeData.para2!.isConnected) {
-      let para2ConnectedNodeName = 'v_var' + coreData.nodeData.para2!.connectedNodeId
-      const connectedNodeCoreData: NodeType = flowNodes[coreData.nodeData.para2!.connectedNodeId].data
+  if (coreData.nodeData.para2.isRequired) {
+    if (coreData.nodeData.para2.isConnected) {
+      let para2ConnectedNodeName = 'v_var' + coreData.nodeData.para2.connectedNodeId
+      const connectedNodeCoreData: NodeType = flowNodes[coreData.nodeData.para2.connectedNodeId].data
       cmdRaw = cmdRaw.replace('$value2', para2ConnectedNodeName)
-      logPassRaw = logPassRaw.replace('$value2', connectedNodeCoreData.nodeData.para1!.value)
-      logFailRaw = logFailRaw.replace('$value2', connectedNodeCoreData.nodeData.para1!.value)
+      logPassRaw = logPassRaw.replace('$value2', para2ConnectedNodeName)
+      logFailRaw = logFailRaw.replace('$value2', para2ConnectedNodeName)
     } else {
       // para2 not connected
       const connectedNodeVarName = 'a2_var' + node.id
       cmdRaw = cmdRaw.replace('$value2', connectedNodeVarName)
-      logPassRaw = logPassRaw.replace('$value2', coreData.nodeData.para2!.value!)
-      logFailRaw = logFailRaw.replace('$value2', coreData.nodeData.para2!.value!)
+      logPassRaw = logPassRaw.replace('$value2', connectedNodeVarName)
+      logFailRaw = logFailRaw.replace('$value2', connectedNodeVarName)
     }
   } else {
     // not required para2
@@ -268,6 +285,14 @@ function compileAssertNode(node: flowNode, coreData: NodeType) {
   compiledCmdCode = compiledCmdCode.replace('$emitLogPass', compiledLogPassMsg)
   compiledCmdCode = compiledCmdCode.replace('$emitLogFail', compiledLogFailMsg)
   cmdsArr.push(compiledCmdCode)
+}
+
+function compileLogNode(node: flowNode, coreData: NodeType) {
+  let rawInfoText = infoText
+  rawInfoText = rawInfoText.replace('$text', coreData.nodeData.para1.value)
+  let compiledCode = logEmitCmd
+  compiledCode = compiledCode.replace('$log', rawInfoText)
+  cmdsArr.push(compiledCode)
 }
 
 function getAllFlowNodes(nodes: flowNode[]) {
@@ -298,6 +323,49 @@ function writeDataToFile() {
   )
 }
 
+function getStartNodeId(nodes: flowNode[]): string {
+  let returnId = '-1'
+  nodes.forEach((node: flowNode) => {
+    const coreData: NodeType = node.data
+    console.log(coreData.nodeData.cmd.value)
+    if (coreData.nodeData.cmd.value === 'Start') {
+      console.log('true')
+      returnId = node.id
+    }
+  })
+  return returnId
+}
+
+function processNodes(nodes: flowNode[], startNodeId: string) {
+  const nodeTransverseArr: flowNode[] = []
+  nodeTransverseArr.push(flowNodes[startNodeId])
+  console.log(startNodeId)
+  while (true) {
+    console.log(nodeTransverseArr[nodeTransverseArr.length - 1])
+    const coreData: NodeType = nodeTransverseArr[nodeTransverseArr.length - 1].data
+    const nextNodeId = coreData.nextNodeId
+    if (nextNodeId !== '-1') {
+      nodeTransverseArr.push(flowNodes[nextNodeId])
+    } else {
+      break
+    }
+  }
+  return nodeTransverseArr
+}
+
+function compileNodes(nodesSeq: flowNode[]) {
+  nodesSeq.forEach((node: flowNode) => {
+    const coreData: NodeType = node.data
+    if (node.type === ENode.driverNode) {
+      compileDriverNode(node, coreData)
+    } else if (node.type === ENode.assertNode) {
+      compileAssertNode(node, coreData)
+    }
+    // static values of var nodes will be set by frontend
+    // dynamic values of var nodes will recursive id find
+  })
+}
+
 export function compileAndRun(testcaseData: testcaseDataType) {
   currentTestcase = testcaseData
   const testcasePath = path.join(__testcasesDir, currentTestcase!.name + '.js')
@@ -311,10 +379,16 @@ export function compileAndRun(testcaseData: testcaseDataType) {
   cmdsArr = []
   flowNodes = {}
   const nodes = getTestcaseJsonObject(testcaseData).nodes
-  const endNodeId = getEndNode(nodes)
+  // nodes mapping
   getAllFlowNodes(nodes)
+  const startNodeId = getStartNodeId(nodes)
+  const endNodeId = getEndNode(nodes)
+  nodesPath = processNodes(nodes, startNodeId)
+  // FIRST REVERSE nodesPath BEFORE COMPILATION
+  // compilation
   getAllVariables(nodes)
-  getAllCommands(nodes)
+  //getAllCommands(nodes)
+  getAllCommands(nodesPath)
   writeDataToFile()
   console.log(`testcase: ${testcaseData.name} running successfully`)
   const executePath = 'node ' + testcasePath

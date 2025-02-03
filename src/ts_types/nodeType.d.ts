@@ -28,30 +28,28 @@ export interface NodeType {
   nodeType: string
   displayName: string
   nodeData: {
-    cmd?: {
+    cmd: {
       value: string
       isRequired: boolean
       isGetOnly: boolean
     }
-    para1?: {
+    para1: {
       value: string
       isRequired: boolean
       isConnected: boolean
       connectedNodeId: string
       edgeId: string
     }
-    para2?: {
-      value: string | null
+    para2: {
+      value: string
       isRequired: boolean
       isConnected: boolean
       connectedNodeId: string
       edgeId: string
     }
   }
-  flow: {
-    prevNodeId?: string
-    nextNodeId?: string
-  }
+  prevNodeId: string
+  nextNodeId: string
 }
 
 export interface DriverNodeType {

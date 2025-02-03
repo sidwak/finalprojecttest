@@ -226,6 +226,14 @@ watch(
     vueFlowInstance = useVueFlow(newId)
   },
 )
+watch(
+  () => testcasesStore.currentTestcase,
+  (newTc: testcaseDataType, oldTc: testcaseDataType) => {
+    if (newTc.id !== -99) {
+      selectItemWithLabel(newTc.name)
+    }
+  },
+)
 
 function selectItem(e: any) {
   console.log(e)

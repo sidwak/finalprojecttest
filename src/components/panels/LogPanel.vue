@@ -20,6 +20,8 @@ socket.on('broadcast', (data) => {
     newMsg = `<p class="text-red-500">$&nbsp` + data.message + `</p>`
   } else if (msg.includes('expected')) {
     newMsg = `<p class="text-orange-500">$&nbsp` + data.message + `</p>`
+  } else if (msg.includes('Info')) {
+    newMsg = `<p class="text-gray-500">$&nbsp` + data.message + `</p>`
   } else {
     newMsg = `<p>$&nbsp` + data.message + `</p>`
   }

@@ -120,15 +120,15 @@ const para1ConnectedNode = useNodesData(para1ConnectedNodeId) // .value?.data gi
 const para1InputRef = computed({
   get() {
     if (para1ConnectedNode.value) {
-      return para1ConnectedNode.value!.data.nodeData.para1!.value
+      return para1ConnectedNode.value!.data.nodeData.para1.value
     } else {
-      return assertNodeData.nodeData.para1!.value
+      return assertNodeData.nodeData.para1.value
     }
   },
   set(newValue: string) {
     if (para1ConnectedNode.value) {
     } else {
-      assertNodeData.nodeData.para1!.value = newValue
+      assertNodeData.nodeData.para1.value = newValue
     }
   },
 })
@@ -139,9 +139,9 @@ const para1Connection = useHandleConnections({
   onConnect: (connection) => {
     if (connection[0].sourceHandle === 'var-get') {
       para1ConnectedNodeId.value = connection[0].source
-      assertNodeData.nodeData.para1!.connectedNodeId = connection[0].source
-      assertNodeData.nodeData.para1!.edgeId = connection[0].edgeId
-      assertNodeData.nodeData.para1!.isConnected = true
+      assertNodeData.nodeData.para1.connectedNodeId = connection[0].source
+      assertNodeData.nodeData.para1.edgeId = connection[0].edgeId
+      assertNodeData.nodeData.para1.isConnected = true
       //assertNodeData.nodeData.para1!.value = para1ConnectedNode.nodeData.para1!.value
       updateFieldsState()
     }
@@ -149,9 +149,9 @@ const para1Connection = useHandleConnections({
   onDisconnect: (connection) => {
     if (para1ConnectedNode) {
       para1ConnectedNodeId.value = '-1'
-      assertNodeData.nodeData.para1!.connectedNodeId = '-1'
-      assertNodeData.nodeData.para1!.edgeId = '-1'
-      assertNodeData.nodeData.para1!.isConnected = false
+      assertNodeData.nodeData.para1.connectedNodeId = '-1'
+      assertNodeData.nodeData.para1.edgeId = '-1'
+      assertNodeData.nodeData.para1.isConnected = false
       updateFieldsState()
     }
   },
@@ -161,15 +161,15 @@ const para2ConnectedNode = useNodesData(para2ConnectedNodeId)
 const para2InputRef = computed({
   get() {
     if (para2ConnectedNode.value) {
-      return para2ConnectedNode.value!.data.nodeData.para1!.value
+      return para2ConnectedNode.value!.data.nodeData.para1.value
     } else {
-      return assertNodeData.nodeData.para2!.value
+      return assertNodeData.nodeData.para2.value
     }
   },
   set(newValue: string) {
     if (para2ConnectedNode.value) {
     } else {
-      assertNodeData.nodeData.para2!.value = newValue
+      assertNodeData.nodeData.para2.value = newValue
     }
   },
 })
@@ -179,9 +179,9 @@ const para2Connection = useHandleConnections({
   onConnect: (connection) => {
     if (connection[0].sourceHandle === 'var-get') {
       para2ConnectedNodeId.value = connection[0].source
-      assertNodeData.nodeData.para2!.connectedNodeId = connection[0].source
-      assertNodeData.nodeData.para2!.edgeId = connection[0].edgeId
-      assertNodeData.nodeData.para2!.isConnected = true
+      assertNodeData.nodeData.para2.connectedNodeId = connection[0].source
+      assertNodeData.nodeData.para2.edgeId = connection[0].edgeId
+      assertNodeData.nodeData.para2.isConnected = true
       //assertNodeData.nodeData.para1!.value = para1ConnectedNode.nodeData.para1!.value
       updateFieldsState()
     }
@@ -189,9 +189,9 @@ const para2Connection = useHandleConnections({
   onDisconnect: (connection) => {
     if (para2ConnectedNode) {
       para2ConnectedNodeId.value = '-1'
-      assertNodeData.nodeData.para2!.connectedNodeId = '-1'
-      assertNodeData.nodeData.para2!.edgeId = '-1'
-      assertNodeData.nodeData.para2!.isConnected = false
+      assertNodeData.nodeData.para2.connectedNodeId = '-1'
+      assertNodeData.nodeData.para2.edgeId = '-1'
+      assertNodeData.nodeData.para2.isConnected = false
       updateFieldsState()
     }
   },
@@ -200,30 +200,29 @@ const para2Connection = useHandleConnections({
 onBeforeMount(() => {
   if (assertNodeData.nodeData.cmd?.value !== 'cmd not set') {
     let isVar2Req = false
-    if (assertNodeData.nodeData.para2) {
-      if (assertNodeData.nodeData.para2.isRequired) {
-        isVar2Req = true
-      }
+    if (assertNodeData.nodeData.para2.isRequired) {
+      isVar2Req = true
     }
+
     selectedCmd.value = {
       cmd: assertNodeData.nodeData.cmd!.value,
       isVar2Required: isVar2Req,
     }
-    para1ConnectedNodeId.value = assertNodeData.nodeData.para1!.connectedNodeId
-    para2ConnectedNodeId.value = assertNodeData.nodeData.para2!.connectedNodeId
+    para1ConnectedNodeId.value = assertNodeData.nodeData.para1.connectedNodeId
+    para2ConnectedNodeId.value = assertNodeData.nodeData.para2.connectedNodeId
     updateFieldsState()
   }
 })
 
 function updateFieldsState() {
   if (selectedCmd.value) {
-    if (assertNodeData.nodeData.para1!.isConnected) {
+    if (assertNodeData.nodeData.para1.isConnected) {
       var1StateRef.value = fieldState.Grayed
     } else {
       var1StateRef.value = fieldState.Block
     }
     if (selectedCmd.value.isVar2Required) {
-      var2StateRef.value = assertNodeData.nodeData.para2!.isConnected ? fieldState.Grayed : fieldState.Block
+      var2StateRef.value = assertNodeData.nodeData.para2.isConnected ? fieldState.Grayed : fieldState.Block
     } else {
       var2StateRef.value = fieldState.Hidden
     }
@@ -234,23 +233,20 @@ function updateFieldsState() {
 }
 
 function removeUnconnectedEdges() {
-  if (assertNodeData.nodeData.para2?.isConnected === true) {
-    removeEdges(assertNodeData.nodeData.para2!.edgeId)
+  if (assertNodeData.nodeData.para2.isConnected === true) {
+    removeEdges(assertNodeData.nodeData.para2.edgeId)
   }
 }
 
 function onDropdownItemSelected(curCmd: any) {
   console.log(curCmd)
-  props.data.nodeData.para2!.isRequired = selectedCmd.value.isVar2Required
-  if (props.data.nodeData.cmd) {
-    props.data.nodeData.cmd!.value = curCmd.cmd
-  } else {
-    props.data.nodeData.cmd = {
-      value: curCmd.cmd,
-      isGetOnly: false,
-      isRequired: true,
-    }
+  props.data.nodeData.para2.isRequired = selectedCmd.value.isVar2Required
+  props.data.nodeData.cmd = {
+    value: curCmd.cmd,
+    isGetOnly: false,
+    isRequired: true,
   }
+
   updateFieldsState()
   removeUnconnectedEdges()
 }

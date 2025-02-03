@@ -48,13 +48,10 @@ const nodeNameRef = computed({
 const nodeValRef = computed({
   get() {
     if (curNodeData.value) {
-      if (curNodeData.value.nodeData.para1!.isConnected === true) {
-        return (
-          'from var: ' +
-          flowInst.findNode(curNodeData.value.nodeData.para1!.connectedNodeId)?.data.nodeName
-        )
+      if (curNodeData.value.nodeData.para1.isConnected === true) {
+        return 'from var: ' + flowInst.findNode(curNodeData.value.nodeData.para1.connectedNodeId)?.data.nodeName
       } else {
-        return curNodeData.value.nodeData.para1!.value
+        return curNodeData.value.nodeData.para1.value
       }
     } else {
       return null
@@ -62,7 +59,7 @@ const nodeValRef = computed({
   },
   set(newVal) {
     if (curNodeData.value && newVal) {
-      curNodeData.value.nodeData.para1!.value = newVal
+      curNodeData.value.nodeData.para1.value = newVal
     }
   },
 })
@@ -118,7 +115,7 @@ function requireNodeName() {
 function isNodeValueInputRequired() {
   if (curNodeData.value) {
     if (curNodeData.value.nodeType === nodeType.DriverNode) {
-      if (curNodeData.value.nodeData.para1!.isRequired === true) {
+      if (curNodeData.value.nodeData.para1.isRequired === true) {
         //if not set , undefined is falsy value
         return true
       } else {
@@ -142,13 +139,7 @@ function isNodeValueInputRequired() {
         </div>
         <div class="flex gap-2 items-center justify-between" v-show="requireNodeName()">
           Node Name:
-          <InputText
-            type="text"
-            v-model="nodeNameRef"
-            class=""
-            size="small"
-            @value-change="onNodeNameChange"
-          />
+          <InputText type="text" v-model="nodeNameRef" class="" size="small" @value-change="onNodeNameChange" />
         </div>
         <div class="flex gap-2 items-center justify-between" v-show="isNodeValueInputRequired()">
           Node Value:
@@ -157,7 +148,7 @@ function isNodeValueInputRequired() {
             v-model="nodeValRef"
             class=""
             size="small"
-            :disabled="curNodeData.nodeData.para1?.isConnected"
+            :disabled="curNodeData.nodeData.para1.isConnected"
             @value-change="onNodeValueChange"
           />
         </div>

@@ -66,7 +66,9 @@ export async function deleteTestcase(testcaseData: testcaseDataType) {
   const copyData = JSON.parse(JSON.stringify(testcaseData))
   const result = await window.electron.deleteTestcase(copyData)
   console.log(result)
-  testcasesStore.setNewCurrentTestcase(-99)
+  if (testcaseData.id === testcasesStore.getCurrentTestcase.id) {
+    testcasesStore.setNewCurrentTestcase(-99)
+  }
   await loadTestcaseInfoJson()
 }
 

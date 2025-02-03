@@ -25,14 +25,14 @@ const varNameRef = computed(() => {
 const varInputRef = computed({
   get() {
     if (connectedNodePara1Data.value) {
-      return connectedNodePara1Data.value.nodeData.para1?.value
+      return connectedNodePara1Data.value.nodeData.para1.value
     } else {
-      return driverNodeData.nodeData.para1?.value
+      return driverNodeData.nodeData.para1.value
     }
   },
   set(newValue) {
     if (driverNodeData && newValue) {
-      driverNodeData.nodeData.para1!.value = newValue
+      driverNodeData.nodeData.para1.value = newValue
     } else if (connectedNodePara1Data.value) {
       //nodesData.value.data.varVal = newValue
     }
@@ -43,14 +43,14 @@ const varSetHandleState = ref<fieldState>(fieldState.Block)
 const dominInputRef = computed({
   get() {
     if (connectedNodePara2Data.value) {
-      return connectedNodePara2Data.value.nodeData.para1?.value
+      return connectedNodePara2Data.value.nodeData.para2.value
     } else {
-      return driverNodeData.nodeData.para2?.value
+      return driverNodeData.nodeData.para2.value
     }
   },
   set(newValue) {
     if (driverNodeData && newValue) {
-      driverNodeData.nodeData.para2!.value = newValue
+      driverNodeData.nodeData.para2.value = newValue
     } else if (connectedNodePara2Data.value) {
       //nodesData.value.data.varVal = newValue
     }
@@ -192,7 +192,7 @@ const connectedNodesData = computed(() => {
   }
 }) */
 const connectedPara1HandleData = useNodesData(() => connectionPara1.value.map((connection) => connection.source))
-const connectedNodePara1Data = computed(() => {
+const connectedNodePara1Data = computed<NodeType>(() => {
   if (connectedPara1HandleData.value.length > 0) {
     return connectedPara1HandleData.value[0].data
   } else {
@@ -200,7 +200,7 @@ const connectedNodePara1Data = computed(() => {
   }
 })
 const connectedPara2HandleData = useNodesData(() => connectionPara2.value.map((connection) => connection.source))
-const connectedNodePara2Data = computed(() => {
+const connectedNodePara2Data = computed<NodeType>(() => {
   if (connectedPara2HandleData.value.length > 0) {
     return connectedPara2HandleData.value[0].data
   } else {
@@ -210,18 +210,17 @@ const connectedNodePara2Data = computed(() => {
 
 //#endregion
 onBeforeMount(() => {
-  if (driverNodeData.nodeData.cmd?.value !== 'cmd not set') {
+  if (driverNodeData.nodeData.cmd.value !== 'cmd not set') {
     // only set when loading node from data not while adding new
     let isDominReq = false
-    if (driverNodeData.nodeData.para2) {
-      if (driverNodeData.nodeData.para2.isRequired) {
-        isDominReq = true
-      }
+    if (driverNodeData.nodeData.para2.isRequired) {
+      isDominReq = true
     }
+
     selectedCmd.value = {
-      cmd: driverNodeData.nodeData.cmd?.value,
-      isValueRequired: driverNodeData.nodeData.cmd?.isRequired,
-      isGetOnly: driverNodeData.nodeData.cmd?.isGetOnly,
+      cmd: driverNodeData.nodeData.cmd.value,
+      isValueRequired: driverNodeData.nodeData.cmd.isRequired,
+      isGetOnly: driverNodeData.nodeData.cmd.isGetOnly,
       isDominRequired: isDominReq,
     }
   }
@@ -240,19 +239,17 @@ const connectionPara1 = useHandleConnections({
   onConnect: (connection) => {
     console.log(connection)
     if (connection[0].sourceHandle === 'var-get') {
-      driverNodeData.nodeData.para1!.isConnected = true
-      driverNodeData.nodeData.para1!.connectedNodeId = connection[0].source
-      driverNodeData.nodeData.para1!.edgeId = connection[0].edgeId
+      driverNodeData.nodeData.para1.isConnected = true
+      driverNodeData.nodeData.para1.connectedNodeId = connection[0].source
+      driverNodeData.nodeData.para1.edgeId = connection[0].edgeId
       updateFieldsState()
     }
   },
   onDisconnect: (connection) => {
-    if (driverNodeData.nodeData.para1) {
-      driverNodeData.nodeData.para1.isConnected = false
-      driverNodeData.nodeData.para1.connectedNodeId = '-1'
-      driverNodeData.nodeData.para1.edgeId = '-1'
-      updateFieldsState()
-    }
+    driverNodeData.nodeData.para1.isConnected = false
+    driverNodeData.nodeData.para1.connectedNodeId = '-1'
+    driverNodeData.nodeData.para1.edgeId = '-1'
+    updateFieldsState()
   },
 })
 const connectionPara2 = useHandleConnections({
@@ -260,12 +257,11 @@ const connectionPara2 = useHandleConnections({
   id: 'domin-set',
   onConnect: (connection) => {
     if (connection[0].sourceHandle === 'var-get') {
-      if (driverNodeData.nodeData.para2) {
-        driverNodeData.nodeData.para2!.isConnected = true
-        driverNodeData.nodeData.para2!.connectedNodeId = connection[0].source
-        driverNodeData.nodeData.para2!.edgeId = connection[0].edgeId
-        updateFieldsState()
-      } /* else {
+      driverNodeData.nodeData.para2.isConnected = true
+      driverNodeData.nodeData.para2.connectedNodeId = connection[0].source
+      driverNodeData.nodeData.para2.edgeId = connection[0].edgeId
+      updateFieldsState()
+      /* else {
         driverNodeData.nodeData.para2 = {
           isConnected: true,
           isRequired: true,
@@ -286,9 +282,29 @@ const connectionPara2 = useHandleConnections({
     }
   },
 })
+const connectionGetPara1 = useHandleConnections({
+  type: 'source',
+  id: 'var-get',
+  onConnect: (connection) => {
+    console.log(connection)
+    if (connection[0].targetHandle === 'var-set') {
+      console.log('connected to ' + connection[0].target)
+      driverNodeData.nodeData.para1.isConnected = true
+      driverNodeData.nodeData.para1.connectedNodeId = connection[0].target
+      driverNodeData.nodeData.para1.edgeId = connection[0].edgeId
+      updateFieldsState()
+    }
+  },
+  onDisconnect: (connection) => {
+    driverNodeData.nodeData.para1.isConnected = false
+    driverNodeData.nodeData.para1.connectedNodeId = '-1'
+    driverNodeData.nodeData.para1.edgeId = '-1'
+    updateFieldsState()
+  },
+})
 
 function updateFieldsState() {
-  if (selectedCmd.value && driverNodeData.nodeData.para1) {
+  if (selectedCmd.value) {
     if (selectedCmd.value.isGetOnly) {
       varSetHandleState.value = fieldState.Hidden
     } else {
@@ -301,7 +317,7 @@ function updateFieldsState() {
       varStateRef.value = selectedCmd.value.isGetOnly ? fieldState.Grayed : varStateRef.value
     }
     if (selectedCmd.value.cmd === 'input') {
-      if (driverNodeData.nodeData.para2?.isConnected == true) {
+      if (driverNodeData.nodeData.para2.isConnected == true) {
         dominStateRef.value = fieldState.Grayed
       } else {
         dominStateRef.value = fieldState.Block
@@ -314,35 +330,23 @@ function updateFieldsState() {
 
 function onDropdownItemSelected(curCmd: any) {
   callNodeDataUpdate(curCmd)
-  if (driverNodeData.nodeData.para1) {
-    if (curCmd.isValueRequired === true) {
-      driverNodeData.nodeData.para1.isRequired = true
-      if (curCmd.isGetOnly === true) {
-        removeUnconnectedEdges()
-        driverNodeData.nodeData.cmd!.isGetOnly = true
-        driverNodeData.nodeData.para1.value = '[Value]'
-      } else {
-        driverNodeData.nodeData.cmd!.isGetOnly = false
-        driverNodeData.nodeData.para1.value = 'value not set'
-      }
-    } else {
+  if (curCmd.isValueRequired === true) {
+    driverNodeData.nodeData.para1.isRequired = true
+    if (curCmd.isGetOnly === true) {
       removeUnconnectedEdges()
-      driverNodeData.nodeData.para1.isRequired = false
-    }
-  }
-  if (curCmd.isDominRequired) {
-    if (driverNodeData.nodeData.para2 === undefined) {
-      console.log('domin is required and para2 not created')
-      driverNodeData.nodeData.para2 = {
-        value: 'value not set',
-        isRequired: true,
-        isConnected: false,
-        connectedNodeId: '1',
-        edgeId: '-1',
-      }
+      driverNodeData.nodeData.cmd.isGetOnly = true
+      driverNodeData.nodeData.para1.value = '[GetValue]'
     } else {
-      driverNodeData.nodeData.para2.isRequired = true
+      driverNodeData.nodeData.cmd.isGetOnly = false
+      driverNodeData.nodeData.para1.value = 'value not set'
     }
+  } else {
+    removeUnconnectedEdges()
+    driverNodeData.nodeData.para1.isRequired = false
+  }
+
+  if (curCmd.isDominRequired) {
+    driverNodeData.nodeData.para2.isRequired = true
   } else {
     if (driverNodeData.nodeData.para2 !== undefined) {
       driverNodeData.nodeData.para2.isRequired = false
@@ -351,7 +355,7 @@ function onDropdownItemSelected(curCmd: any) {
   updateFieldsState()
 }
 function removeUnconnectedEdges() {
-  if (driverNodeData.nodeData.para1?.isConnected === true) {
+  if (driverNodeData.nodeData.para1.isConnected === true) {
     removeEdges(driverNodeData.nodeData.para1.edgeId)
   }
 }

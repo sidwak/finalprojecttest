@@ -63,10 +63,15 @@ const items = [
     icon: 'pi pi-th-large',
     items: [
       {
-        label: 'Comment Region',
+        label: 'Log',
+        command: (e: any) => {
+          contextMenuValueChange(e)
+        },
+        nodeType: 'log-node',
+        cmdType: 'add-node',
       },
       {
-        label: 'Ref Image',
+        label: 'Comment Region',
       },
     ],
   },

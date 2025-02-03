@@ -36,7 +36,7 @@ watch(
       />
       <div class="">
         <p class="mb-1">{{ props.data.nodeName }}</p>
-        <InputText type="text" v-model="props.data.nodeData.para1!.value" class="text-xs py-[0.3rem] px-[0.4rem] w-full" />
+        <InputText type="text" v-model="props.data.nodeData.para1.value" class="text-xs py-[0.3rem] px-[0.4rem] w-full" />
         <div class="flex justify-between mt-1 mb-1">
           <p class="">Set</p>
           <p class="">Get</p>

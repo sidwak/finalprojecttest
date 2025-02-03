@@ -14,6 +14,7 @@ import type { testcaseDataType, testcaseFlowDataType } from '@/ts_types/puppet_t
 import { useFlowStore } from '@/pinia_stores/flowStore'
 import type { FlowExportObject } from '@vue-flow/core'
 import AssertNode from '../nodes/AssertNode.vue'
+import LogNode from '../nodes/LogNode.vue'
 
 const {
   onConnect,
@@ -123,14 +124,10 @@ onConnect((connection) => {
   //console.log(connection)
   if (connection.sourceHandle === 'flow-next' && connection.targetHandle === 'flow-prev') {
     const newTargetData: Partial<NodeType> = {
-      flow: {
-        prevNodeId: connection.source,
-      },
+      prevNodeId: connection.source,
     }
     const newSourceData: Partial<NodeType> = {
-      flow: {
-        nextNodeId: connection.target,
-      },
+      nextNodeId: connection.target,
     }
     updateNodeData(connection.target, newTargetData)
     updateNodeData(connection.source, newSourceData)
@@ -161,126 +158,90 @@ const patternColorRef = ref('#f0ff00')
 
 const calledFromParent = (data: any) => {
   let nodeInfo: { id: string; data: NodeType; position: object; type: string }
-
+  const createNodedata: NodeType = {
+    nodeName: 'Node Id',
+    nodeType: 'type-node',
+    displayName: 'type: ',
+    nodeData: {
+      cmd: {
+        isRequired: false,
+        value: 'cmd not set',
+        isGetOnly: false,
+      },
+      para1: {
+        value: 'value not set',
+        isConnected: false,
+        isRequired: false,
+        connectedNodeId: '-1',
+        edgeId: '-1',
+      },
+      para2: {
+        value: 'value not set',
+        isConnected: false,
+        isRequired: false,
+        connectedNodeId: '-1',
+        edgeId: '-1',
+      },
+    },
+    prevNodeId: '-1',
+    nextNodeId: '-1',
+  }
   if (data.node === 'driver-node') {
+    createNodedata.nodeName = 'Node ' + idRef.value.toString()
+    createNodedata.nodeType = 'driver-node'
+    createNodedata.displayName = 'type: ' + data.node
+    createNodedata.nodeData.cmd.isRequired = true
     nodeInfo = {
       id: idRef.value.toString(),
-      data: {
-        nodeName: 'Node ' + idRef.value.toString(),
-        nodeType: 'driver-node',
-        displayName: 'type: ' + data.node,
-        nodeData: {
-          cmd: {
-            isRequired: true,
-            value: 'cmd not set',
-          },
-          para1: {
-            value: 'value not set',
-            isConnected: false,
-            isRequired: false,
-            connectedNodeId: '-1',
-            edgeId: '-1',
-          },
-        },
-        flow: {
-          prevNodeId: '-1',
-          nextNodeId: '-1',
-        },
-      } as NodeType,
+      data: createNodedata,
       position: { x: data.posX, y: data.posY },
       type: data.node,
     }
     AddNodes(nodeInfo)
   } else if (data.node === 'var-node') {
+    createNodedata.nodeName = 'Node ' + idRef.value.toString()
+    createNodedata.nodeType = 'var-node'
+    createNodedata.displayName = 'type: ' + data.node
+    createNodedata.nodeData.para1.isRequired = true
     nodeInfo = {
       id: idRef.value.toString(),
-      data: {
-        nodeName: 'Node ' + idRef.value.toString(),
-        nodeType: 'var-node',
-        displayName: 'type: ' + data.node,
-        nodeData: {
-          cmd: {
-            isRequired: true,
-            value: 'cmd not set',
-          },
-          para1: {
-            value: 'value not set',
-            isConnected: false,
-            isRequired: false,
-            connectedNodeId: '-1',
-            edgeId: '-1',
-          },
-        },
-        flow: {
-          prevNodeId: '-1',
-          nextNodeId: '-1',
-        },
-      } as NodeType,
+      data: createNodedata,
       position: { x: data.posX, y: data.posY },
       type: data.node,
     }
     AddNodes(nodeInfo)
   } else if (data.node === 'dom-node') {
+    createNodedata.nodeName = 'Node ' + idRef.value.toString()
+    createNodedata.nodeType = 'dom-node'
+    createNodedata.displayName = 'type: ' + data.node
+    createNodedata.nodeData.para1.isRequired = true
     nodeInfo = {
       id: idRef.value.toString(),
-      data: {
-        nodeName: 'Node ' + idRef.value.toString(),
-        nodeType: 'dom-node',
-        displayName: 'type: ' + data.node,
-        nodeData: {
-          cmd: {
-            isRequired: true,
-            value: 'cmd not set',
-          },
-          para1: {
-            value: 'value not set',
-            isConnected: false,
-            isRequired: false,
-            connectedNodeId: '-1',
-            edgeId: '-1',
-          },
-        },
-        flow: {
-          prevNodeId: '-1',
-          nextNodeId: '-1',
-        },
-      } as NodeType,
+      data: createNodedata,
       position: { x: data.posX, y: data.posY },
       type: data.node,
     }
     AddNodes(nodeInfo)
   } else if (data.node === 'asr-node') {
+    createNodedata.nodeName = 'Node ' + idRef.value.toString()
+    createNodedata.nodeType = 'asr-node'
+    createNodedata.displayName = 'type: ' + data.node
+    createNodedata.nodeData.para1.isRequired = true
     nodeInfo = {
       id: idRef.value.toString(),
-      data: {
-        nodeName: 'Node ' + idRef.value.toString(),
-        nodeType: 'asr-node',
-        displayName: 'type: ' + data.node,
-        nodeData: {
-          cmd: {
-            isRequired: true,
-            value: 'cmd not set',
-          },
-          para1: {
-            value: 'value not set',
-            isConnected: false,
-            isRequired: true,
-            connectedNodeId: '-1',
-            edgeId: '-1',
-          },
-          para2: {
-            value: 'value not set',
-            isConnected: false,
-            isRequired: false,
-            connectedNodeId: '-1',
-            edgeId: '-1',
-          },
-        },
-        flow: {
-          prevNodeId: '-1',
-          nextNodeId: '-1',
-        },
-      } as NodeType,
+      data: createNodedata,
+      position: { x: data.posX, y: data.posY },
+      type: data.node,
+    }
+    AddNodes(nodeInfo)
+  } else if (data.node === 'log-node') {
+    createNodedata.nodeName = 'Node ' + idRef.value.toString()
+    createNodedata.nodeType = 'log-node'
+    createNodedata.displayName = 'type: ' + data.node
+    createNodedata.nodeData.para1.isRequired = true
+    nodeInfo = {
+      id: idRef.value.toString(),
+      data: createNodedata,
       position: { x: data.posX, y: data.posY },
       type: data.node,
     }
@@ -393,6 +354,9 @@ defineExpose({
     </template>
     <template #node-asr-node="props">
       <AssertNode :id="props.id" :data="props.data" :selected="props.selected" />
+    </template>
+    <template #node-log-node="props">
+      <LogNode :id="props.id" :data="props.data" :selected="props.selected" />
     </template>
     <PropertiesModal :class="{ propertiesPanel: !isPropertiesPanelVisible }" :cur-selected-node-id="curSelectedNodeId" />
   </VueFlow>
