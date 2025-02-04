@@ -31,8 +31,8 @@ const socket = io('ws://localhost:3000');
 socket.on('connect', async () => {
 
 const browser = await puppeteer.launch({
-  executablePath: 'C:\\\\Program Files (x86)\\\\Google\\\\Chrome\\\\Application\\\\chrome.exe',
-  //executablePath: 'C:\\\\Program Files\\\\Google\\\\Chrome\\\\Application\\\\chrome.exe',
+  //executablePath: 'C:\\\\Program Files (x86)\\\\Google\\\\Chrome\\\\Application\\\\chrome.exe',
+  executablePath: 'C:\\\\Program Files\\\\Google\\\\Chrome\\\\Application\\\\chrome.exe',
   headless: false,
 })
 
@@ -57,7 +57,7 @@ const driverCmds: any = {
 }
 
 let logText = `'Command Executed - Command: $cmd DOMcss: $value DOMinput: $input'`
-const infoText = 'Info - $text'
+const infoText = `"Info - '$text'"`
 
 const assertPassLogText = '`Assert Passed - Command: expect Parameter 1: ${$value1} $cmd Parameter 2: ${$value2}`'
 const assertFailLogText = '`Assert Failed - Command: expect Parameter 1: ${$value1} $cmd Parameter 2: ${$value2}`'
@@ -124,19 +124,24 @@ function getAllVariables(nodes: flowNode[]) {
     const coreData: NodeType = node.data
     if (node.type === ENode.varNode) {
       newVar = 'let v_var' + node.id + ' = ' + convertToAppropriateType(coreData.nodeData.para1.value) + '\n'
+      varArr.push(newVar)
     } else if (node.type === ENode.domNode) {
       newVar = 'let e_var' + node.id + ' = ' + convertToAppropriateType(coreData.nodeData.para1.value) + '\n'
+      varArr.push(newVar)
     } else if (node.type === ENode.driverNode) {
       newVar = 'let d1_var' + node.id + ' = ' + convertToAppropriateType(coreData.nodeData.para1.value) + '\n'
       let para2Var = 'let d2_var' + node.id + ' = ' + convertToAppropriateType(coreData.nodeData.para2.value) + '\n'
       varArr.push(para2Var)
+      varArr.push(newVar)
       // add here d_in_var for input cmd
     } else if (node.type === ENode.assertNode) {
       newVar = 'let a1_var' + node.id + ' = ' + convertToAppropriateType(coreData.nodeData.para1.value) + '\n'
       let para2Var = 'let a2_var' + node.id + ' = ' + convertToAppropriateType(coreData.nodeData.para2.value) + '\n'
       varArr.push(para2Var)
+      varArr.push(newVar)
+    } else if (node.type === ENode.logNode){
+      // no variable used here
     }
-    varArr.push(newVar)
   })
   console.log(varArr)
 }
