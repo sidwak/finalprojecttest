@@ -153,8 +153,8 @@
       "type": "var-node",
       "initialized": false,
       "position": {
-        "x": 725.8477866774987,
-        "y": 226.75000000000006
+        "x": 726.9964850324957,
+        "y": 138.30022666522834
       },
       "data": {
         "nodeName": "Node 5",
@@ -219,6 +219,80 @@
           }
         },
         "prevNodeId": "4",
+        "nextNodeId": "7"
+      }
+    },
+    {
+      "id": "7",
+      "type": "log-node",
+      "initialized": false,
+      "position": {
+        "x": 1193.9164159354696,
+        "y": 344.8328382788846
+      },
+      "data": {
+        "nodeName": "Node 7",
+        "nodeType": "log-node",
+        "displayName": "type: log-node",
+        "nodeData": {
+          "cmd": {
+            "isRequired": false,
+            "value": "cmd not set",
+            "isGetOnly": false
+          },
+          "para1": {
+            "value": "title matched true",
+            "isConnected": false,
+            "isRequired": true,
+            "connectedNodeId": "-1",
+            "edgeId": "-1"
+          },
+          "para2": {
+            "value": "value not set",
+            "isConnected": false,
+            "isRequired": false,
+            "connectedNodeId": "-1",
+            "edgeId": "-1"
+          }
+        },
+        "prevNodeId": "6",
+        "nextNodeId": "-1"
+      }
+    },
+    {
+      "id": "9",
+      "type": "driver-node",
+      "initialized": false,
+      "position": {
+        "x": 1147.576967816048,
+        "y": 140.19926633935677
+      },
+      "data": {
+        "nodeName": "Node 9",
+        "nodeType": "driver-node",
+        "displayName": "type: driver-node",
+        "nodeData": {
+          "cmd": {
+            "isRequired": true,
+            "value": "cmd not set",
+            "isGetOnly": false
+          },
+          "para1": {
+            "value": "value not set",
+            "isConnected": false,
+            "isRequired": false,
+            "connectedNodeId": "-1",
+            "edgeId": "-1"
+          },
+          "para2": {
+            "value": "value not set",
+            "isConnected": false,
+            "isRequired": false,
+            "connectedNodeId": "-1",
+            "edgeId": "-1"
+          }
+        },
+        "prevNodeId": "-1",
         "nextNodeId": "-1"
       }
     }
@@ -233,10 +307,10 @@
       "targetHandle": "flow-prev",
       "data": {},
       "label": "",
-      "sourceX": 245.2186756784685,
-      "sourceY": 454.593709340137,
-      "targetX": 303.0468625729746,
-      "targetY": 451.1874497175496
+      "sourceX": 245.20927204751288,
+      "sourceY": 454.19993119838756,
+      "targetX": 303.04688010071175,
+      "targetY": 450.3999635449991
     },
     {
       "id": "vueflow__edge-3var-get-2var-set",
@@ -247,9 +321,9 @@
       "targetHandle": "var-set",
       "data": {},
       "label": "",
-      "sourceX": 260.0467986884393,
-      "sourceY": 306.999947260862,
-      "targetX": 303.0468625729746,
+      "sourceX": 260.04677239683366,
+      "sourceY": 306.9999647885991,
+      "targetX": 303.04688010071175,
       "targetY": 422.99993885203526
     },
     {
@@ -261,10 +335,10 @@
       "targetHandle": "flow-prev",
       "data": {},
       "label": "",
-      "sourceX": 472.2186669145999,
-      "sourceY": 451.1874497175496,
-      "targetX": 516.8478093059475,
-      "targetY": 449.9374146620754
+      "sourceX": 472.2093114849214,
+      "sourceY": 450.3999635449991,
+      "targetX": 516.8477671298301,
+      "targetY": 449.14996354499914
     },
     {
       "id": "vueflow__edge-5var-get-6var-set",
@@ -275,10 +349,10 @@
       "targetHandle": "var-set",
       "data": {},
       "label": "",
-      "sourceX": 891.8477016020695,
-      "sourceY": 315.749947260862,
-      "targetX": 948.8477391949992,
-      "targetY": 367.74996636469325
+      "sourceX": 892.9963999570664,
+      "sourceY": 227.30019145382738,
+      "targetX": 948.847704139525,
+      "targetY": 367.74994883695615
     },
     {
       "id": "vueflow__edge-4flow-next-6flow-prev",
@@ -289,10 +363,10 @@
       "targetHandle": "flow-prev",
       "data": {},
       "label": "",
-      "sourceX": 686.0196136475728,
-      "sourceY": 449.9374146620754,
-      "targetX": 948.8477391949992,
-      "targetY": 450.531155039488
+      "sourceX": 686.0102012527486,
+      "sourceY": 449.14996354499914,
+      "targetX": 948.847704139525,
+      "targetY": 449.34990825292516
     },
     {
       "id": "vueflow__edge-4var-get-5var-set",
@@ -305,18 +379,32 @@
       "label": "",
       "sourceX": 685.8477016020695,
       "sourceY": 421.7499388520353,
-      "targetX": 722.8478093059475,
-      "targetY": 315.749947260862
+      "targetX": 723.9964550777332,
+      "targetY": 227.30019145382738
+    },
+    {
+      "id": "vueflow__edge-6flow-next-7flow-prev",
+      "type": "default",
+      "source": "6",
+      "target": "7",
+      "sourceHandle": "flow-next",
+      "targetHandle": "flow-prev",
+      "data": {},
+      "label": "",
+      "sourceX": 1118.0101136140634,
+      "sourceY": 449.34990825292516,
+      "targetX": 1190.91636845297,
+      "targetY": 447.0327140189511
     }
   ],
   "position": [
-    -124.82685023838076,
-    26.86896128352646
+    -550.0068112563889,
+    -26.931801630515793
   ],
-  "zoom": 0.870550563296124,
+  "zoom": 0.935324455094127,
   "viewport": {
-    "x": -124.82685023838076,
-    "y": 26.86896128352646,
-    "zoom": 0.870550563296124
+    "x": -550.0068112563889,
+    "y": -26.931801630515793,
+    "zoom": 0.935324455094127
   }
 }
