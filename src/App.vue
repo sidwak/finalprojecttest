@@ -111,37 +111,9 @@ function toggleDarkMode() {
 
 <template>
   <div class="bg-yellow-300" :class="{ 'app-dark': isToggleActive }">
-    <!-- <div
-      class="absolute z-[1]"
-      :style="contextMenuPos"
-      :class="{ block: contextMenuActive, hidden: !contextMenuActive }"
-    >
-      <RightClickMenu :call-from-context-menu="callFromContextmenu" />
-    </div> -->
-    <Toast />
     <RightClickMenu ref="contextMenuDiv-ref" :call-from-context-menu="callFromContextmenu" :on-command-execute="afterCommandExecute" />
-    <!-- <div
-      class="w-screen h-6 bg-mbackground-700 border-b-2 border-mbackground-def text-white flex items-center ps-1 select-none"
-    >
-      <div class="h-3 w-3 ms-2 bg-mblue-400"></div>
-      <p class="ps-2 text-sm">Nodxess</p>
-    </div> -->
-    <!-- <div
-      class="w-screen h-6 bg-mbackground-900 text-sm flex ps-1 items-center border-b-2 border-mbackground-def select-none text-white rounded-md"
-    >
-      <MainMenuBar />
-    </div> -->
     <MainMenuBar />
     <MainToolBar :call-toggle-in-parent="toggleDarkMode" />
-    <!-- <div class="flex leftbar">
-      <div class="w-64 bg-mbackground-900 rounded-r-lg">
-        <Tree :value="nodes" class="w-full md:w-[30rem]"> </Tree>
-        <ToggleSwitch @update:model-value="toggleValueChanged($event)" />
-      </div>
-      <div class="w-full h-full" @contextmenu="rightClickMenuClicked" @click="checkContextMenu">
-        <CanvasPanel ref="mainCanvas-ref" />
-      </div>
-    </div> -->
     <Splitter class="leftbar">
       <SplitterPanel class="" :size="15" :minSize="10">
         <LeftPanel />

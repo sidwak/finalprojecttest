@@ -56,13 +56,13 @@ socket.emit('cmdExe', 'Command Executed - Command: getTitle cmdValue: value not 
 
   try {
   expect(v_var5).to.equal(a2_var6);
-  socket.emit('cmdExe', `Assert Passed - Command: expect Parameter 1: ${v_var5} equal Parameter 2: Google`)
+  socket.emit('cmdExe', `Assert Passed - Command: expect Parameter 1: ${v_var5} equal Parameter 2: ${a2_var6}`)
 
 
 }
 catch (e)
 {
-  socket.emit('cmdExe', `Assert Failed - Command: expect Parameter 1: ${v_var5} equal Parameter 2: Google`)
+  socket.emit('cmdExe', `Assert Failed - Command: expect Parameter 1: ${v_var5} equal Parameter 2: ${a2_var6}`)
 
 
   socket.emit('cmdExe', e.message);
