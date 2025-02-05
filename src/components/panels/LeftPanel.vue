@@ -5,7 +5,7 @@ import { ref, useTemplateRef, computed, watch } from 'vue'
 import { useProjectsStore } from '@/pinia_stores/projectsStore'
 import { useTestcasesStore } from '@/pinia_stores/testcasesStore'
 import 'primeicons/primeicons.css'
-import type { testcaseDataType } from '@/ts_types/puppet_test_types'
+import type { projectDataType, testcaseDataType } from '@/ts_types/puppet_test_types'
 import TestcaseNewModal from '../modals/TestcaseNewModal.vue'
 import { deleteNodeFromTestcase, deleteTestcase, loadNewTestcase } from '@/services/testcaseService'
 import type { NodeType, flowNode } from '@/ts_types/nodeType'
@@ -114,12 +114,6 @@ const items = ref([
     icon: 'pi pi-code',
     items: testcasesListItems,
   },
-  {
-    label: 'Projects',
-    isRoot: true,
-    icon: 'pi pi-file',
-    //items: projectsStore.projectsList,
-  },
 ])
 
 const contextMenuItemModal = ref([
@@ -191,6 +185,7 @@ const testcaseNewModalRef = useTemplateRef('testcaseNewModal-ref')
 const testcaseDeleteModalRef = useTemplateRef('testcaseDeleteModal-ref')
 const curSelectedItem = ref('null')
 const curRightClickItem = ref<MenuItem>({ itemType: EMenuItem.Unknown, itemData: null })
+const currentProjectName = ref('null')
 
 //#region Primevue
 const panelMenu_dt = {
@@ -232,6 +227,12 @@ watch(
     if (newTc.id !== -99) {
       selectItemWithLabel(newTc.name)
     }
+  },
+)
+watch(
+  () => projectsStore.currentProject,
+  (newProject: projectDataType, oldProject: projectDataType) => {
+    currentProjectName.value = newProject.name
   },
 )
 
@@ -297,6 +298,9 @@ const checkAndDisplayContextMenuItem = (e: any, item: any) => {
   <TestcaseDeleteModal ref="testcaseDeleteModal-ref" />
   <ContextMenu ref="contextMenu-ref" :model="contextMenuModal" class="text-xs1 leading-xs1" :pt="contextMenu_pt" :dt="contextMenu_dt" />
   <div class="leftpanel text-xs1 leading-xs1" @contextmenu="displayContextMenuPanel">
+    <div v-if="currentProjectName !== 'null'" class="border rounded-md mb-2 project-title-box">
+      <h1 class="text-xs1 ms-2 my-1">Project: {{ currentProjectName }}</h1>
+    </div>
     <PanelMenu :model="items" class="" multiple :pt="panelMenu_pt" :dt="panelMenu_dt">
       <template #item="{ item, active, hasSubmenu }">
         <span
@@ -320,5 +324,8 @@ const checkAndDisplayContextMenuItem = (e: any, item: any) => {
 <style scoped>
 .leftpanel {
   @apply h-full w-full p-1;
+}
+.project-title-box {
+  border-color: var(--p-panelmenu-panel-border-color);
 }
 </style>

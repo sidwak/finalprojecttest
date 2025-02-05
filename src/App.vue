@@ -17,6 +17,7 @@ import Toast, { type ToastMessageOptions } from 'primevue/toast'
 import { useToastStore } from './pinia_stores/toastStore'
 import EmptyCanvasPanel from './components/panels/EmptyCanvasPanel.vue'
 import { useTestcasesStore } from './pinia_stores/testcasesStore'
+import ConfirmDialog from 'primevue/confirmdialog'
 
 const toast = useToast()
 const toastStore = useToastStore()
@@ -111,6 +112,7 @@ function toggleDarkMode() {
 
 <template>
   <div class="bg-yellow-300" :class="{ 'app-dark': isToggleActive }">
+    <ConfirmDialog></ConfirmDialog>
     <RightClickMenu ref="contextMenuDiv-ref" :call-from-context-menu="callFromContextmenu" :on-command-execute="afterCommandExecute" />
     <MainMenuBar />
     <MainToolBar :call-toggle-in-parent="toggleDarkMode" />

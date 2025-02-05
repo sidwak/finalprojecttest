@@ -6,6 +6,7 @@ import { useProjectsStore } from '@/pinia_stores/projectsStore'
 import type { projectDataType } from '@/ts_types/puppet_test_types'
 import { useToastStore } from '@/pinia_stores/toastStore'
 import { loadNewProject } from '@/services/projectService'
+import ProjectSelectModal from '../modals/ProjectSelectModal.vue'
 
 const projectsStore = useProjectsStore()
 const toastStore = useToastStore()
@@ -23,11 +24,8 @@ const projectsListItems = computed(() => {
   })
   return returnList
 })
-const currentProjectName = computed(() => {
-  const projectName: string = 'project: ' + projectsStore.currentProject.name
-  return projectName
-})
 const projectNewModalRef = useTemplateRef('projectNewModal-ref')
+const projectSelectModalRef = useTemplateRef('projectSelectModal-ref')
 const items = ref([
   {
     label: 'File',
@@ -35,9 +33,9 @@ const items = ref([
       {
         label: 'Open',
         command: () => {
-          openProjectsInfoJson()
-        },
-        items: projectsListItems, // no need .value because this goes into a HTML template
+          //openProjectsInfoJson()
+          openProjectSelectModal()
+        }, // items: no need .value because this goes into a HTML template
       },
       {
         label: 'New',
@@ -61,9 +59,6 @@ const items = ref([
   },
   {
     label: 'Window',
-  },
-  {
-    label: currentProjectName,
   },
 ])
 //#region Primevue
@@ -101,19 +96,17 @@ async function openProjectsInfoJson() {
   projectsStore.setProjectsInfoJsonData(result) */
   projectNewModalRef.value?.toggleModalVisibility(null)
 }
+function openProjectSelectModal() {
+  projectSelectModalRef.value?.toggleModalVisibility(null)
+}
 function openProject(data: any) {
   console.log(data)
   loadNewProject(data.item.id)
 }
 </script>
 <template>
-  <!-- <div class="hover:bg-mbackground-600 px-2"><p>File</p></div>
-  <div class="hover:bg-mbackground-600 px-2"><p>Edit</p></div>
-  <div class="hover:bg-mbackground-600 px-2"><p>Project</p></div>
-  <div class="hover:bg-mbackground-600 px-2"><p>Action</p></div>
-  <div class="hover:bg-mbackground-600 px-2"><p>Debug</p></div>
-  <div class="hover:bg-mbackground-600 px-2"><p>Window</p></div> -->
   <ProjectNewModal ref="projectNewModal-ref" />
+  <ProjectSelectModal ref="projectSelectModal-ref" />
   <div class="text-xs1 leading-xs1">
     <Menubar :model="items" :pt="menuBar_pt" :dt="menuBarDt" oncha>
       <template #submenuicon></template>

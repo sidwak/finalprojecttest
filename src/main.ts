@@ -12,6 +12,7 @@ import { createPinia } from 'pinia'
 import { initializeProjectService } from './services/projectService'
 import { initializeTestcaseService } from './services/testcaseService'
 import { useProjectsStore } from './pinia_stores/projectsStore'
+import ConfirmationService from 'primevue/confirmationservice'
 
 const MyPreset = definePreset(Aura, {
   primitive: {
@@ -439,7 +440,7 @@ const MyPreset = definePreset(Aura, {
           activeColor: '{primary.700}',
         },
         highlight: {
-          background: '{primary.50}',
+          background: '{primary.200}',
           focusBackground: '{primary.100}',
           color: '{primary.700}',
           focusColor: '{primary.800}',
@@ -693,6 +694,7 @@ app.use(PrimeVue, {
   },
 })
 app.use(ToastService)
+app.use(ConfirmationService)
 app.directive('tooltip', Tooltip)
 initializeProjectService()
 initializeTestcaseService()
