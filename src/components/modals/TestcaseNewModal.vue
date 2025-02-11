@@ -51,7 +51,7 @@ defineExpose({
         <InputText v-model="testcaseNameInputRef" type="text" class="text-xs py-[0.3rem] px-[0.4rem] w-full" />
       </div>
       <div class="flex justify-end gap-2">
-        <Button label="Cancel" class="py-[0.3rem] px-[0.4rem]" @click="toggleModalVisibility" />
+        <Button label="Cancel" severity="secondary" class="py-[0.3rem] px-[0.4rem]" @click="toggleModalVisibility" />
         <Button label="Create" class="py-[0.3rem] px-[0.4rem]" @click="saveBtnClick" />
       </div>
     </Dialog>

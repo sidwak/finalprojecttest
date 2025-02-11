@@ -24,7 +24,7 @@ let nodesPath: flowNode[] = []
 let isHeadless: boolean = false
 let waitTime: string = '0'
 
-let initialCode = `import puppeteer from 'puppeteer-core'
+let initialCode = `import puppeteer from 'puppeteer'
 import { io } from 'socket.io-client';
 import { expect } from 'chai'
 import {setTimeout} from "node:timers/promises";
@@ -36,9 +36,8 @@ let isFailed = false;
 socket.on('connect', async () => {
 
 const browser = await puppeteer.launch({
-  //executablePath: 'C:\\\\Program Files (x86)\\\\Google\\\\Chrome\\\\Application\\\\chrome.exe',
-  executablePath: 'C:\\\\Program Files\\\\Google\\\\Chrome\\\\Application\\\\chrome.exe',
   headless: $headless,
+  Args: ["--suppress-message-center-popups"],
 })
 
 const page = await browser.newPage()
@@ -59,6 +58,7 @@ const driverCmds: any = {
   back: '',
   forward: '',
   refresh: '',
+  innerHTML: `$var = await page.$eval($value, element => element.innerHTML);`,
 }
 
 let logText = `'Command Executed - Command: $cmd DOMcss: $value DOMinput: $input'`
@@ -199,6 +199,7 @@ function compileDriverNode(node: flowNode, coreData: NodeType) {
       const connectedNodeCoreData: NodeType = flowNodes[coreData.nodeData.para1.connectedNodeId].data
       logRaw = logRaw.replace('$cmd', coreData.nodeData.cmd.value) // can chain with below one
       logRaw = logRaw.replace('$value', connectedNodeCoreData.nodeData.para1!.value)
+
       // if connected node to set is DOM node
       if (flowNodes[coreData.nodeData.para1.connectedNodeId].type === ENode.varNode) {
         logRaw = logRaw.replace('DOMcss', 'cmdValue')
@@ -207,12 +208,29 @@ function compileDriverNode(node: flowNode, coreData: NodeType) {
         connectedNodeVarName = 'e_var' + coreData.nodeData.para1.connectedNodeId
       }
       let cmdRaw = driverCmds[coreData.nodeData.cmd.value]
-      cmdRaw = cmdRaw.replace('$value', connectedNodeVarName) // use var name NO DIRECT VALUE for any to be compiled JS code because of quotation marks ''
+      if (coreData.nodeData.cmd.value === 'innerHTML') {
+        if (coreData.nodeData.para2.isConnected) {
+          const para2NodeName = 'v_var' + coreData.nodeData.para2.connectedNodeId
+          cmdRaw = cmdRaw.replace('$value', para2NodeName)
+        } else {
+          const nodeVarName = 'd2_var' + node.id
+          cmdRaw = cmdRaw.replace('$value', nodeVarName)
+        }
+      } else {
+        cmdRaw = cmdRaw.replace('$value', connectedNodeVarName)
+      } // use var name NO DIRECT VALUE for any to be compiled JS code because of quotation marks ''
       // when there is a need for 2nd para like for input cmd
       if (coreData.nodeData.cmd.value === 'input') {
-        const nodeVarName = 'd1_var' + node.id
-        cmdRaw = cmdRaw.replace('$input', nodeVarName)
-        logRaw = logRaw.replace('$input', coreData.nodeData.para1.value) // should be para2 here, not implemented yet
+        if (coreData.nodeData.para2.isConnected) {
+          const nodeVarName = 'v_var' + coreData.nodeData.para2.connectedNodeId
+          const para2Node: NodeType = flowNodes[coreData.nodeData.para2.connectedNodeId].data
+          cmdRaw = cmdRaw.replace('$input', nodeVarName)
+          logRaw = logRaw.replace('$input', para2Node.nodeData.para1.value)
+        } else {
+          const nodeVarName = 'd2_var' + node.id
+          cmdRaw = cmdRaw.replace('$input', nodeVarName)
+          logRaw = logRaw.replace('$input', coreData.nodeData.para2.value) // should be para2 here, not implemented yet
+        }
       } else {
         logRaw = logRaw.replace('DOMinput: $input', '')
       }
@@ -232,13 +250,30 @@ function compileDriverNode(node: flowNode, coreData: NodeType) {
       let logRaw = logText
       logRaw = logRaw.replace('$cmd', coreData.nodeData.cmd!.value)
       logRaw = logRaw.replace('$value', coreData.nodeData.para1.value)
-      cmdRaw = cmdRaw.replace('$value', connectedNodeVarName)
+      if (coreData.nodeData.cmd.value === 'innerHTML') {
+        if (coreData.nodeData.para2.isConnected) {
+          const para2NodeName = 'v_var' + coreData.nodeData.para2.connectedNodeId
+          cmdRaw = cmdRaw.replace('$value', para2NodeName)
+        } else {
+          const nodeVarName = 'd2_var' + node.id
+          cmdRaw = cmdRaw.replace('$value', nodeVarName)
+        }
+      } else {
+        cmdRaw = cmdRaw.replace('$value', connectedNodeVarName)
+      }
       logRaw = logRaw.replace('DOMcss', 'cmdValue')
       // when there is a need for 2nd para like for input cmd
       if (coreData.nodeData.cmd.value === 'input') {
-        const nodeVarName = 'd1_var' + node.id
-        cmdRaw = cmdRaw.replace('$input', nodeVarName)
-        logRaw = logRaw.replace('$input', coreData.nodeData.para1.value) // should be para2 here, not implemented yet
+        if (coreData.nodeData.para2.isConnected) {
+          const nodeVarName = 'v_var' + coreData.nodeData.para2.connectedNodeId
+          const para2Node: NodeType = flowNodes[coreData.nodeData.para2.connectedNodeId].data
+          cmdRaw = cmdRaw.replace('$input', nodeVarName)
+          logRaw = logRaw.replace('$input', para2Node.nodeData.para1.value)
+        } else {
+          const nodeVarName = 'd2_var' + node.id
+          cmdRaw = cmdRaw.replace('$input', nodeVarName)
+          logRaw = logRaw.replace('$input', coreData.nodeData.para2.value) // should be para2 here, not implemented yet
+        }
       } else {
         logRaw = logRaw.replace('DOMinput: $input', '')
       }

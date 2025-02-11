@@ -1,7 +1,6 @@
 {
   "name": "nodexify",
-  "version": "0.0.0",
-  "private": true,
+  "version": "0.0.1",
   "type": "module",
   "author": "Siddeshwar",
   "description": "final year project",
@@ -29,6 +28,7 @@
     "pinia": "^2.3.0",
     "primeicons": "^7.0.0",
     "primevue": "^4.2.4",
+    "puppeteer": "^24.2.0",
     "puppeteer-core": "^23.10.1",
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1",

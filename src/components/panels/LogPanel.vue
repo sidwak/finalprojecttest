@@ -24,7 +24,7 @@ socket.on('broadcast', (data) => {
     newMsg = `<p class="text-orange-500">$&nbsp` + data.message + `</p>`
   } else if (msg.includes('Info')) {
     newMsg = `<p class="text-yellow-500">$&nbsp` + data.message + `</p>`
-  } else if (msg.includes('error')) {
+  } else if (msg.includes('error') || msg.includes('Error')) {
     newMsg = `<p class="text-red-500">$&nbsp` + data.message + `</p>`
   } else {
     newMsg = `<p>$&nbsp` + data.message + `</p>`

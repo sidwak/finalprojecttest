@@ -19,6 +19,7 @@ import { useUtilsStore } from '@/pinia_stores/utilsStore'
 
 const {
   onConnect,
+  onEdgesChange,
   addEdges,
   addNodes,
   onNodesInitialized,
@@ -136,6 +137,24 @@ onConnect((connection) => {
     updateNodeData(connection.source, newSourceData)
   }
   addEdges(connection)
+})
+onEdgesChange((changes) => {
+  if (changes.length > 0) {
+    if (changes[0].type === 'remove') {
+      if (changes[0].sourceHandle === 'flow-next') {
+        const newSourceData: Partial<NodeType> = {
+          nextNodeId: '-1',
+        }
+        updateNodeData(changes[0].source, newSourceData)
+      }
+      if (changes[0].targetHandle === 'flow-prev') {
+        const newTargetData: Partial<NodeType> = {
+          prevNodeId: '-1',
+        }
+        updateNodeData(changes[0].target, newTargetData)
+      }
+    }
+  }
 })
 
 onNodesInitialized(() => {

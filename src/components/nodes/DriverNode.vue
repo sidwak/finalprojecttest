@@ -43,7 +43,7 @@ const varSetHandleState = ref<fieldState>(fieldState.Block)
 const dominInputRef = computed({
   get() {
     if (connectedNodePara2Data.value) {
-      return connectedNodePara2Data.value.nodeData.para2.value
+      return connectedNodePara2Data.value.nodeData.para1.value
     } else {
       return driverNodeData.nodeData.para2.value
     }
@@ -111,9 +111,9 @@ const commandsList = ref([
       },
       {
         cmd: 'innerHTML',
-        isValueRequired: false,
+        isValueRequired: true,
         isGetOnly: true,
-        isDominRequired: false,
+        isDominRequired: true,
       },
     ],
   },
@@ -316,7 +316,7 @@ function updateFieldsState() {
       varStateRef.value = selectedCmd.value.isValueRequired ? fieldState.Block : fieldState.Hidden
       varStateRef.value = selectedCmd.value.isGetOnly ? fieldState.Grayed : varStateRef.value
     }
-    if (selectedCmd.value.cmd === 'input') {
+    if (selectedCmd.value.cmd === 'input' || selectedCmd.value.cmd === 'innerHTML') {
       if (driverNodeData.nodeData.para2.isConnected == true) {
         dominStateRef.value = fieldState.Grayed
       } else {

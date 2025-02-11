@@ -1,0 +1,16 @@
+{
+  "testCases": [
+    {
+      "id": 0,
+      "name": "saucedemo_1",
+      "headless": false,
+      "waitTime": 0
+    },
+    {
+      "id": 1730298,
+      "name": "demo_2",
+      "headless": false,
+      "waitTime": 0
+    }
+  ]
+}

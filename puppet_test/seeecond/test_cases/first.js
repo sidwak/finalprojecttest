@@ -1,4 +1,4 @@
-import puppeteer from 'puppeteer-core'
+import puppeteer from 'puppeteer'
 import { io } from 'socket.io-client';
 import { expect } from 'chai'
 import {setTimeout} from "node:timers/promises";
@@ -10,8 +10,6 @@ let isFailed = false;
 socket.on('connect', async () => {
 
 const browser = await puppeteer.launch({
-  //executablePath: 'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
-  executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
   headless: true,
 })
 
