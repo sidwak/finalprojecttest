@@ -18,16 +18,17 @@ await page.setViewport({ width: 1080, height: 1024 })
 
 socket.emit('cmdExe', 'This test is about to start')
 
-let d2_var1 = 'value not'
-let d1_var1 = 'value not set'
-let d2_var3 = 'value not set'
-let d1_var3 = 'value not set'
-let v_var4 = 'https://www.google.com'
+let d2_var1 = 'value not set'
+let d1_var1 = 'https://www.google.com'
+let d2_var2 = 'value not set'
+let d1_var2 = 'value not set'
+let d2_var7 = 'value not set'
+let d1_var7 = 'value not set'
 
 
 try {
-    await page.goto(v_var4);
-socket.emit('cmdExe', 'Command Executed - Command: get cmdValue: https://www.google.com ')
+    await page.goto(d1_var1);
+socket.emit('cmdExe', 'Command Executed - Command: get DOMcss: https://www.google.com ')
 
 
   }
@@ -37,9 +38,7 @@ socket.emit('cmdExe', 'Command Executed - Command: get cmdValue: https://www.goo
   }
 
 
-  socket.emit('cmdExe', "Info - 'google loaded success'")
-
-//await browser.close()
+  //await browser.close()
 ;
 })
 socket.on('disconnect', async () => {

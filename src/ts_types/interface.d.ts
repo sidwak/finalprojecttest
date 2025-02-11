@@ -12,6 +12,9 @@ export interface ElectronAPI {
   getTestcasesInfoJson: (args: projectDataType) => Promise<any>
   createNewTestcase: (args: testcaseDataType) => Promise<any>
   deleteTestcase: (args: testcaseDataType) => Promise<any>
+  deleteProjectWithId: (args: projectDataType) => Promise<any>
+  updateTestcaseData: (args: testcaseDataType) => Promise<any>
+  exitApp: (args) => Promise<any>
 }
 
 declare global {

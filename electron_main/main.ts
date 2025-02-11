@@ -5,7 +5,7 @@ import { dirname } from 'path'
 import { writeFileSync, readFileSync } from 'fs'
 import { startTest } from './puppetTester.js'
 import { Server } from 'socket.io'
-import { createNewProject, getProjectsInfoJson, setNewCurrentProject } from './projectsEService.js'
+import { createNewProject, getProjectsInfoJson, setNewCurrentProject, deleteProjectWithId } from './projectsEService.js'
 import {
   createNewTestcase,
   getTestcasesInfoJson,
@@ -13,6 +13,7 @@ import {
   loadTestcaseData,
   runTestcase,
   deleteTestcase,
+  updateTestcaseData,
 } from './testcasesEService.js'
 
 const io = new Server(3000, {
@@ -39,6 +40,7 @@ function createWindow() {
     width: 1708,
     height: 960,
     autoHideMenuBar: true,
+    titleBarStyle: 'hidden',
     webPreferences: {
       preload: path.join(__dirname + '\\dist', 'preload.js'),
       contextIsolation: true,
@@ -61,6 +63,11 @@ function createWindow() {
 ipcMain.handle('invoke-function', async (event, args) => {
   return yourFunction(args)
 })
+// Electron
+ipcMain.handle('exit-app', async (event, args) => {
+  app.exit()
+})
+
 //
 ipcMain.handle('save-tc-data', async (event, args) => {
   return saveTestcaseData(args)
@@ -83,6 +90,9 @@ ipcMain.handle('create-new-project', async (event, args) => {
 ipcMain.handle('set-new-current-project', async (event, args) => {
   return setNewCurrentProject(args)
 })
+ipcMain.handle('delete-project-with-id', async (event, args) => {
+  return deleteProjectWithId(args)
+})
 
 // testcasesEService
 ipcMain.handle('get-testcases-info-json', async (event, args) => {
@@ -93,6 +103,9 @@ ipcMain.handle('create-new-testcase', async (event, args) => {
 })
 ipcMain.handle('delete-testcase', async (event, args) => {
   return deleteTestcase(args)
+})
+ipcMain.handle('update-testcase', async (event, args) => {
+  return updateTestcaseData(args)
 })
 
 function yourFunction(args: any) {

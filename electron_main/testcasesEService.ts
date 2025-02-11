@@ -1,5 +1,5 @@
 import type { projectDataType, testcaseFlowDataType } from '../src/ts_types/puppet_test_types'
-import { readFileSync, writeFileSync, unlink } from 'fs'
+import { readFileSync, writeFileSync, unlink, renameSync } from 'fs'
 import { dirname } from 'path'
 import path from 'path'
 import { fileURLToPath } from 'url'
@@ -35,17 +35,33 @@ export function createNewTestcase(testcaseData: testcaseDataType) {
     const updatedData = JSON.stringify(jsonObject, null, 2)
     writeFileSync(path.join(__puppetDir, getCurrentProject().name + '\\testCasesInfo.json'), updatedData, 'utf8')
     writeFileSync(path.join(__puppetDir, getCurrentProject().name, 'test_cases', testcaseData.name + '.json'), defaultTestcaseData, 'utf8')
+    console.log(`testcase: ${testcaseData.name} was created successfully`)
   } catch (e: any) {
+    console.log(`testcaxe: error while created testcase name: ${testcaseData.name} err: ${e}`)
     return e
   }
 }
 
+/**
+ * Gets testcaseInfo object for current project
+ * @param projectData
+ * @returns js object of testcaseInfo
+ */
 export function getTestcasesInfoJson(projectData: projectDataType) {
   try {
     __currentProjectDir = path.join(__puppetDir, projectData.name)
     const testcasesInfoJson = readFileSync(path.join(__puppetDir, projectData.name + '\\testCasesInfo.json'), 'utf8')
     let jsonObject = JSON.parse(testcasesInfoJson)
     return jsonObject
+  } catch (err) {
+    return err
+  }
+}
+export function setTestcasesInfoJson(updatedInfoJson: any, projectData: projectDataType) {
+  try {
+    const updatedData = JSON.stringify(updatedInfoJson, null, 2)
+    writeFileSync(path.join(__puppetDir, projectData.name + '\\testCasesInfo.json'), updatedData, 'utf8')
+    return 'testcaseInfo json updated succesfully'
   } catch (err) {
     return err
   }
@@ -95,6 +111,35 @@ export async function deleteTestcase(testcaseData: testcaseDataType) {
     writeFileSync(path.join(__puppetDir, getCurrentProject().name + '\\testCasesInfo.json'), updatedData, 'utf8')
   } catch (e: any) {
     console.log(`something happened while deleting a testcase: ${e.message}`)
+  }
+}
+
+export async function updateTestcaseData(testcaseData: testcaseDataType) {
+  const testcaseInfo = getTestcasesInfoJson(getCurrentProject())
+  const index = testcaseInfo.testCases.findIndex((item: testcaseDataType) => item.id === testcaseData.id)
+  const oldTestcase = JSON.parse(JSON.stringify(testcaseInfo.testCases[index]))
+  if (index !== -1) {
+    testcaseInfo.testCases[index]['name'] = testcaseData.name
+    setTestcasesInfoJson(testcaseInfo, getCurrentProject())
+    //rename files also
+    try {
+      await renameSync(
+        path.join(__puppetDir, getCurrentProject().name, 'test_cases', oldTestcase.name + '.js'),
+        path.join(__puppetDir, getCurrentProject().name, 'test_cases', testcaseData.name + '.js'),
+      )
+    } catch (err) {
+      console.log(`testcase: error while renaming .js file for id: ${testcaseData.id} err: ${err}`)
+    }
+    try {
+      await renameSync(
+        path.join(__puppetDir, getCurrentProject().name, 'test_cases', oldTestcase.name + '.json'),
+        path.join(__puppetDir, getCurrentProject().name, 'test_cases', testcaseData.name + '.json'),
+      )
+    } catch (err) {
+      console.log(`testcase: error while renaming .json file for id: ${testcaseData.id} err: ${err}`)
+    }
+  } else {
+    console.log('testcase: Error while updated testcase with the given id not found')
   }
 }
 

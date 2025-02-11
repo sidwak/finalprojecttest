@@ -3,6 +3,7 @@ import { Panel, useVueFlow } from '@vue-flow/core'
 import { Divider, InputText } from 'primevue'
 import { ref, computed, watch } from 'vue'
 import type { NodeType } from '@/ts_types/nodeType'
+import { ENode } from '../../../electron_main/allEnums'
 enum nodeType {
   DriverNode = 'driver-node',
   VarNode = 'var-node',
@@ -11,7 +12,7 @@ enum nodeType {
 
 const flowInst = useVueFlow()
 
-const props = defineProps(['curSelectedNodeId'])
+const props = defineProps(['curSelectedNodeId', 'onDetailsChanged'])
 /* const curNodeData = computed<NodeType>(() => {
   return flowInst.findNode(props.curSelectedNodeId)?.data
 }) */
@@ -23,6 +24,9 @@ const curNodeData = computed<NodeType>({
       return {
         nodeData: {
           para1: {
+            isConnected: false,
+          },
+          para2: {
             isConnected: false,
           },
         },
@@ -41,6 +45,7 @@ const nodeNameRef = computed({
   },
   set(newVal) {
     if (curNodeData.value && newVal) {
+      console.log(newVal)
       curNodeData.value.nodeName = newVal
     }
   },
@@ -60,6 +65,24 @@ const nodeValRef = computed({
   set(newVal) {
     if (curNodeData.value && newVal) {
       curNodeData.value.nodeData.para1.value = newVal
+    }
+  },
+})
+const nodeVal2Ref = computed({
+  get() {
+    if (curNodeData.value) {
+      if (curNodeData.value.nodeData.para2.isConnected === true) {
+        return 'from var: ' + flowInst.findNode(curNodeData.value.nodeData.para2.connectedNodeId)?.data.nodeName
+      } else {
+        return curNodeData.value.nodeData.para2.value
+      }
+    } else {
+      return null
+    }
+  },
+  set(newVal) {
+    if (curNodeData.value && newVal) {
+      curNodeData.value.nodeData.para2.value = newVal
     }
   },
 })
@@ -94,6 +117,9 @@ const divider_pt = {
 function onNodeNameChange(newVal: any) {
   if (curNodeData.value) {
     //curNodeData.value.data.varName = newVal //this creating a value if it's test node in dictionary
+    props.onDetailsChanged({
+      cmd: 'updateFlowData',
+    })
   }
 }
 function onNodeValueChange(newVal: any) {
@@ -126,6 +152,28 @@ function isNodeValueInputRequired() {
     }
   }
 }
+function isNodeValue2InputRequired() {
+  if (curNodeData.value) {
+    if (curNodeData.value.nodeType === nodeType.DriverNode) {
+      if (curNodeData.value.nodeData.para2.isRequired === true) {
+        //if not set , undefined is falsy value
+        return true
+      } else {
+        return false
+      }
+    } else {
+      if (
+        curNodeData.value.nodeType === ENode.varNode ||
+        curNodeData.value.nodeType === ENode.domNode ||
+        curNodeData.value.nodeType === ENode.logNode
+      ) {
+        return false
+      } else {
+        return true
+      }
+    }
+  }
+}
 </script>
 <template>
   <Panel position="top-right">
@@ -149,6 +197,17 @@ function isNodeValueInputRequired() {
             class=""
             size="small"
             :disabled="curNodeData.nodeData.para1.isConnected"
+            @value-change="onNodeValueChange"
+          />
+        </div>
+        <div class="flex gap-2 items-center justify-between" v-show="isNodeValue2InputRequired()">
+          Node Value 2:
+          <InputText
+            type="text"
+            v-model="nodeVal2Ref"
+            class=""
+            size="small"
+            :disabled="curNodeData.nodeData.para2.isConnected"
             @value-change="onNodeValueChange"
           />
         </div>

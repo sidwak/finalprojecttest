@@ -18,6 +18,7 @@ import { useToastStore } from './pinia_stores/toastStore'
 import EmptyCanvasPanel from './components/panels/EmptyCanvasPanel.vue'
 import { useTestcasesStore } from './pinia_stores/testcasesStore'
 import ConfirmDialog from 'primevue/confirmdialog'
+import TitleBar from './components/menus&bars/TitleBar.vue'
 
 const toast = useToast()
 const toastStore = useToastStore()
@@ -101,6 +102,12 @@ function callFromContextmenu(data: any) {
     mainCanvas.value.calledFromParent(data)
   }
 }
+function addNodeCallFromLeftPanel(data: any) {
+  if (mainCanvas.value) {
+    checkContextMenu(data)
+    mainCanvas.value.calledFromParent(data)
+  }
+}
 function afterCommandExecute(data: any) {
   mainCanvas.value?.handleCommandExecute(data)
 }
@@ -114,11 +121,12 @@ function toggleDarkMode() {
   <div class="bg-yellow-300" :class="{ 'app-dark': isToggleActive }">
     <ConfirmDialog></ConfirmDialog>
     <RightClickMenu ref="contextMenuDiv-ref" :call-from-context-menu="callFromContextmenu" :on-command-execute="afterCommandExecute" />
-    <MainMenuBar />
+    <!-- <MainMenuBar /> -->
+    <TitleBar />
     <MainToolBar :call-toggle-in-parent="toggleDarkMode" />
     <Splitter class="leftbar">
       <SplitterPanel class="" :size="15" :minSize="10">
-        <LeftPanel />
+        <LeftPanel :add-node-from-left-panel="addNodeCallFromLeftPanel" :save-from-left-panel="afterCommandExecute" />
       </SplitterPanel>
       <SplitterPanel class="" :size="85">
         <Splitter layout="vertical">
@@ -140,6 +148,6 @@ function toggleDarkMode() {
 <style scoped>
 .leftbar {
   @apply rounded-none;
-  height: calc(100vh - (88px) + 26px);
+  height: calc(100vh - (96px) + 26px);
 }
 </style>

@@ -9,6 +9,8 @@ export interface projectDataType {
 export interface testcaseDataType {
   id: number
   name: string
+  headless: boolean
+  waitTime: number
 }
 
 export interface testcaseFlowDataType {

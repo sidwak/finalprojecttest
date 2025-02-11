@@ -37,7 +37,8 @@
           "prevNodeId": "-1",
           "nextNodeId": "-1"
         },
-        "prevNodeId": "3"
+        "prevNodeId": "3",
+        "nextNodeId": "5"
       }
     },
     {
@@ -147,7 +148,7 @@
             "edgeId": "-1"
           }
         },
-        "prevNodeId": "-1",
+        "prevNodeId": "1",
         "nextNodeId": "-1"
       }
     }
@@ -162,10 +163,10 @@
       "targetHandle": "flow-prev",
       "data": {},
       "label": "",
-      "sourceX": 227.20938110351562,
-      "sourceY": 402.1999816894531,
+      "sourceX": 227.21875,
+      "sourceY": 402.59375,
       "targetX": 340.046875,
-      "targetY": 363.3999938964844
+      "targetY": 364.1875
     },
     {
       "id": "vueflow__edge-4var-get-1var-set",
@@ -180,16 +181,30 @@
       "sourceY": 239,
       "targetX": 340.046875,
       "targetY": 336
+    },
+    {
+      "id": "vueflow__edge-1flow-next-5flow-prev",
+      "type": "default",
+      "source": "1",
+      "target": "5",
+      "sourceHandle": "flow-next",
+      "targetHandle": "flow-prev",
+      "data": {},
+      "label": "",
+      "sourceX": 509.21875,
+      "sourceY": 364.1875,
+      "targetX": 578.046875,
+      "targetY": 336.46875
     }
   ],
   "position": [
-    148,
-    57.125
+    -11.431652456528695,
+    63.49156287932129
   ],
-  "zoom": 1,
+  "zoom": 0.8705505632961238,
   "viewport": {
-    "x": 148,
-    "y": 57.125,
-    "zoom": 1
+    "x": -11.431652456528695,
+    "y": 63.49156287932129,
+    "zoom": 0.8705505632961238
   }
 }

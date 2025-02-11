@@ -5,9 +5,12 @@ import 'primeicons/primeicons.css'
 import { useToast } from 'primevue'
 import Toast from 'primevue/toast'
 import { useTestcasesStore } from '@/pinia_stores/testcasesStore'
+import { startTestInBackend } from '@/services/testcaseService'
+import { useUtilsStore } from '@/pinia_stores/utilsStore'
 
 const toast = useToast()
 const testcaseStore = useTestcasesStore()
+const utilsStore = useUtilsStore()
 //#region Props
 const props = defineProps({
   callFromContextMenu: { type: Function, required: true },
@@ -53,9 +56,6 @@ const items = [
         nodeType: 'asr-node',
         cmdType: 'add-node',
       },
-      {
-        label: 'Wait',
-      },
     ],
   },
   {
@@ -70,12 +70,16 @@ const items = [
         nodeType: 'log-node',
         cmdType: 'add-node',
       },
-      {
-        label: 'Comment Region',
-      },
     ],
   },
   { separator: true },
+  {
+    label: 'Run',
+    icon: 'pi pi-play',
+    command: (e: any) => {
+      startTestInBackend()
+    },
+  },
   {
     label: 'Save',
     icon: 'pi pi-save',
@@ -84,25 +88,28 @@ const items = [
       contextMenuValueChange(e)
     },
   },
+  { separator: true },
   {
-    label: 'Load',
-    icon: 'pi pi-file',
-    cmdType: 'data-exe',
+    label: 'Configure',
+    icon: 'pi pi-cog',
     command: (e: any) => {
-      contextMenuValueChange(e)
+      utilsStore.openSettingsModal(Date.now())
     },
   },
-  { separator: true },
-  { label: 'Copy', icon: 'pi pi-copy' },
-  { label: 'Paste', icon: 'pi pi-clipboard' },
-  { label: 'Rename', icon: 'pi pi-file-edit' },
-  { separator: true },
   {
     label: 'Delete',
     icon: 'pi pi-trash',
     cmdType: 'node-opr',
     command: (e: any) => {
       contextMenuValueChange(e)
+    },
+  },
+  { separator: true },
+  {
+    label: 'Fit to Screen',
+    icon: 'pi pi-window-maximize',
+    command: (e: any) => {
+      utilsStore.doFitView(Date.now())
     },
   },
 ]
@@ -136,9 +143,9 @@ function contextMenuValueChange(e: any) {
   } else if (e.item.cmdType === 'data-exe') {
     if (e.item.label === 'Save') {
       toast.add({
-        severity: 'warn',
-        summary: 'Exec Command',
-        detail: 'Type: Save',
+        severity: 'success',
+        summary: 'Saved',
+        detail: 'Successfully',
         life: 3000,
       })
       const data = {
@@ -147,9 +154,9 @@ function contextMenuValueChange(e: any) {
       props.onCommandExecute(data)
     } else if (e.item.label === 'Load') {
       toast.add({
-        severity: 'warn',
-        summary: 'Exec Command',
-        detail: 'Type: Load',
+        severity: 'success',
+        summary: 'Loaded',
+        detail: 'Successfully',
         life: 3000,
       })
       const data = {
@@ -159,7 +166,7 @@ function contextMenuValueChange(e: any) {
     }
   } else if (e.item.cmdType === 'node-opr') {
     if (e.item.label === 'Delete') {
-      testcaseStore.deleteNodeWithId(testcaseStore.selectedNodeId)
+      utilsStore.checkDeleteNode(Date.now())
     }
   }
 }
@@ -169,6 +176,7 @@ function liefCycleEnd() {
 const callToggleContextMenu = (e: any) => {
   contextMenuRef.value?.show(e)
 }
+
 defineExpose({
   callToggleContextMenu,
 })

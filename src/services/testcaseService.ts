@@ -3,6 +3,7 @@ import type { NodeType } from '@/ts_types/nodeType'
 import { useToastStore } from '@/pinia_stores/toastStore'
 import { useProjectsStore } from '@/pinia_stores/projectsStore'
 import { useTestcasesStore } from '@/pinia_stores/testcasesStore'
+import { useFlowStore } from '@/pinia_stores/flowStore'
 import type { projectDataType } from '@/ts_types/puppet_test_types'
 import { currentProject } from './projectService'
 import { nextTick } from 'vue'
@@ -11,11 +12,12 @@ import { useVueFlow, type RemoveNodes } from '@vue-flow/core'
 let toastStore: ReturnType<typeof useToastStore>
 let projectsStore: ReturnType<typeof useProjectsStore>
 let testcasesStore: ReturnType<typeof useTestcasesStore>
+let flowStore: ReturnType<typeof useFlowStore>
 let vueFlowInstance: ReturnType<typeof useVueFlow>
 let removeNodesFunc: RemoveNodes
 export let currentTestcase: testcaseDataType | null = null
 
-export function createNewTestCase(testcaseData: testcaseDataType) {
+export async function createNewTestCase(testcaseData: testcaseDataType) {
   if (currentProject === null) {
     toastStore.displayNewMessage({
       severity: 'error',
@@ -25,7 +27,7 @@ export function createNewTestCase(testcaseData: testcaseDataType) {
     })
     return
   }
-  const result = window.electron.createNewTestcase(testcaseData)
+  const result = await window.electron.createNewTestcase(testcaseData)
   console.log(result)
   testcasesStore.addNewTestcaseInList(testcaseData)
   //testcasesStore.incrementNewTestcaseId()
@@ -53,22 +55,40 @@ export async function loadNewTestcase(testcaseId: number) {
   testcasesStore.setNewCurrentTestcase(testcaseId)
   // after testcase loaded
   currentTestcase = testcasesStore.currentTestcase
-  toastStore.displayNewMessage({
-    severity: 'success',
-    summary: 'Testcase Opened',
-    detail: currentTestcase.name + ' was opened was successfully',
-    life: 3000,
-  })
+  if (testcaseId !== -99) {
+    toastStore.displayNewMessage({
+      severity: 'success',
+      summary: 'Testcase Opened',
+      detail: currentTestcase.name + ' was opened was successfully',
+      life: 3000,
+    })
+  }
   // whether to set current in backend?
 }
 
+export async function getTestcaseFlowData(testcaseData: testcaseDataType) {
+  return await window.electron.loadTestCase(testcaseData)
+}
+
 export async function deleteTestcase(testcaseData: testcaseDataType) {
-  const copyData = JSON.parse(JSON.stringify(testcaseData))
+  const copyData = JSON.parse(JSON.stringify(testcaseData)) // why JSON parsing here?
   const result = await window.electron.deleteTestcase(copyData)
   console.log(result)
   if (testcaseData.id === testcasesStore.getCurrentTestcase.id) {
     testcasesStore.setNewCurrentTestcase(-99)
   }
+  await loadTestcaseInfoJson()
+}
+
+export async function updateTestcase(testcaseData: testcaseDataType) {
+  const updatedData: testcaseDataType = {
+    id: testcaseData.id,
+    name: testcaseData.name,
+    headless: testcaseData.headless,
+    waitTime: testcaseData.waitTime,
+  }
+  const result = await window.electron.updateTestcaseData(updatedData)
+  console.log(result)
   await loadTestcaseInfoJson()
 }
 
@@ -88,10 +108,30 @@ export function reloadTestcaseData() {}
 
 export async function deleteNodeFromTestcase(nodeId: string) {
   // in use?
+  toastStore.displayNewMessage({
+    severity: 'success',
+    summary: 'Node Deleted',
+    detail: `Node: ${nodeId} was deleted was successfully`,
+    life: 3000,
+  })
   console.log(`removing node ${nodeId}`)
   //const { removeNodes } = useVueFlow()
   //removeNodes(nodeId, true)
   testcasesStore.deleteNodeWithId(nodeId)
+}
+
+export async function startTestInBackend() {
+  toastStore.displayNewMessage({
+    severity: 'success',
+    summary: 'Test Started',
+    detail: 'Succesfully',
+    life: 3000,
+  })
+  flowStore.setUpdateCounter(Date.now())
+  await nextTick()
+  const saveResult = await saveTestcaseDataInBackend()
+  console.log(testcasesStore.getCurrentTestcase)
+  const result = await window.electron.startTest(testcasesStore.getCurrentTestcase)
 }
 
 export function initializeTestcases() {
@@ -102,6 +142,7 @@ export function initializeTestcaseService() {
   toastStore = useToastStore()
   projectsStore = useProjectsStore()
   testcasesStore = useTestcasesStore()
+  flowStore = useFlowStore()
   //vueFlowInstance = useVueFlow()
   //const { removeNodes } = vueFlowInstance
   //removeNodesFunc = removeNodes

@@ -21,19 +21,24 @@ let varArr: string[] = []
 let cmdsArr: string[] = []
 let flowNodes: any = {}
 let nodesPath: flowNode[] = []
+let isHeadless: boolean = false
+let waitTime: string = '0'
 
 let initialCode = `import puppeteer from 'puppeteer-core'
 import { io } from 'socket.io-client';
 import { expect } from 'chai'
+import {setTimeout} from "node:timers/promises";
 
 const socket = io('ws://localhost:3000');
+const waitTime = $waittime;
+let isFailed = false;
 
 socket.on('connect', async () => {
 
 const browser = await puppeteer.launch({
   //executablePath: 'C:\\\\Program Files (x86)\\\\Google\\\\Chrome\\\\Application\\\\chrome.exe',
   executablePath: 'C:\\\\Program Files\\\\Google\\\\Chrome\\\\Application\\\\chrome.exe',
-  headless: false,
+  headless: $headless,
 })
 
 const page = await browser.newPage()
@@ -79,20 +84,24 @@ const chaiCmds: any = {
 }
 const fullCmdToCode: string = `try {
     $drivercmd
+    await setTimeout(waitTime);
   }
   catch (e)
   {
-    socket.emit('cmdExe', e.message);
+    isFailed = true;
+    socket.emit('cmdExe', 'Node: ' + '$nodename Error: ' + e.message);
   }\n\n
   `
 const fullAssertToCode: string = `try {
   $assertcmd
   $emitLogPass
+  await setTimeout(waitTime);
 }
 catch (e)
 {
   $emitLogFail
-  socket.emit('cmdExe', e.message);
+  isFailed = true;
+  socket.emit('cmdExe', 'Node: ' + '$nodename Error: ' + e.message);
 }
 `
 
@@ -139,7 +148,7 @@ function getAllVariables(nodes: flowNode[]) {
       let para2Var = 'let a2_var' + node.id + ' = ' + convertToAppropriateType(coreData.nodeData.para2.value) + '\n'
       varArr.push(para2Var)
       varArr.push(newVar)
-    } else if (node.type === ENode.logNode){
+    } else if (node.type === ENode.logNode) {
       // no variable used here
     }
   })
@@ -214,6 +223,7 @@ function compileDriverNode(node: flowNode, coreData: NodeType) {
       compiledLogMsg = compiledLogMsg.replace('$log', logRaw)
       let compiledCmdCode: string = fullCmdToCode
       compiledCmdCode = compiledCmdCode.replace('$drivercmd', cmdRaw + compiledLogMsg)
+      compiledCmdCode = compiledCmdCode.replace('$nodename', coreData.nodeName)
       cmdsArr.push(compiledCmdCode)
       //cmdsArr.push(cmdRaw + compiledLogMsg)
     } else {
@@ -223,6 +233,7 @@ function compileDriverNode(node: flowNode, coreData: NodeType) {
       logRaw = logRaw.replace('$cmd', coreData.nodeData.cmd!.value)
       logRaw = logRaw.replace('$value', coreData.nodeData.para1.value)
       cmdRaw = cmdRaw.replace('$value', connectedNodeVarName)
+      logRaw = logRaw.replace('DOMcss', 'cmdValue')
       // when there is a need for 2nd para like for input cmd
       if (coreData.nodeData.cmd.value === 'input') {
         const nodeVarName = 'd1_var' + node.id
@@ -238,6 +249,7 @@ function compileDriverNode(node: flowNode, coreData: NodeType) {
       compiledLogMsg = compiledLogMsg.replace('$log', logRaw)
       let compiledCmdCode: string = fullCmdToCode
       compiledCmdCode = compiledCmdCode.replace('$drivercmd', cmdRaw + compiledLogMsg)
+      compiledCmdCode = compiledCmdCode.replace('$nodename', coreData.nodeName)
       cmdsArr.push(compiledCmdCode)
       //cmdsArr.push(cmdRaw + compiledLogMsg)
     }
@@ -289,6 +301,7 @@ function compileAssertNode(node: flowNode, coreData: NodeType) {
   compiledCmdCode = compiledCmdCode.replace('$assertcmd', cmdRaw)
   compiledCmdCode = compiledCmdCode.replace('$emitLogPass', compiledLogPassMsg)
   compiledCmdCode = compiledCmdCode.replace('$emitLogFail', compiledLogFailMsg)
+  compiledCmdCode = compiledCmdCode.replace('$nodename', coreData.nodeName)
   cmdsArr.push(compiledCmdCode)
 }
 
@@ -297,6 +310,7 @@ function compileLogNode(node: flowNode, coreData: NodeType) {
   rawInfoText = rawInfoText.replace('$text', coreData.nodeData.para1.value)
   let compiledCode = logEmitCmd
   compiledCode = compiledCode.replace('$log', rawInfoText)
+  compiledCode += `\nawait setTimeout(waitTime);`
   cmdsArr.push(compiledCode)
 }
 
@@ -304,12 +318,18 @@ function getAllFlowNodes(nodes: flowNode[]) {
   nodes.forEach((node: flowNode) => {
     flowNodes[node.id] = node
   })
-  console.log(flowNodes)
+  //------------------------console.log(flowNodes)
 }
 
 function writeDataToFile() {
   const testcasePath = path.join(__testcasesDir, currentTestcase!.name + '.js')
-  writeFileSync(testcasePath, initialCode)
+  let newinitialCode = initialCode.replace('$waittime', waitTime)
+  if (isHeadless === true) {
+    newinitialCode = newinitialCode.replace('$headless', 'true')
+  } else {
+    newinitialCode = newinitialCode.replace('$headless', 'false')
+  }
+  writeFileSync(testcasePath, newinitialCode)
   cmdsArr.push('//await browser.close()\n;')
   //cmdsArr = cmdsArr.reverse()
   varArr.forEach((varVal) => {
@@ -319,6 +339,17 @@ function writeDataToFile() {
   cmdsArr.forEach((cmdVal) => {
     appendFileSync(testcasePath, cmdVal)
   })
+  appendFileSync(
+    testcasePath,
+    `
+if (isFailed){
+    socket.emit('cmdExe', 'Testcase Failed')
+}
+else {
+    socket.emit('cmdExe', 'Testcase Passed')
+}
+`,
+  )
   appendFileSync(testcasePath, '\n})')
   appendFileSync(
     testcasePath,
@@ -332,7 +363,7 @@ function getStartNodeId(nodes: flowNode[]): string {
   let returnId = '-1'
   nodes.forEach((node: flowNode) => {
     const coreData: NodeType = node.data
-    console.log(coreData.nodeData.cmd.value)
+    //------------console.log(coreData.nodeData.cmd.value)
     if (coreData.nodeData.cmd.value === 'Start') {
       console.log('true')
       returnId = node.id
@@ -373,6 +404,8 @@ function compileNodes(nodesSeq: flowNode[]) {
 
 export function compileAndRun(testcaseData: testcaseDataType) {
   currentTestcase = testcaseData
+  isHeadless = testcaseData.headless
+  waitTime = testcaseData.waitTime.toString()
   const testcasePath = path.join(__testcasesDir, currentTestcase!.name + '.js')
   try {
     writeFileSync(testcasePath, '')

@@ -8,6 +8,8 @@ export const useTestcasesStore = defineStore('testcasesStore', {
     currentTestcase: <testcaseDataType>{
       id: -99,
       name: 'No Testcase',
+      headless: false,
+      waitTime: 0,
     },
     newTestcaseId: 0,
     nodesFlowData: <FlowExportObject>{
@@ -29,6 +31,8 @@ export const useTestcasesStore = defineStore('testcasesStore', {
       return {
         id: state.currentTestcase.id,
         name: state.currentTestcase.name,
+        headless: state.currentTestcase.headless,
+        waitTime: state.currentTestcase.waitTime,
       } as testcaseDataType // can't directly return or else clone error
     },
     getNodesFlowData: (state) => {
@@ -42,31 +46,32 @@ export const useTestcasesStore = defineStore('testcasesStore', {
     },
   },
   actions: {
+    generateUniqueNumber() {
+      const timestamp = Date.now() // Get the current timestamp in milliseconds
+      const randomSuffix = Math.floor(Math.random() * 1000) // Add a small random number to avoid collisions
+      let uniqueNumber = timestamp + randomSuffix // Combine the timestamp with the random number
+      uniqueNumber = uniqueNumber % 100000000 // Modulo 100000000 ensures the number is 8 digits or less
+      return uniqueNumber
+    },
     setTestcaseInfoJsonData(newData: any) {
       this.testcasesList.length = 0
       this.newTestcaseId = 0
-      newData.testCases.forEach((testcase: testcaseDataType) => {
-        // here testcases is the array
-        this.testcasesList.push(testcase)
-        if (testcase.id >= this.newTestcaseId) {
-          this.newTestcaseId = testcase.id + 1
-        }
-      })
+      if (newData.testCases) {
+        newData.testCases.forEach((testcase: testcaseDataType) => {
+          // here testcases is the array
+          this.testcasesList.push(testcase)
+          /* if (testcase.id >= this.newTestcaseId) {
+            this.newTestcaseId = testcase.id + 1
+          } */
+          this.newTestcaseId = this.generateUniqueNumber()
+        })
+      }
     },
     addNewTestcaseInList(testcaseData: testcaseDataType) {
       this.testcasesList.push(testcaseData)
-      this.newTestcaseId = testcaseData.id + 1
+      //this.newTestcaseId = testcaseData.id + 1
+      this.newTestcaseId = this.generateUniqueNumber()
     },
-    /* incrementNewTestcaseId() {
-      this.testcasesList.forEach((testcase: testcaseDataType) => {
-        console.log(`first ${testcase.id} second ${this.newTestcaseId}`)
-        if (testcase.id === this.newTestcaseId) {
-          this.currentTestcase = testcase
-        }
-      })
-      console.log(this.currentTestcase)
-      this.newTestcaseId += 1
-    }, */
     setNewCurrentTestcase(testcaseId: number) {
       this.testcasesList.forEach((testcase: testcaseDataType) => {
         if (testcase.id === testcaseId) {
@@ -77,17 +82,39 @@ export const useTestcasesStore = defineStore('testcasesStore', {
         this.currentTestcase = {
           id: -99,
           name: 'No Testcase',
+          headless: false,
+          waitTime: 0,
         }
       }
     },
-    setNodesFlowData(newData: FlowExportObject) {
-      this.nodesFlowData = newData
+    setNodesFlowData(newData: FlowExportObject | null) {
+      if (newData !== null) {
+        this.nodesFlowData = newData
+      } else {
+        this.nodesFlowData = {
+          nodes: [],
+          edges: [],
+          position: [0, 0],
+          zoom: 1,
+          viewport: {
+            x: 0,
+            y: 0,
+            zoom: 1,
+          },
+        }
+      }
     },
     deleteNodeWithId(nodeId: string) {
       this.deleteNodeId = nodeId
     },
     selectNodeWithId(nodeId: string) {
       this.selectedNodeId = nodeId
+    },
+    setTestcaseHeadlessMode(hMode: boolean) {
+      this.currentTestcase.headless = hMode
+    },
+    setTestcaseWaitTime(num: number) {
+      this.currentTestcase.waitTime = num
     },
   },
 })

@@ -1,15 +1,17 @@
 import puppeteer from 'puppeteer-core'
 import { io } from 'socket.io-client';
 import { expect } from 'chai'
+import {setTimeout} from "node:timers/promises";
 
 const socket = io('ws://localhost:3000');
+const waitTime = 0;
 
 socket.on('connect', async () => {
 
 const browser = await puppeteer.launch({
   //executablePath: 'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
   executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
-  headless: false,
+  headless: true,
 })
 
 const page = await browser.newPage()
@@ -37,6 +39,7 @@ try {
 socket.emit('cmdExe', 'Command Executed - Command: get cmdValue: https://www.google.com ')
 
 
+    await setTimeout(waitTime);
   }
   catch (e)
   {
@@ -49,6 +52,7 @@ socket.emit('cmdExe', 'Command Executed - Command: get cmdValue: https://www.goo
 socket.emit('cmdExe', 'Command Executed - Command: getTitle cmdValue: value not set ')
 
 
+    await setTimeout(waitTime);
   }
   catch (e)
   {
@@ -61,6 +65,7 @@ socket.emit('cmdExe', 'Command Executed - Command: getTitle cmdValue: value not 
   socket.emit('cmdExe', `Assert Passed - Command: expect Parameter 1: ${v_var5} equal Parameter 2: ${a2_var6}`)
 
 
+  await setTimeout(waitTime);
 }
 catch (e)
 {
@@ -71,7 +76,8 @@ catch (e)
 }
 socket.emit('cmdExe', "Info - 'title matched true'")
 
-//await browser.close()
+
+await setTimeout(waitTime);//await browser.close()
 ;
 })
 socket.on('disconnect', async () => {

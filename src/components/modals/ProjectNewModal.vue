@@ -3,10 +3,7 @@ import Dialog from 'primevue/dialog'
 import { InputText, Button } from 'primevue'
 import { ref, defineProps, defineExpose } from 'vue'
 import type { projectDataType } from '@/ts_types/puppet_test_types'
-import projectInfoService, {
-  initializeProjectService,
-  createNewProject,
-} from '@/services/projectService'
+import projectInfoService, { initializeProjectService, createNewProject, loadNewProject } from '@/services/projectService'
 import { useProjectsStore } from '@/pinia_stores/projectsStore'
 
 const projectsStore = useProjectsStore()
@@ -28,14 +25,19 @@ const projectDescriptionInputRef = ref('')
 const toggleModalVisibility = (e: any) => {
   isVisible.value = !isVisible.value
 }
-function saveBtnClick() {
+async function saveBtnClick() {
   toggleModalVisibility(null)
   const newProjectData: projectDataType = {
     id: projectsStore.newProjectId,
     name: projectNameInputRef.value,
     desc: projectDescriptionInputRef.value,
   }
-  createNewProject(newProjectData)
+  await createNewProject(newProjectData)
+  await openProject(newProjectData)
+}
+async function openProject(projectData: projectDataType) {
+  console.log(projectData)
+  await loadNewProject(projectData.id)
 }
 defineExpose({
   toggleModalVisibility,
@@ -43,34 +45,19 @@ defineExpose({
 </script>
 <template>
   <div class="card flex justify-center">
-    <Dialog
-      v-model:visible="isVisible"
-      modal
-      header="New Project"
-      :style="{ width: '25rem' }"
-      :pt="dialog_pt"
-      :dt="dialog_dt"
-    >
+    <Dialog v-model:visible="isVisible" modal header="New Project" :style="{ width: '25rem' }" :pt="dialog_pt" :dt="dialog_dt">
       <span class="text-surface-500 dark:text-surface-400 block mb-4">Enter the details</span>
       <div class="flex items-center gap-4 mb-4">
-        <label for="username" class="font-semibold w-24">Name</label>
-        <InputText
-          v-model="projectNameInputRef"
-          type="text"
-          class="text-xs py-[0.3rem] px-[0.4rem] w-full"
-        />
+        <label for="username" class="font-semibold w-28">Name</label>
+        <InputText v-model="projectNameInputRef" type="text" class="text-xs py-[0.3rem] px-[0.4rem] w-full" />
       </div>
       <div class="flex items-center gap-4 mb-4">
-        <label for="email" class="font-semibold w-24">Description</label>
-        <InputText
-          v-model="projectDescriptionInputRef"
-          type="text"
-          class="text-xs py-[0.3rem] px-[0.4rem] w-full"
-        />
+        <label for="email" class="font-semibold w-28">Description</label>
+        <InputText v-model="projectDescriptionInputRef" type="text" class="text-xs py-[0.3rem] px-[0.4rem] w-full" />
       </div>
       <div class="flex justify-end gap-2">
-        <Button label="Cancel" class="py-[0.3rem] px-[0.4rem]" @click="toggleModalVisibility" />
-        <Button label="Save" class="py-[0.3rem] px-[0.4rem]" @click="saveBtnClick" />
+        <Button label="Cancel" severity="secondary" class="py-[0.3rem] px-[0.4rem]" @click="toggleModalVisibility" />
+        <Button label="Create" severity="success" class="py-[0.3rem] px-[0.4rem]" @click="saveBtnClick" />
       </div>
     </Dialog>
   </div>

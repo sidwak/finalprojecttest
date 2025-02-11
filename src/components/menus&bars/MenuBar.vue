@@ -39,6 +39,9 @@ const items = ref([
       },
       {
         label: 'New',
+        command: () => {
+          openProjectCreateModal()
+        },
       },
       {
         label: 'Close',
@@ -90,7 +93,7 @@ const menuBar_pt = {
 }
 //#endregion
 
-async function openProjectsInfoJson() {
+function openProjectCreateModal() {
   /* const result = await window.electron.getProjectsInfoJson('hello')
   console.log(result)
   projectsStore.setProjectsInfoJsonData(result) */

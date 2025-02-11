@@ -11,4 +11,7 @@ contextBridge.exposeInMainWorld('electron', {
   getTestcasesInfoJson: (args: any) => ipcRenderer.invoke('get-testcases-info-json', args),
   createNewTestcase: (args: any) => ipcRenderer.invoke('create-new-testcase', args),
   deleteTestcase: (args: any) => ipcRenderer.invoke('delete-testcase', args),
+  deleteProjectWithId: (args: any) => ipcRenderer.invoke('delete-project-with-id', args),
+  updateTestcaseData: (args: any) => ipcRenderer.invoke('update-testcase', args),
+  exitApp: (args: any) => ipcRenderer.invoke('exit-app', args),
 })

@@ -1,18 +1,26 @@
 <script setup lang="ts">
 import 'primeicons/primeicons.css'
 import ToggleSwitch from 'primevue/toggleswitch'
-import { ref } from 'vue'
+import { ref, useTemplateRef, watch } from 'vue'
 import { useToast } from 'primevue'
 import Toast from 'primevue/toast'
 import { useTestcasesStore } from '@/pinia_stores/testcasesStore'
-import { saveTestcaseDataInBackend } from '@/services/testcaseService'
+import { saveTestcaseDataInBackend, startTestInBackend } from '@/services/testcaseService'
+import { useFlowStore } from '@/pinia_stores/flowStore'
+import { nextTick } from 'vue'
+import ToggleButton from 'primevue/togglebutton'
+import SettingsModal from '../modals/SettingsModal.vue'
+import { useUtilsStore } from '@/pinia_stores/utilsStore'
 
 const testcasesStore = useTestcasesStore()
+const flowStore = useFlowStore()
+const utilsStore = useUtilsStore()
 const props = defineProps({
   callToggleInParent: { type: Function, required: true },
 })
 const checked = ref(false)
 const isToggleActive = ref(false)
+const settingsModalRef = useTemplateRef('settingsModal-ref')
 const amberSwitch = {
   colorScheme: {
     light: {
@@ -45,22 +53,25 @@ function toggleValueChanged(isOn: any) {
   props.callToggleInParent()
   isToggleActive.value = isOn
 }
+
+watch(
+  () => utilsStore.settingsModalNotifier,
+  (newVal, oldVal) => {
+    settingsModalRef.value?.toggleModalVisibility(null)
+  },
+)
+
+function settingsBuuttonClicked() {
+  settingsModalRef.value?.toggleModalVisibility(null)
+}
+
 function runButtonClicked() {
   startTestInBackend()
-}
-async function startTestInBackend() {
-  toast.add({
-    severity: 'success',
-    summary: 'Test Started',
-    detail: 'backend',
-    life: 3000,
-  })
-  const saveResult = await saveTestcaseDataInBackend()
-  const result = await window.electron.startTest(testcasesStore.getCurrentTestcase)
 }
 </script>
 <template>
   <Toast />
+  <SettingsModal ref="settingsModal-ref" />
   <div class="toolbar">
     <div
       class="toolbar-icon"
@@ -83,11 +94,8 @@ async function startTestInBackend() {
       <span class="pi pi-angle-double-right toolbar-icon-span"></span>
     </div>
     <div class="toolbar-divider"></div>
-    <div class="toolbar-icon">
-      <span class="pi pi-globe toolbar-icon-span"></span>
-    </div>
-    <div class="toolbar-icon">
-      <span class="pi pi-bolt toolbar-icon-span"></span>
+    <div class="toolbar-icon" @click="settingsBuuttonClicked()">
+      <span class="pi pi-cog toolbar-icon-span"></span>
     </div>
     <ToggleSwitch v-model="checked" @update:model-value="toggleValueChanged($event)" :dt="amberSwitch">
       <template #handle="{ checked }">

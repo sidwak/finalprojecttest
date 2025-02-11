@@ -9,12 +9,13 @@ import DomNode from '.././nodes/DomNode.vue'
 import PropertiesModal from '.././modals/PropertiesModal.vue'
 import type { flowNode, NodeType } from '@/ts_types/nodeType'
 import { useTestcasesStore } from '@/pinia_stores/testcasesStore'
-import { loadTestcaseData } from '@/services/testcaseService'
+import { loadTestcaseData, getTestcaseFlowData } from '@/services/testcaseService'
 import type { testcaseDataType, testcaseFlowDataType } from '@/ts_types/puppet_test_types'
 import { useFlowStore } from '@/pinia_stores/flowStore'
 import type { FlowExportObject } from '@vue-flow/core'
 import AssertNode from '../nodes/AssertNode.vue'
 import LogNode from '../nodes/LogNode.vue'
+import { useUtilsStore } from '@/pinia_stores/utilsStore'
 
 const {
   onConnect,
@@ -29,9 +30,11 @@ const {
   updateNodeData,
   onPaneReady,
   removeNodes,
+  fitView,
 } = useVueFlow()
 const testcasesStore = useTestcasesStore()
 const flowStore = useFlowStore()
+const utilsStore = useUtilsStore()
 
 //#region Refs
 /* const nodesData: nodeData[] = [
@@ -256,9 +259,14 @@ const handleCommandExecute = (data: any) => {
     saveTestCaseData()
   } else if (data.cmd === 'Load') {
     loadTestCaseData()
+  } else if (data.cmd === 'updateFlowData') {
+    reloadNodesFlowData()
   }
 }
 
+/**
+ * when parameters value are changed, the data is not updated in the flow state data
+ */
 function reloadNodesFlowData() {
   // for leftpanel to be updated after adding a new node
   testcasesStore.setNodesFlowData(toObject())
@@ -277,6 +285,8 @@ async function savePreviousTestCase(oldTestcaseData: testcaseDataType) {
   const oldTC_Data: testcaseDataType = {
     id: oldTestcaseData.id,
     name: oldTestcaseData.name,
+    headless: oldTestcaseData.headless,
+    waitTime: oldTestcaseData.waitTime,
   }
   const testcaseSaveData: testcaseFlowDataType = {
     testcaseData: oldTC_Data,
@@ -302,12 +312,45 @@ watch(
     reloadNodesFlowData()
   },
 )
+watch(
+  () => flowStore.currentSelectedNodeId,
+  (newId, oldId) => {
+    console.log(`new selected id ${newId} ${newId}`)
+    if (isPropertiesPanelVisible.value === false) {
+      isPropertiesPanelVisible.value = true
+    }
+    curSelectedNodeId.value = newId
+  },
+)
+watch(
+  () => flowStore.updateCounter,
+  (newVal, oldVal) => {
+    console.log('nodes flow data updated')
+    reloadNodesFlowData()
+  },
+)
+watch(
+  () => utilsStore.deleteNodeNotifier,
+  (newVal, oldVal) => {
+    if (curSelectedNodeId.value !== '-1') {
+      removeNodes(curSelectedNodeId.value, true)
+      reloadNodesFlowData()
+    }
+  },
+)
+watch(
+  () => utilsStore.fitViewNotifier,
+  (newVal, oldVal) => {
+    fitView()
+  },
+)
 
 async function loadTestCaseData() {
   nodes.value = []
   edges.value = []
   const testcaseData = testcasesStore.getCurrentTestcase
-  const result = await window.electron.loadTestCase(testcaseData)
+  //const result = await window.electron.loadTestCase(testcaseData)
+  const result = await getTestcaseFlowData(testcaseData)
   testcasesStore.setNodesFlowData(result)
   const numberOfNodes = result.nodes.length
   let maxId = 0
@@ -320,6 +363,7 @@ async function loadTestCaseData() {
   idRef.value = maxId // result.nodes.length
   curNodeId = maxId.toString() // numberOfNodes.toString()
   fromObject(result)
+  isPropertiesPanelVisible.value = false
 }
 onNodeClick((node) => {
   if (isPropertiesPanelVisible.value === false) {
@@ -330,6 +374,10 @@ onNodeClick((node) => {
 function afterPaneClick() {
   if (isPropertiesPanelVisible.value === true) {
     isPropertiesPanelVisible.value = false
+  }
+  if (curSelectedNodeId.value !== '-1') {
+    console.log('alues ressted')
+    curSelectedNodeId.value = '-1'
   }
 }
 
@@ -358,7 +406,11 @@ defineExpose({
     <template #node-log-node="props">
       <LogNode :id="props.id" :data="props.data" :selected="props.selected" />
     </template>
-    <PropertiesModal :class="{ propertiesPanel: !isPropertiesPanelVisible }" :cur-selected-node-id="curSelectedNodeId" />
+    <PropertiesModal
+      :class="{ propertiesPanel: !isPropertiesPanelVisible }"
+      :cur-selected-node-id="curSelectedNodeId"
+      :on-details-changed="handleCommandExecute"
+    />
   </VueFlow>
 </template>
 <style scoped>

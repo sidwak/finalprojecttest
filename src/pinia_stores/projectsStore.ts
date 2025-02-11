@@ -20,10 +20,10 @@ export const useProjectsStore = defineStore('projectsStore', {
         this.newProjectId = project.id + 1
       })
     },
-    addNewProjectInList(projectData: projectDataType) {
+    /* addNewProjectInList(projectData: projectDataType) {
       this.projectsList.push(projectData)
       this.newProjectId = projectData.id + 1
-    },
+    }, */
     /* incrementNewProjectId() {
       this.newProjectId += 1
     }, */
@@ -33,6 +33,9 @@ export const useProjectsStore = defineStore('projectsStore', {
           this.currentProject = project
         }
       })
+    },
+    getProjectDataById(projectId: number) {
+      return this.projectsList.find((item) => item.id === projectId)
     },
   },
 })

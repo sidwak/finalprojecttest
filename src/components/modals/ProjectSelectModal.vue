@@ -4,13 +4,18 @@ import { ref, defineProps, defineExpose, computed } from 'vue'
 import Dialog from 'primevue/dialog'
 import Listbox from 'primevue/listbox'
 import { useProjectsStore } from '@/pinia_stores/projectsStore'
-import { loadNewProject } from '@/services/projectService'
+import { deleteProject, loadNewProject } from '@/services/projectService'
 import type { projectDataType } from '@/ts_types/puppet_test_types'
 import { useConfirm } from 'primevue/useconfirm'
+import { useToastStore } from '@/pinia_stores/toastStore'
 
 const projectsStore = useProjectsStore()
 const confirm = useConfirm()
+const toastStore = useToastStore()
 
+const props = defineProps(['toggleNewProjectModal'])
+
+//#region Primevue
 const dialog_pt = {}
 const dialog_dt = {
   header: {
@@ -25,9 +30,10 @@ const orderList_pt = {
     style: 'display: none',
   },
 }
+//#endregion
 
 const isVisible = ref(false)
-const currentSelectedProject = ref(null)
+const currentSelectedProject = ref<Partial<projectDataType> | null>(null)
 const projectsListItems = computed(() => {
   const projectsDataJson: any[] = projectsStore.projectsList
   let returnList: any[] = []
@@ -51,8 +57,33 @@ function openButtonClicked() {
     openProject(currentSelectedProject.value)
   }
 }
+function deleteProjectConfirm(selectedProjectItem: any) {
+  deleteProject(selectedProjectItem.id)
+}
+function deleteButtonClicked() {
+  if (currentSelectedProject.value !== null) {
+    if (currentSelectedProject.value.id !== projectsStore.currentProject.id) {
+      deleteProjectConfirm(currentSelectedProject.value)
+    } else {
+      toastStore.displayNewMessage({
+        severity: 'error',
+        summary: 'Deletion Failed',
+        detail: 'Cannot delete project when it is open',
+        life: 3000,
+      })
+    }
+  }
+}
 
 const toggleModalVisibility = (e: any) => {
+  if (projectsStore.currentProject.id !== -1) {
+    console.log(projectsStore.currentProject.id)
+    const selectedProject = {
+      id: projectsStore.currentProject.id,
+      name: projectsStore.currentProject.name,
+    }
+    currentSelectedProject.value = selectedProject
+  }
   isVisible.value = !isVisible.value
 }
 
@@ -71,7 +102,9 @@ const confirmDelete = () => {
       label: 'Delete',
       severity: 'danger',
     },
-    accept: () => {},
+    accept: () => {
+      deleteButtonClicked()
+    },
     reject: () => {
       toggleModalVisibility(null)
     },
@@ -86,10 +119,15 @@ defineExpose({
   <Dialog v-model:visible="isVisible" modal header="Open Project" :style="{ width: '25rem' }" :pt="dialog_pt" :dt="dialog_dt">
     <span class="text-surface-500 dark:text-surface-400 block mb-4">Select the project to open</span>
     <Listbox v-model="currentSelectedProject" :options="projectsListItems" optionLabel="name" class="w-full" />
-    <div class="flex justify-end gap-2 mt-4">
-      <Button label="Cancel" severity="secondary" class="py-[0.3rem] px-[0.4rem]" @click="toggleModalVisibility" />
-      <Button label="Delete" severity="danger" class="py-[0.3rem] px-[0.4rem]" @click="confirmDelete" />
-      <Button label="Open" severity="" class="py-[0.3rem] px-[0.4rem]" @click="openButtonClicked" />
+    <div class="flex justify-between gap-2 mt-4">
+      <div class="flex gap-2">
+        <Button label="New" severity="success" class="py-[0.3rem] px-[0.4rem]" @click="props.toggleNewProjectModal" />
+        <Button label="Delete" severity="danger" class="py-[0.3rem] px-[0.4rem]" @click="confirmDelete" />
+        <!-- <Button label="Cancel" severity="secondary" class="py-[0.3rem] px-[0.4rem]" @click="toggleModalVisibility" /> -->
+      </div>
+      <div>
+        <Button label="Open" severity="" class="py-[0.3rem] px-[0.4rem]" @click="openButtonClicked" />
+      </div>
     </div>
   </Dialog>
 </template>

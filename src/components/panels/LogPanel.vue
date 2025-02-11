@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { onMounted, onBeforeUnmount, ref } from 'vue'
+import { onMounted, onBeforeUnmount, ref, watch } from 'vue'
 import { io } from 'socket.io-client'
 import ScrollPanel from 'primevue/scrollpanel'
+import { useUtilsStore } from '@/pinia_stores/utilsStore'
 
 const socket = io('ws://localhost:3000')
+const utilsStore = useUtilsStore()
 const innerTest = ref('$&nbspNode Testing Studio<br/>')
 const scrollContent = ref()
 const bottomItem = ref()
@@ -22,6 +24,8 @@ socket.on('broadcast', (data) => {
     newMsg = `<p class="text-orange-500">$&nbsp` + data.message + `</p>`
   } else if (msg.includes('Info')) {
     newMsg = `<p class="text-yellow-500">$&nbsp` + data.message + `</p>`
+  } else if (msg.includes('error')) {
+    newMsg = `<p class="text-red-500">$&nbsp` + data.message + `</p>`
   } else {
     newMsg = `<p>$&nbsp` + data.message + `</p>`
   }
@@ -30,6 +34,13 @@ socket.on('broadcast', (data) => {
   //bottomItem.value.scrollIntoView({ behaviour: 'smooth', block: 'end' })
   bottomItem.value.scrollIntoView(false)
 })
+
+watch(
+  () => utilsStore.terminalClearNotifier,
+  (newVal, oldVal) => {
+    innerTest.value = '$&nbspNode Testing Studio<br/>'
+  },
+)
 </script>
 <template>
   <div class="p-1 flex flex-col h-full">

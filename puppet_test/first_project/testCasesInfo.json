@@ -2,27 +2,27 @@
   "testCases": [
     {
       "id": 3,
-      "name": "fourth"
+      "name": "second",
+      "headless": false,
+      "waitTime": 0
     },
     {
       "id": 4,
-      "name": "fifth"
+      "name": "fifth",
+      "headless": false,
+      "waitTime": 0
     },
     {
       "id": 5,
-      "name": "six"
+      "name": "six",
+      "headless": true,
+      "waitTime": 2000
     },
     {
       "id": 6,
-      "name": "login_button"
-    },
-    {
-      "id": 7,
-      "name": "logout_button_test"
-    },
-    {
-      "id": 8,
-      "name": "buy_button_check"
+      "name": "login_button",
+      "headless": false,
+      "waitTime": 0
     }
   ]
 }

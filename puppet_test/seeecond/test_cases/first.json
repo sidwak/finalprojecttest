@@ -1,15 +1,15 @@
 {
   "nodes": [
     {
-      "id": "1",
+      "id": "2",
       "type": "driver-node",
       "initialized": false,
       "position": {
-        "x": 482.75,
-        "y": 299
+        "x": 356.09532140557917,
+        "y": 272.1593010193133
       },
       "data": {
-        "nodeName": "Node 1",
+        "nodeName": "Node 2",
         "nodeType": "driver-node",
         "displayName": "type: driver-node",
         "nodeData": {
@@ -33,57 +33,20 @@
             "edgeId": "-1"
           }
         },
-        "prevNodeId": "2",
-        "nextNodeId": "-1"
+        "prevNodeId": "6",
+        "nextNodeId": "7"
       }
     },
     {
-      "id": "2",
+      "id": "4",
       "type": "driver-node",
       "initialized": false,
       "position": {
-        "x": 148.75,
-        "y": 283
+        "x": 183.88861005151114,
+        "y": 85.16554287688575
       },
       "data": {
-        "nodeName": "Node 2",
-        "nodeType": "driver-node",
-        "displayName": "type: driver-node",
-        "nodeData": {
-          "cmd": {
-            "isRequired": false,
-            "value": "Start",
-            "isGetOnly": false
-          },
-          "para1": {
-            "value": "value not set",
-            "isConnected": false,
-            "isRequired": false,
-            "connectedNodeId": "-1",
-            "edgeId": "-1"
-          },
-          "para2": {
-            "value": "value not set",
-            "isConnected": false,
-            "isRequired": false,
-            "connectedNodeId": "-1",
-            "edgeId": "-1"
-          }
-        },
-        "prevNodeId": "-1",
-        "nextNodeId": "1"
-      }
-    },
-    {
-      "id": "7",
-      "type": "driver-node",
-      "initialized": false,
-      "position": {
-        "x": 262.81283907799883,
-        "y": 80.12694550385007
-      },
-      "data": {
-        "nodeName": "Nodde",
+        "nodeName": "Node 4",
         "nodeType": "driver-node",
         "displayName": "type: driver-node",
         "nodeData": {
@@ -110,32 +73,120 @@
         "prevNodeId": "-1",
         "nextNodeId": "-1"
       }
+    },
+    {
+      "id": "6",
+      "type": "driver-node",
+      "initialized": false,
+      "position": {
+        "x": 120.33841893089408,
+        "y": 323.6963972200238
+      },
+      "data": {
+        "nodeName": "Node 6",
+        "nodeType": "driver-node",
+        "displayName": "type: driver-node",
+        "nodeData": {
+          "cmd": {
+            "isRequired": false,
+            "value": "Start",
+            "isGetOnly": false
+          },
+          "para1": {
+            "value": "value not set",
+            "isConnected": false,
+            "isRequired": false,
+            "connectedNodeId": "-1",
+            "edgeId": "-1"
+          },
+          "para2": {
+            "value": "value not set",
+            "isConnected": false,
+            "isRequired": false,
+            "connectedNodeId": "-1",
+            "edgeId": "-1"
+          }
+        },
+        "prevNodeId": "-1",
+        "nextNodeId": "2"
+      }
+    },
+    {
+      "id": "7",
+      "type": "log-node",
+      "initialized": false,
+      "position": {
+        "x": 568.3101828128005,
+        "y": 281.6847678212216
+      },
+      "data": {
+        "nodeName": "Node 7",
+        "nodeType": "log-node",
+        "displayName": "type: log-node",
+        "nodeData": {
+          "cmd": {
+            "isRequired": false,
+            "value": "cmd not set",
+            "isGetOnly": false
+          },
+          "para1": {
+            "value": "value not set",
+            "isConnected": false,
+            "isRequired": true,
+            "connectedNodeId": "-1",
+            "edgeId": "-1"
+          },
+          "para2": {
+            "value": "value not set",
+            "isConnected": false,
+            "isRequired": false,
+            "connectedNodeId": "-1",
+            "edgeId": "-1"
+          }
+        },
+        "prevNodeId": "2",
+        "nextNodeId": "-1"
+      }
     }
   ],
   "edges": [
     {
-      "id": "vueflow__edge-2flow-next-1flow-prev",
+      "id": "vueflow__edge-6flow-next-2flow-prev",
       "type": "default",
-      "source": "2",
-      "target": "1",
+      "source": "6",
+      "target": "2",
       "sourceHandle": "flow-next",
       "targetHandle": "flow-prev",
       "data": {},
       "label": "",
-      "sourceX": 314.92164295269924,
-      "sourceY": 373.59360530518194,
-      "targetX": 479.7499948141105,
-      "targetY": 445.1872438510653
+      "sourceX": 286.510849252287,
+      "sourceY": 414.290446658206,
+      "targetX": 353.0952997269594,
+      "targetY": 418.3472810048063
+    },
+    {
+      "id": "vueflow__edge-2flow-next-7flow-prev",
+      "type": "default",
+      "source": "2",
+      "target": "7",
+      "sourceHandle": "flow-next",
+      "targetHandle": "flow-prev",
+      "data": {},
+      "label": "",
+      "sourceX": 522.2678079008416,
+      "sourceY": 418.3472810048063,
+      "targetX": 565.3101611341807,
+      "targetY": 384.27884780001324
     }
   ],
   "position": [
-    -65.3805077855144,
-    5.601490459116519
+    -6.850519135368813,
+    21.37883265343072
   ],
-  "zoom": 1.1486983549970349,
+  "zoom": 1.086543764615909,
   "viewport": {
-    "x": -65.3805077855144,
-    "y": 5.601490459116519,
-    "zoom": 1.1486983549970349
+    "x": -6.850519135368813,
+    "y": 21.37883265343072,
+    "zoom": 1.086543764615909
   }
 }

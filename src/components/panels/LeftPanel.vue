@@ -7,23 +7,34 @@ import { useTestcasesStore } from '@/pinia_stores/testcasesStore'
 import 'primeicons/primeicons.css'
 import type { projectDataType, testcaseDataType } from '@/ts_types/puppet_test_types'
 import TestcaseNewModal from '../modals/TestcaseNewModal.vue'
-import { deleteNodeFromTestcase, deleteTestcase, loadNewTestcase } from '@/services/testcaseService'
+import { deleteNodeFromTestcase, deleteTestcase, loadNewTestcase, startTestInBackend } from '@/services/testcaseService'
 import type { NodeType, flowNode } from '@/ts_types/nodeType'
 import { useVueFlow, type ViewportTransform, type VueFlowStore } from '@vue-flow/core'
 import { useFlowStore } from '@/pinia_stores/flowStore'
 import { EMenuItem } from '../../../electron_main/allEnums'
 import TestcaseDeleteModal from '../modals/TestcaseDeleteModal.vue'
+import { useConfirm } from 'primevue/useconfirm'
+import { useToastStore } from '@/pinia_stores/toastStore'
+import TestcaseRenameModal from '../modals/TestcaseRenameModal.vue'
+import { useUtilsStore } from '@/pinia_stores/utilsStore'
 
 export interface MenuItem {
   itemType: EMenuItem
   itemData: flowNode | testcaseDataType | null
 }
+const props = defineProps({
+  addNodeFromLeftPanel: { type: Function, required: true },
+  saveFromLeftPanel: { type: Function, required: true },
+})
 
 let vueFlowInstance: VueFlowStore | null = null
 const { setViewport, fitView, onPaneReady } = useVueFlow()
 const projectsStore = useProjectsStore()
 const testcasesStore = useTestcasesStore()
 const flowStore = useFlowStore()
+const confirm = useConfirm()
+const toastStore = useToastStore()
+const utilsStore = useUtilsStore()
 
 const testcasesListItems = computed(() => {
   const testcasesDataJson: any[] = testcasesStore.testcasesList
@@ -91,24 +102,28 @@ const domNodesListItems = computed(() => {
 })
 const items = ref([
   {
+    key: '0',
     label: 'Nodes',
     isRoot: true,
     icon: 'pi pi-ticket',
     items: nodesListItems,
   },
   {
+    key: '1',
     label: 'Variables',
     isRoot: true,
     icon: 'pi pi-database',
     items: varNodesListItems,
   },
   {
+    key: '2',
     label: 'DOM Elements',
     isRoot: true,
     icon: 'pi pi-file-word',
     items: domNodesListItems,
   },
   {
+    key: '3',
     label: 'Test Cases',
     isRoot: true,
     icon: 'pi pi-code',
@@ -148,42 +163,94 @@ const contextMenuPanelModal = ref([
     items: [
       {
         label: 'Driver Node',
+        command: (e: any) => {
+          addNodeItemChanged(e)
+        },
+        nodeType: 'driver-node',
       },
       {
         label: 'Variable Node',
+        command: (e: any) => {
+          addNodeItemChanged(e)
+        },
+        nodeType: 'var-node',
       },
       {
         label: 'DOM Node',
+        command: (e: any) => {
+          addNodeItemChanged(e)
+        },
+        nodeType: 'dom-node',
       },
       {
         label: 'Assert Node',
-      },
-      {
-        label: 'Math Node',
+        command: (e: any) => {
+          addNodeItemChanged(e)
+        },
+        nodeType: 'asr-node',
       },
     ],
   },
   { separator: true },
   {
+    label: 'Expland All',
+    command: (e: any) => {
+      expandAll()
+    },
+  },
+  {
     label: 'Collapse All',
+    command: (e: any) => {
+      collapseAll()
+    },
   },
   { separator: true },
+  {
+    label: 'Run',
+    command: (e: any) => {
+      startTestInBackend()
+    },
+  },
   {
     label: 'Save',
+    command: (e: any) => {
+      toastStore.displayNewMessage({
+        severity: 'success',
+        summary: 'Saved',
+        detail: 'Successfully',
+        life: 3000,
+      })
+      props.saveFromLeftPanel({
+        cmd: 'Save',
+      })
+    },
   },
   { separator: true },
   {
-    label: 'Open Project',
+    label: 'Clear Terminal',
+    command: (e: any) => {
+      utilsStore.clearTerminal(Date.now())
+    },
   },
   {
-    label: 'Close Project',
+    label: 'Exit App',
+    command: (e: any) => {
+      window.electron.exitApp(null)
+    },
   },
 ])
 const contextMenuModal = ref()
 const contextMenuRef = useTemplateRef('contextMenu-ref')
 const testcaseNewModalRef = useTemplateRef('testcaseNewModal-ref')
 const testcaseDeleteModalRef = useTemplateRef('testcaseDeleteModal-ref')
+const testcaseRenameModalRef = useTemplateRef('testcaseRenameModal-ref')
 const curSelectedItem = ref('null')
+const expandedKeys = ref({
+  '0': false,
+  '1': false,
+  '2': false,
+  '3': false,
+})
 const curRightClickItem = ref<MenuItem>({ itemType: EMenuItem.Unknown, itemData: null })
 const currentProjectName = ref('null')
 
@@ -262,7 +329,16 @@ const displayContextMenuItem = (e: any) => {
 }
 function contextMenuValueChanged(e: any) {
   if (e.item.label === 'Open') {
+    if (curRightClickItem.value.itemType === EMenuItem.Node) {
+      vueFlowInstance?.fitView({ nodes: [curRightClickItem.value.itemData?.id as string] })
+    }
   } else if (e.item.label === 'Rename') {
+    if (curRightClickItem.value.itemType === EMenuItem.Testcase) {
+      const testcaseData = curRightClickItem.value.itemData as testcaseDataType
+      testcaseRenameModalRef.value?.toggleModalVisibility(testcaseData)
+    } else if (curRightClickItem.value.itemType === EMenuItem.Node) {
+      flowStore.setCurrentSelectedNodeId(curRightClickItem.value?.itemData?.id as string)
+    }
   } else if (e.item.label === 'Delete') {
     if (curRightClickItem.value.itemType === EMenuItem.Node) {
       const nodeId: string = curRightClickItem.value.itemData!.id as string
@@ -270,10 +346,55 @@ function contextMenuValueChanged(e: any) {
     } else if (curRightClickItem.value.itemType === EMenuItem.Testcase) {
       const testcaseData = curRightClickItem.value.itemData as testcaseDataType
       //deleteTestcase(testcaseData)
-      testcaseDeleteModalRef.value?.toggleModalVisibility(null, testcaseData)
+      //testcaseDeleteModalRef.value?.toggleModalVisibility(null, testcaseData)
+      confirmTestcaseDelete(testcaseData)
     }
   }
 }
+
+function addNodeItemChanged(e: any) {
+  console.log(e)
+  toastStore.displayNewMessage({
+    severity: 'info',
+    summary: 'Node Added',
+    detail: 'Type: ' + e.item.nodeType,
+    life: 3000,
+  })
+  const data = {
+    posX: 500,
+    posY: 500,
+    node: e.item.nodeType,
+  }
+  props.addNodeFromLeftPanel(data)
+}
+
+const confirmTestcaseDelete = (selectedTestcase: testcaseDataType) => {
+  confirm.require({
+    message: 'Do you want to delete this testcase?',
+    header: 'Confirm Action',
+    icon: 'pi pi-info-circle',
+    rejectLabel: 'Cancel',
+    rejectProps: {
+      label: 'Cancel',
+      severity: 'secondary',
+      outlined: true,
+    },
+    acceptProps: {
+      label: 'Delete',
+      severity: 'danger',
+    },
+    accept: () => {
+      deleteTestcase(selectedTestcase)
+      toastStore.displayNewMessage({
+        severity: 'success',
+        summary: 'Testcase Deleted',
+        detail: selectedTestcase.name + ' was deleted was successfully',
+        life: 3000,
+      })
+    },
+  })
+}
+
 const checkAndDisplayContextMenuItem = (e: any, item: any) => {
   if (item.isRoot == true) {
   } else {
@@ -292,16 +413,36 @@ const checkAndDisplayContextMenuItem = (e: any, item: any) => {
     displayContextMenuItem(e)
   }
 }
+
+const expandAll = () => {
+  const tempObj = {
+    '0': true,
+    '1': true,
+    '2': true,
+    '3': true,
+  }
+  expandedKeys.value = { ...tempObj }
+}
+const collapseAll = () => {
+  const tempObj = {
+    '0': false,
+    '1': false,
+    '2': false,
+    '3': false,
+  }
+  expandedKeys.value = { ...tempObj }
+}
 </script>
 <template>
   <TestcaseNewModal ref="testcaseNewModal-ref" />
   <TestcaseDeleteModal ref="testcaseDeleteModal-ref" />
+  <TestcaseRenameModal ref="testcaseRenameModal-ref" />
   <ContextMenu ref="contextMenu-ref" :model="contextMenuModal" class="text-xs1 leading-xs1" :pt="contextMenu_pt" :dt="contextMenu_dt" />
   <div class="leftpanel text-xs1 leading-xs1" @contextmenu="displayContextMenuPanel">
     <div v-if="currentProjectName !== 'null'" class="border rounded-md mb-2 project-title-box">
-      <h1 class="text-xs1 ms-2 my-1">Project: {{ currentProjectName }}</h1>
+      <h1 class="text-xs1 ms-2 my-1">{{ currentProjectName }}</h1>
     </div>
-    <PanelMenu :model="items" class="" multiple :pt="panelMenu_pt" :dt="panelMenu_dt">
+    <PanelMenu :model="items" v-model:expandedKeys="expandedKeys" class="" multiple :pt="panelMenu_pt" :dt="panelMenu_dt">
       <template #item="{ item, active, hasSubmenu }">
         <span
           class="flex items-center px-2 py-2 cursor-pointer group gap-2 rounded-md"
