@@ -68,6 +68,16 @@ function settingsBuuttonClicked() {
 function runButtonClicked() {
   startTestInBackend()
 }
+
+function restartButtonClicked(){
+  utilsStore.clearTerminal(Date.now())
+}
+function moveRightButtonClicked(){
+  utilsStore.moveToRightNode(Date.now())
+}
+function moveLeftButtonClicked(){
+  utilsStore.moveToLeftNode(Date.now())
+}
 </script>
 <template>
   <Toast />
@@ -80,17 +90,17 @@ function runButtonClicked() {
     >
       <span class="pi pi-play toolbar-icon-span"></span>
     </div>
-    <div class="toolbar-icon">
+    <!-- <div class="toolbar-icon">
       <span class="pi pi-pause toolbar-icon-span"></span>
-    </div>
-    <div class="toolbar-icon">
+    </div> -->
+    <div class="toolbar-icon" @click="restartButtonClicked">
       <span class="pi pi-replay toolbar-icon-span"></span>
     </div>
     <div class="toolbar-divider"></div>
-    <div class="toolbar-icon">
+    <div class="toolbar-icon"  @click="moveLeftButtonClicked">
       <span class="pi pi-angle-double-left toolbar-icon-span"></span>
     </div>
-    <div class="toolbar-icon">
+    <div class="toolbar-icon" @click="moveRightButtonClicked">
       <span class="pi pi-angle-double-right toolbar-icon-span"></span>
     </div>
     <div class="toolbar-divider"></div>

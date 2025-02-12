@@ -6,6 +6,8 @@ export const useUtilsStore = defineStore('utilsStore', {
     deleteNodeNotifier: <number>0,
     fitViewNotifier: <number>0,
     terminalClearNotifier: <number>0,
+    rightMoveNotifier: <number>0,
+    leftMoveNotifier: <number>0
   }),
   actions: {
     openSettingsModal(updater: number) {
@@ -20,5 +22,11 @@ export const useUtilsStore = defineStore('utilsStore', {
     clearTerminal(updater: number) {
       this.terminalClearNotifier = updater
     },
+    moveToRightNode(updater: number){
+      this.rightMoveNotifier = updater
+    },
+    moveToLeftNode(updater: number){
+      this.leftMoveNotifier = updater
+    }
   },
 })

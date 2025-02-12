@@ -147,6 +147,43 @@
         "prevNodeId": "2",
         "nextNodeId": "-1"
       }
+    },
+    {
+      "id": "8",
+      "type": "asr-node",
+      "initialized": false,
+      "position": {
+        "x": 375.71784846355035,
+        "y": 5.996983984655515
+      },
+      "data": {
+        "nodeName": "Node 8",
+        "nodeType": "asr-node",
+        "displayName": "type: asr-node",
+        "nodeData": {
+          "cmd": {
+            "isRequired": false,
+            "value": "cmd not set",
+            "isGetOnly": false
+          },
+          "para1": {
+            "value": "value not set",
+            "isConnected": false,
+            "isRequired": true,
+            "connectedNodeId": "-1",
+            "edgeId": "-1"
+          },
+          "para2": {
+            "value": "value not set",
+            "isConnected": false,
+            "isRequired": false,
+            "connectedNodeId": "-1",
+            "edgeId": "-1"
+          }
+        },
+        "prevNodeId": "-1",
+        "nextNodeId": "-1"
+      }
     }
   ],
   "edges": [
@@ -159,10 +196,10 @@
       "targetHandle": "flow-prev",
       "data": {},
       "label": "",
-      "sourceX": 286.510849252287,
-      "sourceY": 414.290446658206,
-      "targetX": 353.0952997269594,
-      "targetY": 418.3472810048063
+      "sourceX": 286.50100214210966,
+      "sourceY": 413.8964341276627,
+      "targetX": 353.0953090041528,
+      "targetY": 417.55928299777065
     },
     {
       "id": "vueflow__edge-2flow-next-7flow-prev",
@@ -173,20 +210,20 @@
       "targetHandle": "flow-prev",
       "data": {},
       "label": "",
-      "sourceX": 522.2678079008416,
-      "sourceY": 418.3472810048063,
-      "targetX": 565.3101611341807,
-      "targetY": 384.27884780001324
+      "sourceX": 522.2578843942642,
+      "sourceY": 417.55928299777065,
+      "targetX": 565.3102108564351,
+      "targetY": 383.884773444444
     }
   ],
   "position": [
-    -28.850519135368813,
-    18.37883265343072
+    -52.04897162178389,
+    33.9297448982158
   ],
-  "zoom": 1.086543764615909,
+  "zoom": 0.7545442809832702,
   "viewport": {
-    "x": -28.850519135368813,
-    "y": 18.37883265343072,
-    "zoom": 1.086543764615909
+    "x": -52.04897162178389,
+    "y": 33.9297448982158,
+    "zoom": 0.7545442809832702
   }
 }

@@ -37,8 +37,8 @@ const __puppetDir = dirname(__filename).replace('\\electron_main\\dist', '')
 
 function createWindow() {
   win = new BrowserWindow({
-    width: 1708,
-    height: 960,
+    width: 1280,
+    height: 720,
     autoHideMenuBar: true,
     titleBarStyle: 'hidden',
     webPreferences: {

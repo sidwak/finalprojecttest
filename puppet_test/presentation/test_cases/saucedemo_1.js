@@ -4,7 +4,7 @@ import { expect } from 'chai'
 import {setTimeout} from "node:timers/promises";
 
 const socket = io('ws://localhost:3000');
-const waitTime = 0;
+const waitTime = 1500;
 let isFailed = false;
 
 socket.on('connect', async () => {

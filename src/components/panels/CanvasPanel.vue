@@ -16,6 +16,7 @@ import type { FlowExportObject } from '@vue-flow/core'
 import AssertNode from '../nodes/AssertNode.vue'
 import LogNode from '../nodes/LogNode.vue'
 import { useUtilsStore } from '@/pinia_stores/utilsStore'
+import type { RefSymbol } from '@vue/reactivity'
 
 const {
   onConnect,
@@ -32,6 +33,7 @@ const {
   onPaneReady,
   removeNodes,
   fitView,
+  findNode
 } = useVueFlow()
 const testcasesStore = useTestcasesStore()
 const flowStore = useFlowStore()
@@ -362,6 +364,30 @@ watch(
   (newVal, oldVal) => {
     fitView()
   },
+)
+watch(
+  () => utilsStore.rightMoveNotifier,
+  (newVal, oldVal) => {
+    if (curSelectedNodeId.value !== '-1'){
+      const node: flowNode = findNode(curSelectedNodeId.value)
+      if (node.data.nextNodeId !== '-1'){
+        fitView({ nodes: [node.data.nextNodeId] })
+        curSelectedNodeId.value = node.data.nextNodeId
+      }  
+    }
+  }
+)
+watch(
+  () => utilsStore.leftMoveNotifier,
+  (newVal, oldVal) => {
+    if (curSelectedNodeId.value !== '-1'){
+      const node: flowNode = findNode(curSelectedNodeId.value)
+      if (node.data.prevNodeId !== '-1'){
+        fitView({ nodes: [node.data.prevNodeId] })
+        curSelectedNodeId.value = node.data.prevNodeId
+      }  
+    }
+  }
 )
 
 async function loadTestCaseData() {

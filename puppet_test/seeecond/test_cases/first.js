@@ -10,7 +10,8 @@ let isFailed = false;
 socket.on('connect', async () => {
 
 const browser = await puppeteer.launch({
-  headless: true,
+  headless: false,
+  Args: ["--suppress-message-center-popups"],
 })
 
 const page = await browser.newPage()
@@ -25,6 +26,8 @@ let d2_var4 = 'value not set'
 let d1_var4 = 'value not set'
 let d2_var6 = 'value not set'
 let d1_var6 = 'value not set'
+let a2_var8 = 'value not set'
+let a1_var8 = 'value not set'
 
 
 try {
