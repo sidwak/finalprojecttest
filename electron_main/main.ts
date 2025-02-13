@@ -39,8 +39,9 @@ function createWindow() {
   win = new BrowserWindow({
     width: 1280,
     height: 720,
-    autoHideMenuBar: true,
-    titleBarStyle: 'hidden',
+    //autoHideMenuBar: true,
+    //titleBarStyle: 'hidden',
+    frame: false,
     webPreferences: {
       preload: path.join(__dirname + '\\dist', 'preload.js'),
       contextIsolation: true,
@@ -52,6 +53,7 @@ function createWindow() {
   // In production mode, load the built app
   // win.loadFile('index.html')
   console.log('Hello from Backend!')
+  console.log(path.join(app.getPath('userData'), 'projects'))
 
   win.loadURL('http://localhost:5173')
 
@@ -67,8 +69,14 @@ ipcMain.handle('invoke-function', async (event, args) => {
 ipcMain.handle('exit-app', async (event, args) => {
   app.exit()
 })
+ipcMain.handle('minimize-app', async (event, args) => {
+  minimizeWindow()
+})
+ipcMain.handle('maximize-app', async (event, args) => {
+  maximizeWindow()
+})
 
-//
+// testcase service?
 ipcMain.handle('save-tc-data', async (event, args) => {
   return saveTestcaseData(args)
   //saveTestCaseData(args)
@@ -135,6 +143,22 @@ function getObject(filePath: any) {
   const data = readFileSync(filePath, 'utf8')
   const obj = JSON.parse(data) // Convert JSON string back to object
   return obj
+}
+
+function minimizeWindow() {
+  if (win) {
+    win.minimize()
+  }
+}
+
+function maximizeWindow() {
+  if (win) {
+    if (!win.isMaximized()) {
+      win.maximize() // Maximize the window
+    } else {
+      win.restore() // Restore if already maximized
+    }
+  }
 }
 
 app.whenReady().then(createWindow)

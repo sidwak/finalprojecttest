@@ -45,13 +45,17 @@ watch(
 <template>
   <div class="p-1 flex flex-col h-full">
     <p class="mb-1 flex-none">Logs</p>
-    <ScrollPanel :ref="scrollContent" class="border bottom-1 rounded-md p-2 grow font-thin text-sm h-20">
+    <ScrollPanel :ref="scrollContent" class="log-panel">
       <p v-html="innerTest"></p>
       <span ref="bottomItem" style="height: 10px; width: 100%" class="blue"></span>
     </ScrollPanel>
   </div>
 </template>
 <style scoped>
+.log-panel {
+  @apply border bottom-1 rounded-md p-2 grow font-thin text-sm h-20;
+  border-color: var(--p-panelmenu-panel-border-color);
+}
 .blue {
   scroll-margin: 20px; /* text height is 19px */
 }

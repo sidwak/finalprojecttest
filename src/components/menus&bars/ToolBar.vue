@@ -69,13 +69,13 @@ function runButtonClicked() {
   startTestInBackend()
 }
 
-function restartButtonClicked(){
+function restartButtonClicked() {
   utilsStore.clearTerminal(Date.now())
 }
-function moveRightButtonClicked(){
+function moveRightButtonClicked() {
   utilsStore.moveToRightNode(Date.now())
 }
-function moveLeftButtonClicked(){
+function moveLeftButtonClicked() {
   utilsStore.moveToLeftNode(Date.now())
 }
 </script>
@@ -97,7 +97,7 @@ function moveLeftButtonClicked(){
       <span class="pi pi-replay toolbar-icon-span"></span>
     </div>
     <div class="toolbar-divider"></div>
-    <div class="toolbar-icon"  @click="moveLeftButtonClicked">
+    <div class="toolbar-icon" @click="moveLeftButtonClicked">
       <span class="pi pi-angle-double-left toolbar-icon-span"></span>
     </div>
     <div class="toolbar-icon" @click="moveRightButtonClicked">
@@ -117,8 +117,8 @@ function moveLeftButtonClicked(){
 <style scoped>
 .toolbar {
   @apply w-full h-9 flex items-center ps-3 gap-2 select-none bg-surface-0 dark:bg-surface-900
-  text-surface-700 dark:text-surface-0 border-t border-surface-300 dark:border-surface-600
-  cursor-pointer;
+  text-surface-700 dark:text-surface-0 border-t;
+  border-color: var(--p-panelmenu-panel-border-color);
 }
 .toolbar-icon {
   @apply h-6 w-6 text-center text-surface-700 dark:text-surface-0;

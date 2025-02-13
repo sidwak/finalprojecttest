@@ -15,6 +15,8 @@ export interface ElectronAPI {
   deleteProjectWithId: (args: projectDataType) => Promise<any>
   updateTestcaseData: (args: testcaseDataType) => Promise<any>
   exitApp: (args) => Promise<any>
+  minimizeApp: (args) => Promise<any>
+  maximizeApp: (args) => Promise<any>
 }
 
 declare global {

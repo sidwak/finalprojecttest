@@ -14,4 +14,6 @@ contextBridge.exposeInMainWorld('electron', {
   deleteProjectWithId: (args: any) => ipcRenderer.invoke('delete-project-with-id', args),
   updateTestcaseData: (args: any) => ipcRenderer.invoke('update-testcase', args),
   exitApp: (args: any) => ipcRenderer.invoke('exit-app', args),
+  minimizeApp: (args: any) => ipcRenderer.invoke('minimize-app', args),
+  maximizeApp: (args: any) => ipcRenderer.invoke('maximize-app', args),
 })

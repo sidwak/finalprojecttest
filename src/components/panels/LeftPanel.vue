@@ -234,8 +234,8 @@ const contextMenuPanelModal = ref([
   },
   {
     label: 'Exit App',
-    command: (e: any) => {
-      window.electron.exitApp(null)
+    command: async (e: any) => {
+      await window.electron.exitApp(null)
     },
   },
 ])
