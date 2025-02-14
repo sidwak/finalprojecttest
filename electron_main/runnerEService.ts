@@ -37,7 +37,7 @@ socket.on('connect', async () => {
 
 const browser = await puppeteer.launch({
   headless: $headless,
-  Args: ["--suppress-message-center-popups"],
+  Args: ["--suppress-message-center-popups","--enable-automation"],
 })
 
 const page = await browser.newPage()

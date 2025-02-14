@@ -43,6 +43,7 @@ onUpdated(() => {
   waitTimeInputRef.value = testcasesStore.currentTestcase.waitTime.toString()
 })
 function updateButtonClicked() {
+  updateTestcase(testcasesStore.getCurrentTestcase)
   toggleModalVisibility(null)
 }
 
@@ -51,8 +52,6 @@ function onWaitTimeInputChanged(e: any) {
 }
 
 function toggleValueChanged(isOn: any) {
-  console.log('headless toggle value changed')
-  console.log(isOn)
   testcasesStore.setTestcaseHeadlessMode(isOn)
 }
 

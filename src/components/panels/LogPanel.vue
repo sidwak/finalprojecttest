@@ -3,15 +3,16 @@ import { onMounted, onBeforeUnmount, ref, watch } from 'vue'
 import { io } from 'socket.io-client'
 import ScrollPanel from 'primevue/scrollpanel'
 import { useUtilsStore } from '@/pinia_stores/utilsStore'
+import { useRunnerStore } from '@/pinia_stores/runnerStore'
 
 const socket = io('ws://localhost:3000')
 const utilsStore = useUtilsStore()
+const runnerStore = useRunnerStore()
 const innerTest = ref('$&nbspNode Testing Studio<br/>')
 const scrollContent = ref()
 const bottomItem = ref()
 
 socket.on('broadcast', (data) => {
-  console.log(data)
   console.log(data.message)
   const msg: string = data.message
   let newMsg = ''
@@ -34,7 +35,28 @@ socket.on('broadcast', (data) => {
   //bottomItem.value.scrollIntoView({ behaviour: 'smooth', block: 'end' })
   bottomItem.value.scrollIntoView(false)
 })
-
+socket.on('runnerLogger', (data) => {
+  console.log(data.message)
+  const msg: string = data.message
+  let newMsg = ''
+  if (msg.includes('Executed') || msg.includes('Passed')) {
+    newMsg = `<p class="text-green-500">$&nbsp` + data.message + `</p>`
+  } else if (msg.includes('Failed')) {
+    newMsg = `<p class="text-red-500">$&nbsp` + data.message + `</p>`
+  } else if (msg.includes('expected')) {
+    newMsg = `<p class="text-orange-500">$&nbsp` + data.message + `</p>`
+  } else if (msg.includes('Info')) {
+    newMsg = `<p class="text-yellow-500">$&nbsp` + data.message + `</p>`
+  } else if (msg.includes('error') || msg.includes('Error')) {
+    newMsg = `<p class="text-red-500">$&nbsp` + data.message + `</p>`
+  } else {
+    newMsg = `<p>$&nbsp` + data.message + `</p>`
+  }
+  innerTest.value = innerTest.value + newMsg
+  //innerTest.value = innerTest.value + '<br />$&nbsp' + data.message
+  //bottomItem.value.scrollIntoView({ behaviour: 'smooth', block: 'end' })
+  bottomItem.value.scrollIntoView(false)
+})
 watch(
   () => utilsStore.terminalClearNotifier,
   (newVal, oldVal) => {

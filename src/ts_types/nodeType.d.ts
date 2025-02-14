@@ -92,7 +92,7 @@ export interface flowNode {
   type: string
   initialized: boolean
   position: [x: number, y: number]
-  data: nodeData
+  data: NodeType
 }
 
 //export type NodeType = 'dom-node' | 'var-node' | 'driver-node'

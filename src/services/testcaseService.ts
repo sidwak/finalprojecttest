@@ -6,15 +6,22 @@ import { useTestcasesStore } from '@/pinia_stores/testcasesStore'
 import { useFlowStore } from '@/pinia_stores/flowStore'
 import type { projectDataType } from '@/ts_types/puppet_test_types'
 import { currentProject } from './projectService'
-import { nextTick } from 'vue'
+import { nextTick, watch } from 'vue'
 import { useVueFlow, type RemoveNodes } from '@vue-flow/core'
+import { io } from 'socket.io-client'
+import { useRunnerStore, type EExeState } from '@/pinia_stores/runnerStore'
+import { useUtilsStore } from '@/pinia_stores/utilsStore'
 
 let toastStore: ReturnType<typeof useToastStore>
 let projectsStore: ReturnType<typeof useProjectsStore>
 let testcasesStore: ReturnType<typeof useTestcasesStore>
 let flowStore: ReturnType<typeof useFlowStore>
+let runnerStore: ReturnType<typeof useRunnerStore>
+let utilsStore: ReturnType<typeof useUtilsStore>
 let vueFlowInstance: ReturnType<typeof useVueFlow>
-let removeNodesFunc: RemoveNodes
+
+const socket = io('ws://localhost:3000')
+
 export let currentTestcase: testcaseDataType | null = null
 
 export async function createNewTestCase(testcaseData: testcaseDataType) {
@@ -121,6 +128,7 @@ export async function deleteNodeFromTestcase(nodeId: string) {
 }
 
 export async function startTestInBackend() {
+  runnerStore.resetFlowHighlight(Date.now())
   toastStore.displayNewMessage({
     severity: 'success',
     summary: 'Test Started',
@@ -128,6 +136,7 @@ export async function startTestInBackend() {
     life: 3000,
   })
   flowStore.setUpdateCounter(Date.now())
+  utilsStore.doFitView(Date.now())
   await nextTick()
   const saveResult = await saveTestcaseDataInBackend()
   console.log(testcasesStore.getCurrentTestcase)
@@ -143,7 +152,14 @@ export function initializeTestcaseService() {
   projectsStore = useProjectsStore()
   testcasesStore = useTestcasesStore()
   flowStore = useFlowStore()
+  runnerStore = useRunnerStore()
+  utilsStore = useUtilsStore()
   //vueFlowInstance = useVueFlow()
   //const { removeNodes } = vueFlowInstance
   //removeNodesFunc = removeNodes
 }
+
+socket.on('runnerExecr', (data) => {
+  const executedNodeData = JSON.parse(data.message)
+  runnerStore.setCurExecuted(executedNodeData)
+})

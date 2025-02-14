@@ -4,14 +4,16 @@ import { dirname } from 'path'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import { initializeERunnerService } from './runnerEService.js'
+import { app } from 'electron'
 
 interface projectsInfoType {
   projects: projectDataType[]
 }
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = dirname(__filename).replace('\\dist', '')
-const __puppetDir = dirname(__filename).replace('\\electron_main\\dist', '\\puppet_test')
+//const __filename = fileURLToPath(import.meta.url)
+//const __dirname = dirname(__filename).replace('\\dist', '')
+//const __puppetDir = dirname(__filename).replace('\\electron_main\\dist', '\\puppet_test')
+const __puppetDir = path.join(app.getPath('userData'), 'nodexify_test')
 export let __currentProjectDir = ''
 
 let currentProject: projectDataType
@@ -55,6 +57,7 @@ function getProjectsInfoObject() {
   let jsonObject = JSON.parse(projectsInfoJson)
   return jsonObject
 }
+
 function setProjectsInfoObject(jsonObject: projectsInfoType) {
   const updatedData = JSON.stringify(jsonObject, null, 2)
   writeFileSync(path.join(__puppetDir, 'projectsInfo.json'), updatedData, 'utf8')
@@ -80,6 +83,6 @@ export function getProjectsInfoJson() {
     const projectsInfo = JSON.parse(projectsInfoData)
     return projectsInfo
   } catch (err) {
-    return 'error reading project.json or parsing'
+    return `error reading project.json or parsing error ${err}`
   }
 }

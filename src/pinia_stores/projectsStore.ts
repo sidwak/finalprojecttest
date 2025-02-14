@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import type { projectDataType } from '@/ts_types/puppet_test_types'
+import type { projectDataType, projectsInfoType } from '@/ts_types/puppet_test_types'
 
 export const useProjectsStore = defineStore('projectsStore', {
   state: () => ({
@@ -12,7 +12,7 @@ export const useProjectsStore = defineStore('projectsStore', {
     },
   }),
   actions: {
-    setProjectsInfoJsonData(newData: any) {
+    setProjectsInfoJsonData(newData: projectsInfoType) {
       this.projectsList.length = 0
       newData.projects.forEach((project: projectDataType) => {
         // here projects is the array

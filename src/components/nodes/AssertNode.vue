@@ -3,12 +3,16 @@ import { Handle, Position, useVueFlow, useNodesData, useHandleConnections } from
 import { ref, reactive, onMounted, onUnmounted, shallowRef, computed, watch, onBeforeMount } from 'vue'
 import { CascadeSelect, InputText } from 'primevue'
 import type { NodeType } from '@/ts_types/nodeType'
+import { EExeState, useRunnerStore } from '@/pinia_stores/runnerStore'
+import { useUtilsStore } from '@/pinia_stores/utilsStore'
 enum fieldState {
   Hidden,
   Block,
   Grayed,
 }
 const { removeEdges } = useVueFlow()
+const runnerStore = useRunnerStore()
+const utilsStore = useUtilsStore()
 
 //#region Props
 const props = defineProps<{
@@ -29,6 +33,7 @@ const varNameRef = computed(() => {
 const varInputRef = ref()
 const var1StateRef = ref<fieldState>(fieldState.Hidden)
 const var2StateRef = ref<fieldState>(fieldState.Hidden)
+const executedState = ref<EExeState>(EExeState.Normal)
 const commandsList = ref([
   {
     cmdgroup: 'Compare',
@@ -214,6 +219,43 @@ onBeforeMount(() => {
   }
 })
 
+watch(
+  () => runnerStore.curExecuted,
+  (newVal, oldVal) => {
+    checkIfCurrentNodeWasExecuted(newVal)
+  },
+)
+watch(
+  () => runnerStore.flowHighlightResetNotifier,
+  (newVal, oldVal) => {
+    executedState.value = EExeState.Normal
+  },
+)
+watch(
+  () => utilsStore.terminalClearNotifier,
+  (newVal, oldVal) => {
+    executedState.value = EExeState.Normal
+  },
+)
+
+function checkIfCurrentNodeWasExecuted(execData: { id: string; exeState: EExeState }) {
+  if (execData.id === props.id) {
+    executedState.value = execData.exeState as EExeState
+  }
+}
+function getExecutedStateClass() {
+  switch (executedState.value) {
+    case EExeState.Normal:
+      return 'node-normal'
+    case EExeState.Error:
+      return 'node-error'
+    case EExeState.Success:
+      return 'node-success'
+    case EExeState.Warn:
+      return 'node-warn'
+  }
+}
+
 function updateFieldsState() {
   if (selectedCmd.value) {
     if (assertNodeData.nodeData.para1.isConnected) {
@@ -252,7 +294,7 @@ function onDropdownItemSelected(curCmd: any) {
 }
 </script>
 <template>
-  <div class="node-container" :class="{ 'node-container-highlight': props.selected }">
+  <div class="node-container" :class="[{ 'node-container-highlight': props.selected }, getExecutedStateClass()]">
     <div class="node-heading">Assert Node</div>
     <div class="node-content">
       <Handle
@@ -341,6 +383,17 @@ function onDropdownItemSelected(curCmd: any) {
 <style scoped>
 .node-container {
   @apply text-xs;
+}
+.node-normal {
+}
+.node-error {
+  @apply shadow-lg shadow-red-400;
+}
+.node-success {
+  @apply shadow-lg shadow-green-400;
+}
+.node-warn {
+  @apply shadow-lg shadow-amber-400;
 }
 .node-container-highlight {
   @apply outline outline-1 outline-primary;

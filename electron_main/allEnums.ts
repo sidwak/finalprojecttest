@@ -11,3 +11,5 @@ export enum EMenuItem {
   Node = 'node',
   Testcase = 'testcase',
 }
+
+export enum EDir {}

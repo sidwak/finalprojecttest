@@ -6,10 +6,12 @@ import { fileURLToPath } from 'url'
 import type { testcaseDataType } from '../src/ts_types/puppet_test_types'
 import { getCurrentProject } from './projectsEService.js' // .js is IMPORTANT here to treat it as module
 import { compileAndRun } from './runnerEService.js'
+import { app } from 'electron'
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = dirname(__filename).replace('\\dist', '')
-const __puppetDir = dirname(__filename).replace('\\electron_main\\dist', '\\puppet_test')
+//const __filename = fileURLToPath(import.meta.url)
+//const __dirname = dirname(__filename).replace('\\dist', '')
+//const __puppetDir = dirname(__filename).replace('\\electron_main\\dist', '\\puppet_test')
+const __puppetDir = path.join(app.getPath('userData'), 'nodexify_test')
 let __currentProjectDir = 'null'
 const defaultTestcaseData = JSON.stringify(
   {

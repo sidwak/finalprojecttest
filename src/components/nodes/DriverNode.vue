@@ -3,8 +3,13 @@ import { Handle, Position, useVueFlow, useNodesData, useHandleConnections, type 
 import { ref, reactive, onMounted, onUnmounted, shallowRef, computed, watch, onBeforeMount } from 'vue'
 import { CascadeSelect, InputText } from 'primevue'
 import type { NodeType } from '@/ts_types/nodeType'
+import { EExeState, useRunnerStore } from '@/pinia_stores/runnerStore'
+import { useUtilsStore } from '@/pinia_stores/utilsStore'
 
 const { updateNodeData, removeEdges, findNode } = useVueFlow()
+const runnerStore = useRunnerStore()
+const utilsStore = useUtilsStore()
+
 enum fieldState {
   Hidden,
   Block,
@@ -57,6 +62,7 @@ const dominInputRef = computed({
   },
 })
 const dominStateRef = ref<fieldState>(fieldState.Hidden)
+const executedState = ref<EExeState>(EExeState.Normal)
 const selectedCmd = ref()
 const commandsList = ref([
   {
@@ -303,6 +309,43 @@ const connectionGetPara1 = useHandleConnections({
   },
 })
 
+watch(
+  () => runnerStore.curExecuted,
+  (newVal, oldVal) => {
+    checkIfCurrentNodeWasExecuted(newVal)
+  },
+)
+watch(
+  () => runnerStore.flowHighlightResetNotifier,
+  (newVal, oldVal) => {
+    executedState.value = EExeState.Normal
+  },
+)
+watch(
+  () => utilsStore.terminalClearNotifier,
+  (newVal, oldVal) => {
+    executedState.value = EExeState.Normal
+  },
+)
+
+function checkIfCurrentNodeWasExecuted(execData: { id: string; exeState: EExeState }) {
+  if (execData.id === props.id) {
+    executedState.value = execData.exeState as EExeState
+  }
+}
+function getExecutedStateClass() {
+  switch (executedState.value) {
+    case EExeState.Normal:
+      return 'node-normal'
+    case EExeState.Error:
+      return 'node-error'
+    case EExeState.Success:
+      return 'node-success'
+    case EExeState.Warn:
+      return 'node-warn'
+  }
+}
+
 function updateFieldsState() {
   if (selectedCmd.value) {
     if (selectedCmd.value.isGetOnly) {
@@ -368,7 +411,7 @@ function callNodeDataUpdate(newCmd: any) {
 }
 </script>
 <template>
-  <div class="node-container" :class="{ 'node-container-highlight': props.selected }">
+  <div class="node-container" :class="[{ 'node-container-highlight': props.selected }, getExecutedStateClass()]">
     <div class="node-heading">Driver Node</div>
     <div class="node-content">
       <div v-show="varStateRef === fieldState.Block || varStateRef === fieldState.Grayed">
@@ -431,7 +474,7 @@ function callNodeDataUpdate(newCmd: any) {
           />
         </div>
         <div v-show="dominStateRef === fieldState.Block || dominStateRef === fieldState.Grayed">
-          <p class="mt-2 mb-1">DOM Input</p>
+          <p class="mt-2 mb-1">DOM Element</p>
           <InputText
             type="text"
             v-model="dominInputRef"
@@ -466,6 +509,17 @@ function callNodeDataUpdate(newCmd: any) {
 <style scoped>
 .node-container {
   @apply text-xs;
+}
+.node-normal {
+}
+.node-error {
+  @apply shadow-lg shadow-red-400;
+}
+.node-success {
+  @apply shadow-lg shadow-green-400;
+}
+.node-warn {
+  @apply shadow-lg shadow-amber-400;
 }
 .node-container-highlight {
   @apply outline outline-1 outline-primary;

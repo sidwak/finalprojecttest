@@ -33,7 +33,7 @@ const {
   onPaneReady,
   removeNodes,
   fitView,
-  findNode
+  findNode,
 } = useVueFlow()
 const testcasesStore = useTestcasesStore()
 const flowStore = useFlowStore()
@@ -368,26 +368,26 @@ watch(
 watch(
   () => utilsStore.rightMoveNotifier,
   (newVal, oldVal) => {
-    if (curSelectedNodeId.value !== '-1'){
+    if (curSelectedNodeId.value !== '-1') {
       const node: flowNode = findNode(curSelectedNodeId.value)
-      if (node.data.nextNodeId !== '-1'){
+      if (node.data.nextNodeId !== '-1') {
         fitView({ nodes: [node.data.nextNodeId] })
         curSelectedNodeId.value = node.data.nextNodeId
-      }  
+      }
     }
-  }
+  },
 )
 watch(
   () => utilsStore.leftMoveNotifier,
   (newVal, oldVal) => {
-    if (curSelectedNodeId.value !== '-1'){
+    if (curSelectedNodeId.value !== '-1') {
       const node: flowNode = findNode(curSelectedNodeId.value)
-      if (node.data.prevNodeId !== '-1'){
+      if (node.data.prevNodeId !== '-1') {
         fitView({ nodes: [node.data.prevNodeId] })
         curSelectedNodeId.value = node.data.prevNodeId
-      }  
+      }
     }
-  }
+  },
 )
 
 async function loadTestCaseData() {

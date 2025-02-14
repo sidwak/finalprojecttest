@@ -17,3 +17,11 @@ export interface testcaseFlowDataType {
   testcaseData: testcaseDataType
   nodesData: FlowExportObject
 }
+
+export interface projectsInfoType {
+  projects: projectDataType[]
+}
+
+export interface testcasesInfoType {
+  testCases: testcaseDataType[]
+}

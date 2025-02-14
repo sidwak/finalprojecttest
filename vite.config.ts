@@ -13,7 +13,8 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
+  base: './', // "./" fro prod "" for dev
   build: {
-    outDir: 'vue_dist',
+    outDir: './dist',
   },
 })
