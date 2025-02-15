@@ -9,14 +9,17 @@ import DomNode from '.././nodes/DomNode.vue'
 import PropertiesModal from '.././modals/PropertiesModal.vue'
 import type { flowNode, NodeType } from '@/ts_types/nodeType'
 import { useTestcasesStore } from '@/pinia_stores/testcasesStore'
-import { loadTestcaseData, getTestcaseFlowData } from '@/services/testcaseService'
+import { loadTestcaseData, getTestcaseFlowData, saveTestcaseDataInBackend, resetAllNodesExecutionState } from '@/services/testcaseService'
 import type { testcaseDataType, testcaseFlowDataType } from '@/ts_types/puppet_test_types'
 import { useFlowStore } from '@/pinia_stores/flowStore'
-import type { FlowExportObject } from '@vue-flow/core'
+import type { Edge, FlowExportObject } from '@vue-flow/core'
 import AssertNode from '../nodes/AssertNode.vue'
 import LogNode from '../nodes/LogNode.vue'
 import { useUtilsStore } from '@/pinia_stores/utilsStore'
 import type { RefSymbol } from '@vue/reactivity'
+import CustomConnectionLine from '../edges/CustomConnectionLine.vue'
+import AnimatedEdge from '../edges/AnimatedEdge.vue'
+import { nextTick } from 'process'
 
 const {
   onConnect,
@@ -138,7 +141,16 @@ onConnect((connection) => {
     updateNodeData(connection.target, newTargetData)
     updateNodeData(connection.source, newSourceData)
   }
-  addEdges(connection)
+  const newEdge: Edge = {
+    id: `from-${connection.source}:${connection.sourceHandle}=>${connection.target}:${connection.targetHandle}`,
+    source: connection.source,
+    sourceHandle: connection.sourceHandle,
+    target: connection.target,
+    targetHandle: connection.targetHandle,
+    type: 'c-anim-edge',
+  }
+  //addEdges(connection)
+  addEdges(newEdge)
 })
 onEdgesChange((changes) => {
   if (changes.length > 0) {
@@ -298,8 +310,8 @@ async function saveTestCaseData() {
     testcaseData: testcasesStore.getCurrentTestcase,
     nodesData: toObject(),
   }
-  //const result = await window.electron.saveTestCase(toObject())
-  const result = await window.electron.saveTestCase(testcaseSaveData)
+  //const result = await window.electron.saveTestCase(testcaseSaveData)
+  const result = await saveTestcaseDataInBackend()
   console.log(result)
 }
 async function savePreviousTestCase(oldTestcaseData: testcaseDataType) {
@@ -313,17 +325,20 @@ async function savePreviousTestCase(oldTestcaseData: testcaseDataType) {
     testcaseData: oldTC_Data,
     nodesData: toObject(),
   }
-  const result = await window.electron.saveTestCase(testcaseSaveData)
+  //const result = await window.electron.saveTestCase(testcaseSaveData)
+  const result = await saveTestcaseDataInBackend(testcaseSaveData)
   console.log(result)
   console.log('previous testcase saved')
 }
 
 watch(
   () => testcasesStore.currentTestcase,
-  (newTestcase, oldTestcase) => {
+  async (newTestcase, oldTestcase) => {
     console.log('cur tc cahnged')
-    savePreviousTestCase(oldTestcase)
-    loadTestCaseData()
+    resetAllNodesExecutionState()
+    reloadNodesFlowData()
+    await savePreviousTestCase(oldTestcase)
+    await loadTestCaseData()
   },
 )
 watch(
@@ -450,6 +465,12 @@ defineExpose({
     </template>
     <template #node-log-node="props">
       <LogNode :id="props.id" :data="props.data" :selected="props.selected" />
+    </template>
+    <template #connection-line="{ sourceX, sourceY, targetX, targetY }">
+      <CustomConnectionLine :source-x="sourceX" :source-y="sourceY" :target-x="targetX" :target-y="targetY" />
+    </template>
+    <template #edge-c-anim-edge="props">
+      <AnimatedEdge v-bind="props" />
     </template>
     <PropertiesModal
       :class="{ propertiesPanel: !isPropertiesPanelVisible }"

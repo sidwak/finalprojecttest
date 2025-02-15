@@ -75,7 +75,7 @@ watch(
 </template>
 <style scoped>
 .log-panel {
-  @apply border bottom-1 rounded-md p-2 grow font-thin text-sm h-20;
+  @apply border bottom-1 rounded-md p-2 grow text-xs1 font-roboto_mono h-20;
   border-color: var(--p-panelmenu-panel-border-color);
 }
 .blue {

@@ -1,5 +1,5 @@
 import type { testcaseDataType, testcaseFlowDataType } from '@/ts_types/puppet_test_types'
-import type { NodeType } from '@/ts_types/nodeType'
+import type { flowNode, NodeType } from '@/ts_types/nodeType'
 import { useToastStore } from '@/pinia_stores/toastStore'
 import { useProjectsStore } from '@/pinia_stores/projectsStore'
 import { useTestcasesStore } from '@/pinia_stores/testcasesStore'
@@ -9,7 +9,7 @@ import { currentProject } from './projectService'
 import { nextTick, watch } from 'vue'
 import { useVueFlow, type RemoveNodes } from '@vue-flow/core'
 import { io } from 'socket.io-client'
-import { useRunnerStore, type EExeState } from '@/pinia_stores/runnerStore'
+import { EExeState, useRunnerStore } from '@/pinia_stores/runnerStore'
 import { useUtilsStore } from '@/pinia_stores/utilsStore'
 
 let toastStore: ReturnType<typeof useToastStore>
@@ -99,10 +99,15 @@ export async function updateTestcase(testcaseData: testcaseDataType) {
   await loadTestcaseInfoJson()
 }
 
-export async function saveTestcaseDataInBackend() {
-  const testcaseSaveData: testcaseFlowDataType = {
+export async function saveTestcaseDataInBackend(oldTestcase?: testcaseFlowDataType) {
+  resetAllNodesExecutionState()
+  let testcaseSaveData: testcaseFlowDataType = {
     testcaseData: testcasesStore.getCurrentTestcase,
     nodesData: testcasesStore.getNodesFlowData,
+  }
+  if (oldTestcase) {
+    testcaseSaveData.testcaseData = oldTestcase.testcaseData
+    testcaseSaveData.nodesData = oldTestcase.nodesData
   }
   //const result = await window.electron.saveTestCase(toObject())
   const result = await window.electron.saveTestCase(testcaseSaveData)
@@ -128,7 +133,6 @@ export async function deleteNodeFromTestcase(nodeId: string) {
 }
 
 export async function startTestInBackend() {
-  runnerStore.resetFlowHighlight(Date.now())
   toastStore.displayNewMessage({
     severity: 'success',
     summary: 'Test Started',
@@ -136,6 +140,7 @@ export async function startTestInBackend() {
     life: 3000,
   })
   flowStore.setUpdateCounter(Date.now())
+  resetAllNodesExecutionState()
   utilsStore.doFitView(Date.now())
   await nextTick()
   const saveResult = await saveTestcaseDataInBackend()
@@ -154,9 +159,46 @@ export function initializeTestcaseService() {
   flowStore = useFlowStore()
   runnerStore = useRunnerStore()
   utilsStore = useUtilsStore()
+  watch(
+    () => runnerStore.curExecuted,
+    (newVal, oldVal) => {
+      setNodeExecutionState(newVal.id, newVal.exeState)
+      if (oldVal.id !== '-1') {
+        setEdgeExecutionState(oldVal.id, newVal.id, newVal.exeState)
+      }
+    },
+  )
+  watch(
+    () => flowStore.instanceId,
+    (newVal, oldVal) => {
+      vueFlowInstance = useVueFlow(newVal)
+    },
+  )
+  watch(
+    () => utilsStore.terminalClearNotifier,
+    (newVal, oldVal) => {
+      resetAllNodesExecutionState()
+    },
+  )
   //vueFlowInstance = useVueFlow()
   //const { removeNodes } = vueFlowInstance
   //removeNodesFunc = removeNodes
+}
+
+function setNodeExecutionState(id: string, exeState: EExeState) {
+  vueFlowInstance.updateNodeData(id, { exeState: exeState })
+}
+function setEdgeExecutionState(nodePrevId: string, nodeNextId: string, exeState: EExeState) {
+  const edgeId = `from-${nodePrevId}:flow-next=>${nodeNextId}:flow-prev`
+  vueFlowInstance.updateEdgeData(edgeId, { exeState: exeState })
+}
+export function resetAllNodesExecutionState() {
+  vueFlowInstance.nodes.value.forEach((node) => {
+    node.data.exeState = EExeState.Normal
+  })
+  vueFlowInstance.edges.value.forEach((edge) => {
+    edge.data.exeState = EExeState.Normal
+  })
 }
 
 socket.on('runnerExecr', (data) => {

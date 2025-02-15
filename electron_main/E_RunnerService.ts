@@ -89,7 +89,7 @@ function getStartNodeId() {
 /**
  * handle connection compatibility
  * single and no multiple start node
- * check 'value not set' for all nodes
+ * check 'value not set' for all nodes  mainly for driver node and assert node
  */
 function logError(errMsg: unknown, node: flowNode) {
   let whichNode = 'Command Failed'
@@ -115,9 +115,10 @@ function logSuccess(node: flowNode, para1: NodeType, para2: NodeType) {
   socketEmit(msg)
   socketEmitNodeExeState(node.id, EExeState.Success)
 }
-function logInfo(msg: string) {
+function logInfo(msg: string, nodeId: string) {
   const info = `Info - ${msg}`
   socketEmit(info)
+  socketEmitNodeExeState(nodeId, EExeState.Success)
 }
 function logResult(isFailed: boolean) {
   let msg = 'Testcase Passed'
@@ -199,7 +200,7 @@ function compileAssertNode(node: flowNode) {
 
 function compileLogNode(node: flowNode) {
   const { para1Node, para2Node, cmdObj } = getParameters(node.id)
-  logInfo(para1Node.nodeData.para1.value)
+  logInfo(para1Node.nodeData.para1.value, node.id)
 }
 
 function executeAssertCmd(cmdObj: { value: string; isRequired: boolean; isGetOnly: boolean }, para1: NodeType, para2: NodeType) {
@@ -257,7 +258,7 @@ async function processNodes() {
 export async function compileAndRun(testcaseData: testcaseDataType) {
   //
   await getTestcaseAllData(testcaseData)
-  socketEmit(`Executing Testcase: ${testcaseData.name}...`)
+  socketEmit(`Executing Testcase - TestcaseName: ${testcaseData.name}...`)
   //
   mapNodesDict()
   //

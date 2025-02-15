@@ -3,17 +3,32 @@ import type { NodeType } from '@/ts_types/nodeType'
 import Textarea from 'primevue/textarea'
 import { Position, Handle } from '@vue-flow/core'
 import { ref, onMounted, onUnmounted, shallowRef, watch } from 'vue'
+import './nodeStyles.css'
+import { EExeState } from '@/pinia_stores/runnerStore'
 
 //#region Props
 const props = defineProps<{
   id: string
-  data: NodeType
+  data: NodeType | any
   selected: boolean
 }>()
 //#endregion
+
+function getExecutedStateClass() {
+  switch (props.data.exeState) {
+    case EExeState.Normal:
+      return 'node-normal'
+    case EExeState.Error:
+      return 'node-error'
+    case EExeState.Success:
+      return 'node-success'
+    case EExeState.Warn:
+      return 'node-warn'
+  }
+}
 </script>
 <template>
-  <div class="node-container" :class="{ 'node-container-highlight': props.selected }">
+  <div class="node-container" :class="[{ 'node-container-highlight': props.selected }, getExecutedStateClass()]">
     <div class="node-heading">Log Node</div>
     <div class="node-content">
       <Textarea v-model="props.data.nodeData.para1.value" rows="3" cols="20" class="text-xs py-[0.3rem] px-[0.4rem] w-full" />

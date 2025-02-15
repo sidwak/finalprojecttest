@@ -5,7 +5,7 @@ import { ref, useTemplateRef, watch } from 'vue'
 import { useToast } from 'primevue'
 import Toast from 'primevue/toast'
 import { useTestcasesStore } from '@/pinia_stores/testcasesStore'
-import { saveTestcaseDataInBackend, startTestInBackend } from '@/services/testcaseService'
+import { resetAllNodesExecutionState, saveTestcaseDataInBackend, startTestInBackend } from '@/services/testcaseService'
 import { useFlowStore } from '@/pinia_stores/flowStore'
 import { nextTick } from 'vue'
 import ToggleButton from 'primevue/togglebutton'
@@ -70,6 +70,7 @@ function runButtonClicked() {
 }
 
 function restartButtonClicked() {
+  resetAllNodesExecutionState()
   utilsStore.clearTerminal(Date.now())
 }
 function moveRightButtonClicked() {

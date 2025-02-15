@@ -5,6 +5,7 @@ import { CascadeSelect, InputText } from 'primevue'
 import type { NodeType } from '@/ts_types/nodeType'
 import { EExeState, useRunnerStore } from '@/pinia_stores/runnerStore'
 import { useUtilsStore } from '@/pinia_stores/utilsStore'
+import './nodeStyles.css'
 enum fieldState {
   Hidden,
   Block,
@@ -17,7 +18,7 @@ const utilsStore = useUtilsStore()
 //#region Props
 const props = defineProps<{
   id: string
-  data: NodeType
+  data: NodeType | any
   selected: boolean
 }>()
 //#endregion
@@ -219,7 +220,7 @@ onBeforeMount(() => {
   }
 })
 
-watch(
+/* watch(
   () => runnerStore.curExecuted,
   (newVal, oldVal) => {
     checkIfCurrentNodeWasExecuted(newVal)
@@ -242,9 +243,9 @@ function checkIfCurrentNodeWasExecuted(execData: { id: string; exeState: EExeSta
   if (execData.id === props.id) {
     executedState.value = execData.exeState as EExeState
   }
-}
+} */
 function getExecutedStateClass() {
-  switch (executedState.value) {
+  switch (props.data.exeState) {
     case EExeState.Normal:
       return 'node-normal'
     case EExeState.Error:
@@ -383,17 +384,6 @@ function onDropdownItemSelected(curCmd: any) {
 <style scoped>
 .node-container {
   @apply text-xs;
-}
-.node-normal {
-}
-.node-error {
-  @apply shadow-lg shadow-red-400;
-}
-.node-success {
-  @apply shadow-lg shadow-green-400;
-}
-.node-warn {
-  @apply shadow-lg shadow-amber-400;
 }
 .node-container-highlight {
   @apply outline outline-1 outline-primary;

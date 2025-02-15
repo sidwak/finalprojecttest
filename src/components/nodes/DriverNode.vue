@@ -5,6 +5,7 @@ import { CascadeSelect, InputText } from 'primevue'
 import type { NodeType } from '@/ts_types/nodeType'
 import { EExeState, useRunnerStore } from '@/pinia_stores/runnerStore'
 import { useUtilsStore } from '@/pinia_stores/utilsStore'
+import './nodeStyles.css'
 
 const { updateNodeData, removeEdges, findNode } = useVueFlow()
 const runnerStore = useRunnerStore()
@@ -309,7 +310,7 @@ const connectionGetPara1 = useHandleConnections({
   },
 })
 
-watch(
+/* watch(
   () => runnerStore.curExecuted,
   (newVal, oldVal) => {
     checkIfCurrentNodeWasExecuted(newVal)
@@ -326,15 +327,24 @@ watch(
   (newVal, oldVal) => {
     executedState.value = EExeState.Normal
   },
-)
+) */
+/* watch(
+  () => props.data.exeState,
+  (newVal, oldVal) => {
+    console.log(`node exeState change from service: ${props.id} tp: ${newVal}`)
+    executedState.value = newVal as EExeState
+  },
+) */
 
-function checkIfCurrentNodeWasExecuted(execData: { id: string; exeState: EExeState }) {
+/* function checkIfCurrentNodeWasExecuted(execData: { id: string; exeState: EExeState }) {
   if (execData.id === props.id) {
     executedState.value = execData.exeState as EExeState
   }
-}
+} */
 function getExecutedStateClass() {
-  switch (executedState.value) {
+  switch (
+    props.data.exeState // will give undefined and goto default
+  ) {
     case EExeState.Normal:
       return 'node-normal'
     case EExeState.Error:
@@ -343,6 +353,8 @@ function getExecutedStateClass() {
       return 'node-success'
     case EExeState.Warn:
       return 'node-warn'
+    default:
+      return 'node-normal'
   }
 }
 
@@ -509,17 +521,6 @@ function callNodeDataUpdate(newCmd: any) {
 <style scoped>
 .node-container {
   @apply text-xs;
-}
-.node-normal {
-}
-.node-error {
-  @apply shadow-lg shadow-red-400;
-}
-.node-success {
-  @apply shadow-lg shadow-green-400;
-}
-.node-warn {
-  @apply shadow-lg shadow-amber-400;
 }
 .node-container-highlight {
   @apply outline outline-1 outline-primary;
