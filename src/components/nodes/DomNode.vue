@@ -21,6 +21,7 @@ const inputRef = ref(null)
         type="target"
         :position="Position.Left"
         id="var-set"
+        :connectable="1"
         style="top: 89px; background-color: mediumaquamarine; border-color: mediumaquamarine"
       />
       <div class="">

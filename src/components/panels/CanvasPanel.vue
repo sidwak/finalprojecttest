@@ -37,6 +37,7 @@ const {
   removeNodes,
   fitView,
   findNode,
+  onError,
 } = useVueFlow()
 const testcasesStore = useTestcasesStore()
 const flowStore = useFlowStore()
@@ -131,6 +132,7 @@ onPaneReady((evar) => {
 
 onConnect((connection) => {
   //console.log(connection)
+  let isCompatible: boolean = false
   if (connection.sourceHandle === 'flow-next' && connection.targetHandle === 'flow-prev') {
     const newTargetData: Partial<NodeType> = {
       prevNodeId: connection.source,
@@ -141,6 +143,24 @@ onConnect((connection) => {
     updateNodeData(connection.target, newTargetData)
     updateNodeData(connection.source, newSourceData)
   }
+  if (connection.sourceHandle === 'flow-next' && connection.targetHandle === 'flow-prev') {
+    isCompatible = true
+  }
+  if (connection.sourceHandle === 'var-get' && connection.targetHandle === 'var-set') {
+    isCompatible = true
+  }
+  if (connection.sourceHandle === 'var-get' && connection.targetHandle === 'domin-set') {
+    isCompatible = true
+  }
+  if (connection.sourceHandle === 'var-get' && connection.targetHandle === 'var2-set') {
+    isCompatible = true
+  }
+  if (connection.sourceHandle === 'domin-get' && connection.targetHandle === 'var-set') {
+    isCompatible = true
+  }
+  if (connection.sourceHandle === 'var2-get' && connection.targetHandle === 'var-set') {
+    isCompatible = true
+  }
   const newEdge: Edge = {
     id: `from-${connection.source}:${connection.sourceHandle}=>${connection.target}:${connection.targetHandle}`,
     source: connection.source,
@@ -150,7 +170,9 @@ onConnect((connection) => {
     type: 'c-anim-edge',
   }
   //addEdges(connection)
-  addEdges(newEdge)
+  if (isCompatible === true) {
+    addEdges(newEdge)
+  }
 })
 onEdgesChange((changes) => {
   if (changes.length > 0) {
@@ -169,6 +191,9 @@ onEdgesChange((changes) => {
       }
     }
   }
+})
+onError((error) => {
+  console.log(error)
 })
 
 onNodesInitialized(() => {

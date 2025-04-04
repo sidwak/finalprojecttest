@@ -203,6 +203,74 @@ const para2Connection = useHandleConnections({
   },
 })
 
+const connectionGetPara1 = useHandleConnections({
+  type: 'source',
+  id: 'var-get',
+})
+const connectedGetPara1HandleData = useNodesData(() => connectionGetPara1.value.map((connection) => connection.target))
+const connectedNodeGetPara1Data = computed<NodeType>(() => {
+  if (connectedGetPara1HandleData.value.length > 0) {
+    return connectedGetPara1HandleData.value[0].data
+  } else {
+    return null
+  }
+})
+watch(
+  () => connectedGetPara1HandleData.value,
+  (newVal, oldVal) => {
+    if (newVal.length > 0) {
+      const nodeData: flowNode = newVal[0] as flowNode
+      if (nodeData.type === 'var-node' || nodeData.type === 'dom-node') {
+        newVal[0].data.nodeData.para1.value = para1InputRef.value
+      }
+    }
+  },
+)
+watch(
+  () => para1InputRef.value,
+  (newVal, oldVal) => {
+    if (connectedGetPara1HandleData.value.length > 0) {
+      if (connectedGetPara1HandleData.value[0].type === 'var-node' || connectedGetPara1HandleData.value[0].type === 'dom-node') {
+        connectedGetPara1HandleData.value[0].data.nodeData.para1.value = para1InputRef.value
+      }
+    }
+  },
+)
+
+const connectionGetPara2 = useHandleConnections({
+  type: 'source',
+  id: 'var2-get',
+})
+const connectedGetPara2HandleData = useNodesData(() => connectionGetPara2.value.map((connection) => connection.target))
+const connectedNodeGetPara2Data = computed<NodeType>(() => {
+  if (connectedGetPara2HandleData.value.length > 0) {
+    return connectedGetPara2HandleData.value[0].data
+  } else {
+    return null
+  }
+})
+watch(
+  () => connectedGetPara2HandleData.value,
+  (newVal, oldVal) => {
+    if (newVal.length > 0) {
+      const nodeData: flowNode = newVal[0] as flowNode
+      if (nodeData.type === 'var-node' || nodeData.type === 'dom-node') {
+        newVal[0].data.nodeData.para1.value = para2InputRef.value
+      }
+    }
+  },
+)
+watch(
+  () => para2InputRef.value,
+  (newVal, oldVal) => {
+    if (connectedGetPara2HandleData.value.length > 0) {
+      if (connectedGetPara2HandleData.value[0].type === 'var-node' || connectedGetPara2HandleData.value[0].type === 'dom-node') {
+        connectedGetPara2HandleData.value[0].data.nodeData.para1.value = para2InputRef.value
+      }
+    }
+  },
+)
+
 onBeforeMount(() => {
   if (assertNodeData.nodeData.cmd?.value !== 'cmd not set') {
     let isVar2Req = false
@@ -279,6 +347,9 @@ function removeUnconnectedEdges() {
   if (assertNodeData.nodeData.para2.isConnected === true) {
     removeEdges(assertNodeData.nodeData.para2.edgeId)
   }
+  if (connectedGetPara2HandleData.value.length > 0) {
+    removeEdges(connectionGetPara2.value[0].edgeId)
+  }
 }
 
 function onDropdownItemSelected(curCmd: any) {
@@ -302,6 +373,7 @@ function onDropdownItemSelected(curCmd: any) {
         type="target"
         :position="Position.Left"
         id="var-set"
+        :connectable="1"
         style="top: 119px; background-color: mediumaquamarine; border-color: mediumaquamarine"
       />
       <Handle type="source" :position="Position.Right" id="var-get" style="top: 119px; background-color: lime; border-color: lime" />
@@ -310,6 +382,7 @@ function onDropdownItemSelected(curCmd: any) {
           type="target"
           :position="Position.Left"
           id="var2-set"
+          :connectable="1"
           style="top: 174px; background-color: mediumaquamarine; border-color: mediumaquamarine"
         />
         <Handle type="source" :position="Position.Right" id="var2-get" style="top: 174px; background-color: lime; border-color: lime" />
@@ -364,6 +437,7 @@ function onDropdownItemSelected(curCmd: any) {
             type="target"
             :position="Position.Left"
             id="flow-prev"
+            :connectable="1"
             style="position: relative; left: -12px; top: 15px; background-color: yellow; border-color: yellow"
           />
           Previous
@@ -373,6 +447,7 @@ function onDropdownItemSelected(curCmd: any) {
             type="source"
             :position="Position.Right"
             id="flow-next"
+            :connectable="1"
             style="position: relative; right: -31px; top: 15px; background-color: limegreen; border-color: limegreen"
           />
           Next

@@ -38,6 +38,7 @@ function getExecutedStateClass() {
             type="target"
             :position="Position.Left"
             id="flow-prev"
+            :connectable="1"
             style="position: relative; left: -12px; top: 15px; background-color: yellow; border-color: yellow"
           />
           Previous
@@ -47,6 +48,7 @@ function getExecutedStateClass() {
             type="source"
             :position="Position.Right"
             id="flow-next"
+            :connectable="1"
             style="position: relative; right: -31px; top: 15px; background-color: limegreen; border-color: limegreen"
           />
           Next

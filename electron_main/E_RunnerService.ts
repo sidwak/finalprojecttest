@@ -119,6 +119,10 @@ function logCompilationError(errMsg: string) {
   const msg = `Compilataion Failed - Desc ${errMsg}`
   socketEmit(msg)
 }
+function logNullCheckFailed(nodeId: string) {
+  const msg = `NullCheck Failed - NodeId: ${nodeId}`
+  socketEmit(msg)
+}
 function logInfo(msg: string, nodeId: string) {
   const info = `Info - ${msg}`
   socketEmit(info)
@@ -154,10 +158,25 @@ function getParameters(nodeId: string) {
     cmdObj: coreData.nodeData.cmd,
   }
 }
+function checkForNullParameters(para1: NodeType, para2: NodeType, node: flowNode) {
+  let alreadyFound: boolean = false
+  if (para1.nodeData.para1.value === 'value not set' || para1.nodeData.para1.value === 'v' || para1.nodeData.para1.value === '') {
+    if (node.data.nodeData.para1.isRequired) {
+      logNullCheckFailed(node.id)
+      alreadyFound = true
+    }
+  }
+  if (para2.nodeData.para1.value === 'value not set' || para2.nodeData.para1.value === 'v' || para2.nodeData.para1.value === '') {
+    if (node.data.nodeData.para2.isRequired && alreadyFound === false) {
+      logNullCheckFailed(node.id)
+    }
+  }
+}
 
 async function compileDriverNode(node: flowNode) {
   // DO NOT PASS NUMBERS OR DIRECT VALUES, PASS ONLY OBJECTS
   const { para1Node, para2Node, cmdObj } = getParameters(node.id)
+  checkForNullParameters(para1Node, para2Node, node)
   try {
     await executeDriverCmd(node, cmdObj, para1Node, para2Node)
     logSuccess(node, para1Node, para2Node)
@@ -177,8 +196,14 @@ async function executeDriverCmd(
       return await cmd_Get(para1)
     case 'getTitle':
       return await cmd_GetTitle(curNode, para1)
+    case 'getConstantURL':
+      return await cmd_GetConstantURL(curNode, para1)
     case 'click':
       return await cmd_Click(para1)
+    case 'right-click':
+      return await cmd_RightClick(para1)
+    case 'double-click':
+      return await cmd_DoubleClick(para1)
     case 'input':
       return await cmd_Input(para1, para2)
     case 'back':
@@ -194,6 +219,7 @@ async function executeDriverCmd(
 
 function compileAssertNode(node: flowNode) {
   const { para1Node, para2Node, cmdObj } = getParameters(node.id)
+  checkForNullParameters(para1Node, para2Node, node)
   try {
     executeAssertCmd(cmdObj, para1Node, para2Node)
     logSuccess(node, para1Node, para2Node)
@@ -292,11 +318,11 @@ export function initializeRunnerService() {
 //#region ---------Puppeteer Functions
 async function launchBrowser(testcaseData: testcaseDataType) {
   browser = await puppeteer.launch({
-    browser: 'firefox',
-    executablePath: 'C:\\\\Program Files\\\\Mozilla Firefox\\\\firefox.exe',
+    //browser: 'firefox',
+    //executablePath: 'C:\\\\Program Files\\\\Mozilla Firefox\\\\firefox.exe',
     headless: testcaseData.headless,
-    //args: ['--suppress-message-center-popups', '--enable-automation'],
-    args: ['--single-process', '--no-sandbox'],
+    args: ['--suppress-message-center-popups', '--enable-automation'],
+    //args: ['--single-process', '--no-sandbox'],
   })
   waitTime = testcaseData.waitTime
   failureOccured = false
@@ -312,8 +338,18 @@ async function cmd_GetTitle(curNode: flowNode, para1: NodeType) {
   para1.nodeData.para1.value = await page.title()
   curNode.data.nodeData.para1.value = para1.nodeData.para1.value
 }
+async function cmd_GetConstantURL(curNode: flowNode, para1: NodeType) {
+  para1.nodeData.para1.value = await page.url()
+  curNode.data.nodeData.para1.value = para1.nodeData.para1.value
+}
 async function cmd_Click(para1: NodeType) {
   await page.locator(para1.nodeData.para1.value).click()
+}
+async function cmd_RightClick(para1: NodeType) {
+  await page.locator(para1.nodeData.para1.value).click({ button: 'right' })
+}
+async function cmd_DoubleClick(para1: NodeType) {
+  await page.locator(para1.nodeData.para1.value).click({ clickCount: 2 })
 }
 async function cmd_Input(para1: NodeType, para2: NodeType) {
   await page.locator(para1.nodeData.para1.value).fill(para2.nodeData.para2.value)

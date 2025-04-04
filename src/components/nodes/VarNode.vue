@@ -33,6 +33,7 @@ watch(
         :position="Position.Left"
         id="var-set"
         style="top: 89px; background-color: mediumaquamarine; border-color: mediumaquamarine"
+        :connectable="1"
       />
       <div class="">
         <p class="mb-1">{{ props.data.nodeName }}</p>

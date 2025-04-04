@@ -2,7 +2,7 @@
 import { Handle, Position, useVueFlow, useNodesData, useHandleConnections, type GraphNode } from '@vue-flow/core'
 import { ref, reactive, onMounted, onUnmounted, shallowRef, computed, watch, onBeforeMount } from 'vue'
 import { CascadeSelect, InputText } from 'primevue'
-import type { NodeType } from '@/ts_types/nodeType'
+import type { flowNode, NodeType } from '@/ts_types/nodeType'
 import { EExeState, useRunnerStore } from '@/pinia_stores/runnerStore'
 import { useUtilsStore } from '@/pinia_stores/utilsStore'
 import './nodeStyles.css'
@@ -46,6 +46,7 @@ const varInputRef = computed({
 })
 const varStateRef = ref<fieldState>(fieldState.Hidden)
 const varSetHandleState = ref<fieldState>(fieldState.Block)
+const varGetHandleState = ref<fieldState>(fieldState.Block)
 const dominInputRef = computed({
   get() {
     if (connectedNodePara2Data.value) {
@@ -289,6 +290,43 @@ const connectionPara2 = useHandleConnections({
     }
   },
 })
+const connectionGetPara2 = useHandleConnections({
+  type: 'source',
+  id: 'domin-get',
+  onConnect: (connection) => {
+    console.log('connected domin get')
+  },
+})
+const connectedGetPara2HandleData = useNodesData(() => connectionGetPara2.value.map((connection) => connection.target))
+const connectedNodeGetPara2Data = computed<NodeType>(() => {
+  if (connectedGetPara2HandleData.value.length > 0) {
+    return connectedGetPara2HandleData.value[0].data
+  } else {
+    return null
+  }
+})
+watch(
+  () => connectedGetPara2HandleData.value,
+  (newVal, oldVal) => {
+    if (newVal.length > 0) {
+      const nodeData: flowNode = newVal[0] as flowNode
+      if (nodeData.type === 'var-node') {
+        newVal[0].data.nodeData.para1.value = dominInputRef.value
+      }
+    }
+  },
+)
+watch(
+  () => dominInputRef.value,
+  (newVal, oldVal) => {
+    if (connectedGetPara2HandleData.value.length > 0) {
+      if (connectedGetPara2HandleData.value[0].type === 'var-node' || connectedGetPara2HandleData.value[0].type === 'dom-node') {
+        connectedGetPara2HandleData.value[0].data.nodeData.para1.value = dominInputRef.value
+      }
+    }
+  },
+)
+
 const connectionGetPara1 = useHandleConnections({
   type: 'source',
   id: 'var-get',
@@ -399,7 +437,11 @@ function onDropdownItemSelected(curCmd: any) {
     removeUnconnectedEdges()
     driverNodeData.nodeData.para1.isRequired = false
   }
-
+  if (curCmd.cmd === 'input' || curCmd.cmd === 'get' || curCmd.cmd === 'click') {
+    varGetHandleState.value = fieldState.Hidden
+  } else {
+    varGetHandleState.value = fieldState.Block
+  }
   if (curCmd.isDominRequired) {
     driverNodeData.nodeData.para2.isRequired = true
   } else {
@@ -408,6 +450,9 @@ function onDropdownItemSelected(curCmd: any) {
     }
   }
   updateFieldsState()
+  if (connectedGetPara2HandleData.value.length > 0) {
+    removeEdges(connectionGetPara2.value[0].edgeId)
+  }
 }
 function removeUnconnectedEdges() {
   if (driverNodeData.nodeData.para1.isConnected === true) {
@@ -431,6 +476,7 @@ function callNodeDataUpdate(newCmd: any) {
           type="target"
           :position="Position.Left"
           id="var-set"
+          :connectable="1"
           style="top: 118px; background-color: yellow; border-color: yellow"
           v-show="varSetHandleState !== fieldState.Hidden"
         /><!-- v-show="varStateRef !== fieldState.Grayed" -->
@@ -439,10 +485,17 @@ function callNodeDataUpdate(newCmd: any) {
           :position="Position.Right"
           id="var-get"
           style="top: 118px; background-color: limegreen; border-color: limegreen"
+          v-show="varGetHandleState === fieldState.Block"
         />
       </div>
       <div v-show="dominStateRef === fieldState.Block || dominStateRef === fieldState.Grayed">
-        <Handle type="target" :position="Position.Left" id="domin-set" style="top: 173px; background-color: yellow; border-color: yellow" />
+        <Handle
+          type="target"
+          :position="Position.Left"
+          id="domin-set"
+          :connectable="1"
+          style="top: 173px; background-color: yellow; border-color: yellow"
+        />
         <Handle
           type="source"
           :position="Position.Right"
@@ -486,7 +539,7 @@ function callNodeDataUpdate(newCmd: any) {
           />
         </div>
         <div v-show="dominStateRef === fieldState.Block || dominStateRef === fieldState.Grayed">
-          <p class="mt-2 mb-1">DOM Element</p>
+          <p class="mt-2 mb-1">Value</p>
           <InputText
             type="text"
             v-model="dominInputRef"
@@ -500,6 +553,7 @@ function callNodeDataUpdate(newCmd: any) {
               type="target"
               :position="Position.Left"
               id="flow-prev"
+              :connectable="1"
               style="position: relative; left: -12px; top: 15px; background-color: yellow; border-color: yellow"
             />
             Previous
@@ -509,6 +563,7 @@ function callNodeDataUpdate(newCmd: any) {
               type="source"
               :position="Position.Right"
               id="flow-next"
+              :connectable="1"
               style="position: relative; right: -31px; top: 15px; background-color: limegreen; border-color: limegreen"
             />
             Next
