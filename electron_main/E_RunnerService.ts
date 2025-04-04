@@ -115,6 +115,10 @@ function logSuccess(node: flowNode, para1: NodeType, para2: NodeType) {
   socketEmit(msg)
   socketEmitNodeExeState(node.id, EExeState.Success)
 }
+function logCompilationError(errMsg: string) {
+  const msg = `Compilataion Failed - Desc ${errMsg}`
+  socketEmit(msg)
+}
 function logInfo(msg: string, nodeId: string) {
   const info = `Info - ${msg}`
   socketEmit(info)
@@ -242,6 +246,11 @@ async function compileNode(node: flowNode) {
 }
 
 async function processNodes() {
+  if (startNodeId === '-1') {
+    logCompilationError('No start node found, add a start node at begining')
+    failureOccured = true
+    return
+  }
   let curNode = nodesDict[startNodeId] as flowNode
   while (true) {
     const coreData: NodeType = curNode.data
@@ -283,14 +292,17 @@ export function initializeRunnerService() {
 //#region ---------Puppeteer Functions
 async function launchBrowser(testcaseData: testcaseDataType) {
   browser = await puppeteer.launch({
+    browser: 'firefox',
+    executablePath: 'C:\\\\Program Files\\\\Mozilla Firefox\\\\firefox.exe',
     headless: testcaseData.headless,
-    args: ['--suppress-message-center-popups', '--enable-automation'],
+    //args: ['--suppress-message-center-popups', '--enable-automation'],
+    args: ['--single-process', '--no-sandbox'],
   })
   waitTime = testcaseData.waitTime
   failureOccured = false
   page = await browser.newPage()
-  page.setViewport({ width: 1080, height: 1024 })
-  page.setDefaultTimeout(4000)
+  await page.setViewport({ width: 1280, height: 720 })
+  await page.setDefaultTimeout(10000)
 }
 
 async function cmd_Get(para1: NodeType) {

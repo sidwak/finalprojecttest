@@ -56,8 +56,8 @@ const __userDir = app.getPath('userData')
 
 function createWindow() {
   win = new BrowserWindow({
-    width: 1280,
-    height: 720,
+    width: 1600, //1280
+    height: 900, //720
     //autoHideMenuBar: true,
     //titleBarStyle: 'hidden',
     frame: false,
@@ -68,7 +68,7 @@ function createWindow() {
       //nodeIntegration: true, // You can enable Node integration, though it's recommended to use contextBridge instead
     },
   })
-  win.webContents.openDevTools()
+  //win.webContents.openDevTools()
   // In production mode, load the built app
   // win.loadFile('index.html')
   console.log('Hello from Backend!')

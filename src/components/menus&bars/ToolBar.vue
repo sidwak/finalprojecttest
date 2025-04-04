@@ -94,21 +94,42 @@ function moveLeftButtonClicked() {
     <!-- <div class="toolbar-icon">
       <span class="pi pi-pause toolbar-icon-span"></span>
     </div> -->
-    <div class="toolbar-icon" @click="restartButtonClicked">
+    <div
+      class="toolbar-icon"
+      v-tooltip.bottom="{ value: 'Reset', class: 'text-xs1 leading-xs1', showDelay: '300' }"
+      @click="restartButtonClicked"
+    >
       <span class="pi pi-replay toolbar-icon-span"></span>
     </div>
     <div class="toolbar-divider"></div>
-    <div class="toolbar-icon" @click="moveLeftButtonClicked">
+    <div
+      class="toolbar-icon"
+      v-tooltip.bottom="{ value: 'Transverse to previous node', class: 'text-xs1 leading-xs1', showDelay: '300' }"
+      @click="moveLeftButtonClicked"
+    >
       <span class="pi pi-angle-double-left toolbar-icon-span"></span>
     </div>
-    <div class="toolbar-icon" @click="moveRightButtonClicked">
+    <div
+      class="toolbar-icon"
+      v-tooltip.bottom="{ value: 'Transverse to next node', class: 'text-xs1 leading-xs1', showDelay: '300' }"
+      @click="moveRightButtonClicked"
+    >
       <span class="pi pi-angle-double-right toolbar-icon-span"></span>
     </div>
     <div class="toolbar-divider"></div>
-    <div class="toolbar-icon" @click="settingsBuuttonClicked()">
+    <div
+      class="toolbar-icon"
+      v-tooltip.bottom="{ value: 'Configure', class: 'text-xs1 leading-xs1', showDelay: '300' }"
+      @click="settingsBuuttonClicked()"
+    >
       <span class="pi pi-cog toolbar-icon-span"></span>
     </div>
-    <ToggleSwitch v-model="checked" @update:model-value="toggleValueChanged($event)" :dt="amberSwitch">
+    <ToggleSwitch
+      v-model="checked"
+      v-tooltip.bottom="{ value: 'Toggle theme', class: 'text-xs1 leading-xs1', showDelay: '300' }"
+      @update:model-value="toggleValueChanged($event)"
+      :dt="amberSwitch"
+    >
       <template #handle="{ checked }">
         <i :class="['!text-xxs !leading-xxs pi dark:text-white', { 'pi-moon': checked, 'pi-sun': !checked }]" />
       </template>

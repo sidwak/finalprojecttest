@@ -67,7 +67,7 @@
   "build": {
     "appId": "com.siddeshwar.nodexify",
     "productName": "Nodexify",
-    "copyright": "Copyright © 2022 Siddeshwar",
+    "copyright": "Copyright © 2025 Siddeshwar",
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true
